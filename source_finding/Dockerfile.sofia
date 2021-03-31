@@ -1,0 +1,16 @@
+FROM ubuntu:20.04
+WORKDIR /app
+
+# Dependencies
+RUN apt-get update &&\
+    apt-get install -y git build-essential wcslib-dev &&\
+    apt install -y libomp-dev
+
+# SoFiA
+RUN git clone https://github.com/SoFiA-Admin/SoFiA-2.git &&\
+    cd SoFiA-2 &&\
+    ./compile.sh -fopenmp &&\
+    mv sofia /usr/local/bin
+
+# Entrypoint
+ENTRYPOINT ["sofia"]
