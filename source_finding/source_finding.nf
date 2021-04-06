@@ -2,9 +2,11 @@
 
 nextflow.enable.dsl=2
 projectDir = projectDir
+launchDir = launchDir
 
 process sofia {
-    echo true
+    container = "astroaustin/sofia:latest"
+    containerOptions = "-v $launchDir/test_case:/app/test_case"
     
     input:
         file params
@@ -14,12 +16,14 @@ process sofia {
 
     script:
         """
-        docker run -v /Users/she393/Dropbox/projects/WALLABY/workflow/source_finding/test_case:/app/test_case sofia /app/test_case/$params
+        #!/bin/bash
+        sofia /app/test_case/$params
         """
 }
 
 process sofiax {
-    echo true
+    container = "astroaustin/sofiax:latest"
+    containerOptions = "-v $launchDir/test_case:/app/test_case"
 
     input:
         file config
@@ -30,7 +34,8 @@ process sofiax {
 
     script:
         """
-        docker run -v /Users/she393/Dropbox/projects/WALLABY/workflow/source_finding/test_case:/app/test_case sofiax -c /app/test_case/$config -p /app/test_case/$params
+        #!/bin/bash
+        sofiax -c /app/test_case/$config -p /app/test_case/$params
         """
 }
 
@@ -38,17 +43,19 @@ workflow runSofia {
     take: params
     main:
         sofia(params)
+        sofia.out.view()
     emit:
         sofia.out    
 }
 
 workflow runSofiax {
-    take: dependency
+    take: sofia
     take: config
     take: params
 
     main:
         sofiax(config, params)
+        sofiax.out.view()
     emit:
         sofiax.out
 }
