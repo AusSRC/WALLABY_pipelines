@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
 
-nextflow.enable.dsl=2
+nextflow.enable.dsl = 2
 projectDir = projectDir
 launchDir = launchDir
 
@@ -9,14 +9,16 @@ launchDir = launchDir
 // ----------------------------------------------------------------------------------------
 
 process sofia {
+    echo true
     container = "astroaustin/sofia:latest"
     containerOptions = "-v $launchDir/test_case:/app/test_case"
     
     input:
         file params
-
+        file conf 
     output:
-        stdout emit: output
+        path params, emit: params
+        path conf, emit: conf
 
     script:
         """
@@ -26,27 +28,30 @@ process sofia {
 }
 
 process sofiax {
+    echo true
     container = "astroaustin/sofiax:latest"
     containerOptions = "-v $launchDir/test_case:/app/test_case"
 
     input:
-        file config
-        file params
-
+        path params
+        path conf
     output:
         stdout emit: output
 
     script:
         """
         #!/bin/bash
-        sofiax -c /app/test_case/$config -p /app/test_case/$params
+        sofiax -c /app/test_case/$conf -p /app/test_case/$params
         """
 }
 
-process djangoDuplicateDetection {
+process duplicateDetection {
     container = "astroaustin/wallaby-admin-jupyter:latest"
     containerOptions = "--env-file $launchDir/database.env"
     
+    input:
+        var dependency
+
     output:
         stdout emit: output
     
@@ -100,52 +105,17 @@ process djangoDuplicateDetection {
 }
 
 // ----------------------------------------------------------------------------------------
-// Workflows
-// ----------------------------------------------------------------------------------------
-
-workflow runSofia {
-    take: params
-    main:
-        sofia(params)
-        sofia.out.view()
-    emit:
-        sofia.out    
-}
-
-workflow runSofiax {
-    take: sofia
-    take: config
-    take: params
-
-    main:
-        sofiax(config, params)
-        sofiax.out.view()
-    emit:
-        sofiax.out
-}
-
-workflow duplicateDetection {
-    take: sofiax
-
-    main:
-        djangoDuplicateDetection()
-        djangoDuplicateDetection.out.view()
-    emit:
-        djangoDuplicateDetection.out
-}
-
-// ----------------------------------------------------------------------------------------
 // Main
 // ----------------------------------------------------------------------------------------
 
 workflow {
     params_ch = Channel.fromPath( './test_case/sofia.par' )
-    config_ch = Channel.fromPath( './test_case/config.ini' )
+    conf_ch = Channel.fromPath( './test_case/config.ini' )
 
     main:
-        runSofia(params_ch)
-        runSofiax(runSofia.out, config_ch, params_ch)
-        duplicateDetection(runSofiax.out)
+        sofia(params_ch, conf_ch)
+        sofiax(sofia.out.params, sofia.out.conf)
+        // duplicateDetection(sofiax.out.output)
 }
 
 // ----------------------------------------------------------------------------------------
