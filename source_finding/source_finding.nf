@@ -9,7 +9,6 @@ launchDir = launchDir
 // ----------------------------------------------------------------------------------------
 
 process sofia {
-    echo true
     container = "astroaustin/sofia:latest"
     containerOptions = "-v $launchDir/test_case:/app/test_case"
     
@@ -28,7 +27,6 @@ process sofia {
 }
 
 process sofiax {
-    echo true
     container = "astroaustin/sofiax:latest"
     containerOptions = "-v $launchDir/test_case:/app/test_case"
 
@@ -47,7 +45,6 @@ process sofiax {
 }
 
 process duplicateDetection {
-    echo true
     container = "astroaustin/wallaby-admin-jupyter:latest"
     containerOptions = "--env-file $launchDir/database.env"
     
@@ -110,13 +107,14 @@ process duplicateDetection {
 // ----------------------------------------------------------------------------------------
 
 workflow {
-    params_ch = Channel.fromPath( './test_case/sofia.par' )
-    conf_ch = Channel.fromPath( './test_case/config.ini' )
+    params_ch = Channel.fromPath( './test_case/*.par' )
+    conf = file( './test_case/config.ini' )
 
     main:
-        sofia(params_ch, conf_ch)
+        sofia(params_ch, conf)
         sofiax(sofia.out.params, sofia.out.conf)
-        duplicateDetection(sofiax.out.dependency)
+        duplicateDetection(sofiax.out.dependency.collect())
 }
 
 // ----------------------------------------------------------------------------------------
+
