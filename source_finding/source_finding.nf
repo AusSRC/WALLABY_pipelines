@@ -11,7 +11,7 @@ launchDir = launchDir
 process sofia {
     echo true
     container = "astroaustin/sofia:latest"
-    containerOptions = "-v $launchDir/test_case:/app/test_case"
+    containerOptions = "--bind $launchDir/test_case:/app/test_case"
     
     input:
         file params
@@ -30,7 +30,7 @@ process sofia {
 process sofiax {
     echo true
     container = "astroaustin/sofiax:latest"
-    containerOptions = "-v $launchDir/test_case:/app/test_case"
+    containerOptions = "--bind $launchDir/test_case:/app/test_case"
 
     input:
         path params
