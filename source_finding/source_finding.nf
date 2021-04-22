@@ -37,6 +37,7 @@ process sofiax {
         path conf
     output:
         stdout emit: output
+        val dependency = 'sofiax', emit: dependency
 
     script:
         """
@@ -46,12 +47,12 @@ process sofiax {
 }
 
 process duplicateDetection {
+    echo true
     container = "astroaustin/wallaby-admin-jupyter:latest"
     containerOptions = "--env-file $launchDir/database.env"
     
     input:
-        var dependency
-
+        val dependency
     output:
         stdout emit: output
     
@@ -115,7 +116,7 @@ workflow {
     main:
         sofia(params_ch, conf_ch)
         sofiax(sofia.out.params, sofia.out.conf)
-        // duplicateDetection(sofiax.out.output)
+        duplicateDetection(sofiax.out.dependency)
 }
 
 // ----------------------------------------------------------------------------------------

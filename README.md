@@ -2,9 +2,9 @@
 
 Collection of [Nextflow](https://www.nextflow.io/) workflow definitions for the WALLABY science teams.
 
-### Source finding
+## Source finding example
 
-A nextflow workflow for running a source finding pipeline. This will run the following:
+We have written a nextflow workflow for running a source finding pipeline. This will run the following:
  
 1. `sofia`
 2. `sofiax`
@@ -28,8 +28,23 @@ DJANGO_DATABASE_PASSWORD=<PASSWORD
 DJANGO_DATABASE_HOST=<HOST>
 ```
 
-To run the source finding workflow:
+## Execute workflow
+
+In either local or Slurm environment, to run the workflow execute the following command:
 
 ```
-cd source_finding && nextflow run source_finding.nf
+nextflow run source_finding.nf
 ```
+
+## Run locally
+
+Nextflow will by default set the `executor` in the `nextflow.config` to local. The `local` branch of this repository contains code for this. To execute the workflow, run the command from above in the `source_finding/` subdirectory.
+
+## Run on Slurm
+
+To enable this on the Nimbus cluster there are a few changes that are required:
+
+* Update the `nextflow.config` file with executor details and to use singularity rather than docker.
+* Update `containerOptions` for mounting in the `source_finding.nf` file.
+
+The code for this can be found in the `main` branch.
