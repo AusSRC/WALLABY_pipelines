@@ -16,11 +16,33 @@ outputDir = '/mnt/shared/home/ashen/data/outputs/'
 // - SBIDs for data cubes
 // - sofia parameter files
 
-// 1. DOWNLOAD
-// https://data.csiro.au/collections/domain/casdaObservation/search/
-// do it automatically (project code: AS102)
-// You will need to download image cubes (contsub) and weights
-// write process for this
+// 1. Download image cubes from CASDA
+process casda_download {
+    container = "aussrc/emucat_scripts:latest"
+    containerOptions = "-v $launchDir:/app"
+
+    input:
+        val sbids
+
+    output:
+        stdout emit: output
+
+    script:
+        """
+        #!/usr/bin/env python3
+        from astroquery.utils.tap.core import TapPlus
+
+        for sbid in list($sbids):
+            casdatap = TapPlus(url="https://casda.csiro.au/casda_vo_tools/tap")
+            job = casdatap.launch_job_async(
+                f"SELECT * FROM ivoa.obscore where obs_collection like '%WALLABY%' \
+                    and filename like 'image.restored.%SB{sbid}.cube%.contsub.fits' \
+                    and dataproduct_type = 'cube' "
+            )
+            subset = job.get_results()
+            print(subset) 
+        """
+}
 
 // 2. Linear mosaicking
 process linmos {
@@ -92,10 +114,11 @@ process sofiax {
 workflow {
     params_ch = Channel.fromPath( './test_case/*.par' )
     conf = file( './test_case/config.ini' )
+    sbids = ['10809', '10812']
 
     main:
-        sofia(params_ch, conf)
-        sofiax(sofia.out.params, sofia.out.conf)
+        casda_download(sbids)
+        casda_download.out.view()
 }
 
 // ----------------------------------------------------------------------------------------
