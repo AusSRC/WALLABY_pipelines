@@ -19,9 +19,9 @@ def main():
     subset = job.get_results()
     print(subset)
 
-    # Attempt to download
+    # Download files
     username = 'austin.shen@csiro.au'
-    password = 'Y*Q2wQb_C4w9s-b37D'
+    password = 
     casda = Casda(username, password)
     url_list = casda.stage_data(subset)
     casda.download_files(url_list, savedir='./tmp')

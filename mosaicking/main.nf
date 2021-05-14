@@ -44,6 +44,8 @@ process casda_download {
         """
 }
 
+// 1. Checksum comparison?
+
 // 2. Linear mosaicking
 process linmos {
     container = "aussrc/yandasoft_devel_focal:latest"
