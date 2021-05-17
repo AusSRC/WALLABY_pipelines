@@ -4,3 +4,5 @@ test_case
 work
 nextflow
 *.env
+venv
+tmp
