@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
+import os
 import sys
-import requests
 from astroquery.utils.tap.core import TapPlus
 from astroquery.casda import Casda
 
 
 def main():
-    # Request settings
-
     # SBID arguments
     search = sys.argv[1]
 
@@ -23,8 +21,8 @@ def main():
     print(subset)
 
     # Download files
-    username = 'austin.shen@csiro.au'
-    password = ''
+    username = os.environ['OPAL_USERNAME']
+    password = os.environ['OPAL_PASSWORD']
     casda = Casda(username, password)
     url_list = casda.stage_data(subset)
     casda.download_files(url_list, savedir='/Users/she393/Downloads/WALLABY/')

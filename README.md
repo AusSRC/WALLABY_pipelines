@@ -59,6 +59,12 @@ or
 nextflow run main.nf -c slurm.config
 ```
 
+To parallelise `linmos` across a number of worker nodes in the cluster you can specify the number of tasks and number of tasks per node as follows in the nextflow configuration:
+
+```
+clusterOptions = '--ntasks=324 --ntasks-per-node=18'
+```
+
 ### Other
 
 #### Local/Slurm differences
