@@ -10,10 +10,10 @@ scratchRoot = '/mnt/shared/'
 // 1. Download image cubes from CASDA
 process casda_download {
     input:
-        val sbids
+        val sbid
 
     output:
-        stdout emit: cubes
+        stdout emit: cube
 
     script:
         """
@@ -23,26 +23,22 @@ process casda_download {
 
 // 2. Checksum comparison
 process checksum {
-    // TODO(austin): container with libraries
     input:
-        val cubes
+        val cube
 
     output:
-        val cubes
+        stdout emit: cube
 
     script:
         """
-        #!/bin/bash
-        
-        // Perform checksum check
+        python3 $launchDir/verify_checksum.py cubes
         """
 }
 
+// collect here
+
 // 3. Generate configuration
 process linmos_config {
-    // TODO(austin): container with libraries
-    containerOptions = "-v $launchDir:/app"
-
     input:
         val cubes
 
@@ -84,13 +80,11 @@ process linmos {
 // ----------------------------------------------------------------------------------------
 
 workflow {
-    params_ch = Channel.fromPath( './test_case/*.par' )
-    conf = file( './test_case/config.ini' )
-    sbids = '10809 10812'
+    sbids = Channel.of(10809, 10812)
 
     main:
         casda_download(sbids)
-        casda_download.out.view()
+        checksum(casda_download.cube)
 }
 
 // ----------------------------------------------------------------------------------------
