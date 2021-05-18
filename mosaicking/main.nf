@@ -9,6 +9,9 @@ scratchRoot = '/mnt/shared/'
 
 // 1. Download image cubes from CASDA
 process casda_download {
+    container = "astroaustin/wallaby_scripts:latest"
+    containerOptions = "--bind $scratchRoot:$scratchRoot"
+
     input:
         val sbid
 
@@ -17,12 +20,15 @@ process casda_download {
 
     script:
         """
-        python3 $launchDir/download.py -l ${sbids} -o $launchDir -c $launchDir/credentials.ini
+        /app/download.py -i $sbid -o $launchDir -c $launchDir/credentials.ini
         """
 }
 
 // 2. Checksum comparison
 process checksum {
+    container = "astroaustin/wallaby_scripts:latest"
+    containerOptions = "--bind $scratchRoot:$scratchRoot"
+
     input:
         val cube
 
@@ -31,11 +37,9 @@ process checksum {
 
     script:
         """
-        python3 $launchDir/verify_checksum.py cubes
+        python3 /app/verify_checksum.py $cube
         """
 }
-
-// collect here
 
 // 3. Generate configuration
 process linmos_config {
@@ -43,11 +47,10 @@ process linmos_config {
         val cubes
 
     output:
-        stdout emit: output
+        stdout emit: config
 
     script:
         """
-        python3 $projectDir/download.py -l $sbids -o $projectDir -c $projectDir/credentials.ini
         """
 }
 
@@ -84,7 +87,8 @@ workflow {
 
     main:
         casda_download(sbids)
-        checksum(casda_download.cube)
+        checksum(casda_download.out.cube)
+        linmos_config(checksum.out.collect)
 }
 
 // ----------------------------------------------------------------------------------------
