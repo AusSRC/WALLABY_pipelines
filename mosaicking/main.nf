@@ -1,12 +1,7 @@
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl = 2
-projectDir = projectDir
-launchDir = launchDir
 scratchRoot = '/mnt/shared/'
-
-outputFilename = 'MilkyWay'
-outputDir = '/mnt/shared/home/ashen/data/outputs/'
 
 // ----------------------------------------------------------------------------------------
 // Processes
@@ -14,46 +9,51 @@ outputDir = '/mnt/shared/home/ashen/data/outputs/'
 
 // 1. Download image cubes from CASDA
 process casda_download {
-    container = "aussrc/emucat_scripts:latest"
-    containerOptions = "-v $launchDir:/app"
-
     input:
         val sbids
 
     output:
-        stdout emit: output
+        stdout emit: cubes
 
-    // TODO(austin): decide how to pass credentials to CASDA
     script:
         """
-        #!/usr/bin/env python3
-
-        from astroquery.utils.tap.core import TapPlus
-        from astroquery.casda import Casda
-
-        for sbid in list($sbids):
-            # Query and show results
-            casdatap = TapPlus(url="https://casda.csiro.au/casda_vo_tools/tap")
-            job = casdatap.launch_job_async(
-                f"SELECT * FROM ivoa.obscore where obs_collection like '%WALLABY%' \
-                    and filename like 'image.restored.%SB{sbid}.cube%.contsub.fits' \
-                    and dataproduct_type = 'cube' "
-            )
-            subset = job.get_results()
-            print(subset)
-
-            # Download files
-            username = ''
-            password = ''
-            casda = Casda(username, password)
-            url_list = casda.stage_data(subset)
-            casda.download_files(url_list, savedir='/Users/she393/Downloads/WALLABY/')
+        python3 $launchDir/download.py -l ${sbids} -o $launchDir -c $launchDir/credentials.ini
         """
 }
 
-// 2. Checksum comparison?
+// 2. Checksum comparison
+process checksum {
+    // TODO(austin): container with libraries
+    input:
+        val cubes
+
+    output:
+        val cubes
+
+    script:
+        """
+        #!/bin/bash
+        
+        // Perform checksum check
+        """
+}
 
 // 3. Generate configuration
+process linmos_config {
+    // TODO(austin): container with libraries
+    containerOptions = "-v $launchDir:/app"
+
+    input:
+        val cubes
+
+    output:
+        stdout emit: output
+
+    script:
+        """
+        python3 $projectDir/download.py -l $sbids -o $projectDir -c $projectDir/credentials.ini
+        """
+}
 
 // 4. Linear mosaicking
 process linmos {
@@ -77,8 +77,7 @@ process linmos {
 }
 
 // TODO(austin):
-// Introduce some step here to allow for inspecting of the
-// mosaicked cube and enter it into the database
+// automated check on data cube for reasonable outcome from mosaicking.
 
 // ----------------------------------------------------------------------------------------
 // Main
@@ -87,7 +86,7 @@ process linmos {
 workflow {
     params_ch = Channel.fromPath( './test_case/*.par' )
     conf = file( './test_case/config.ini' )
-    sbids = ['10809', '10812']
+    sbids = '10809 10812'
 
     main:
         casda_download(sbids)

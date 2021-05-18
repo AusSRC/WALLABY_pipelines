@@ -6,3 +6,4 @@ nextflow
 *.env
 venv
 tmp
+credentials.ini
