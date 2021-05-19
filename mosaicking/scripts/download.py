@@ -7,7 +7,7 @@ observing block IDs. Expect only one .fits cube as a result of search.
 
 import os
 import sys
-import logging
+import logging.config
 import argparse
 import configparser
 from astroquery.utils.tap.core import TapPlus
@@ -21,9 +21,11 @@ QUERY = "SELECT * FROM ivoa.obscore \
         and dataproduct_type = 'cube' "
 
 
-logging.basicConfig()
-logging.getLogger("root").setLevel(logging.WARNING)
-logging.getLogger("astroquery.utils.tap.core").setLevel(logging.WARNING)
+# Remove all existing loggers (astroquery.utils.tap.core)
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': True
+})
 
 
 def parse_args(argv):
