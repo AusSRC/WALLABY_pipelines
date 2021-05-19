@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys
 import io
 import unittest
@@ -6,10 +7,9 @@ from unittest.mock import patch
 
 
 class Testing(unittest.TestCase):
-    """Testing suite for WALLABY workflow scripts
+    """Testing suite for WALLABY workflow scripts"""
 
-    """
-    @patch('download.download', lambda *_: ['hello', 'hello.checksum'])
+    @patch("download.download", lambda *_: ["hello", "hello.checksum"])
     def test_download(self):
         """Ensure download.py process returns a single
         output that is the file that has been downloaded.
@@ -18,12 +18,12 @@ class Testing(unittest.TestCase):
         output = io.StringIO()
         sys.stdout = output
 
-        download.main(
-            ['-i', '10809', '-o', 'outputs', '-c', '../credentials.ini']
-        )
+        download.main(["-i", "10809", "-o", "outputs", "-c", "../credentials.ini"])
         sys.stdout = sys.__stdout__
 
-        assert output.getvalue() == 'hello', "Incorrect output"
+        self.assertEqual(
+            output.getvalue(), "hello", f"Output was {repr(output.getvalue())}"
+        )
 
 
 if __name__ == "__main__":

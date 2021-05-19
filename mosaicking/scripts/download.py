@@ -22,20 +22,37 @@ QUERY = "SELECT * FROM ivoa.obscore \
 
 
 logging.basicConfig()
-logging.getLogger('root').setLevel(logging.WARNING)
+logging.getLogger("root").setLevel(logging.WARNING)
+logging.getLogger("astroquery.utils.tap.core").setLevel(logging.WARNING)
 
 
 def parse_args(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input', type=int, required=True,
-                        help='Input observing block number.')
-    parser.add_argument('-o', '--output', type=str, required=True,
-                        help='Output directory for downloaded files.')
-    parser.add_argument('-c', '--credentials', type=str, required=True,
-                        help='Credentials file for CASDA service.')
-    parser.add_argument('-q', '--query', type=str, required=False,
-                        help='CASDA TAP search query.',
-                        default=QUERY)
+    parser.add_argument(
+        "-i", "--input", type=int, required=True, help="Input observing block number."
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        required=True,
+        help="Output directory for downloaded files.",
+    )
+    parser.add_argument(
+        "-c",
+        "--credentials",
+        type=str,
+        required=True,
+        help="Credentials file for CASDA service.",
+    )
+    parser.add_argument(
+        "-q",
+        "--query",
+        type=str,
+        required=False,
+        help="CASDA TAP search query.",
+        default=QUERY,
+    )
     args = parser.parse_args(argv)
     return args
 
@@ -62,10 +79,7 @@ def download(query_result, output, login):
     """
     casda = Casda(login["username"], login["password"])
     url_list = casda.stage_data(query_result)
-    downloads = list(map(
-        lambda x: f"{output}/{x.split('/')[-1]}",
-        url_list
-    ))
+    downloads = list(map(lambda x: f"{output}/{x.split('/')[-1]}", url_list))
     for (link, f) in zip(url_list, downloads):
         os.system(f"curl -o {f} {link}")
     return downloads
@@ -74,15 +88,14 @@ def download(query_result, output, login):
 def main(argv):
     args = parse_args(argv)
     login = parse_config(args.credentials)
-    result = tap_query(args.query.replace('$SBID', str(args.input)))
+    result = tap_query(args.query.replace("$SBID", str(args.input)))
     files = download(result, args.output, login)
 
     # Output file (expecting only one)
     return_files = [f for f in files if "checksum" not in f]
-    assert len(return_files) == 1,\
-        "Attempted to download more than one image cube."
-    print(return_files[0], end='')
+    assert len(return_files) == 1, "Attempted to download more than one image cube."
+    print(return_files[0], end="")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv)
