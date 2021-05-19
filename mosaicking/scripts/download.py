@@ -3,6 +3,9 @@
 The TAP search query will replace instances of '$SBID' with the argument
 observing block IDs. Expect only one .fits cube as a result of search.
 
+Makes an assumption about the filename prefix for the weight files
+corresponding to each of the data cubes.
+
 """
 
 import os
@@ -14,11 +17,16 @@ from astroquery.utils.tap.core import TapPlus
 from astroquery.casda import Casda
 
 
+# TODO(austin): obs_collection as argument
 URL = "https://casda.csiro.au/casda_vo_tools/tap"
 QUERY = "SELECT * FROM ivoa.obscore \
         where obs_collection like '%WALLABY%' \
-        and filename like 'image.restored.%SB$SBID.cube.MilkyWay.contsub.fits' \
-        and dataproduct_type = 'cube' "
+        and filename like '$FILENAME' \
+        and dataproduct_type = '$TYPE' "
+CUBE_TYPE = "cube"
+CUBE_FILENAME = 'image.restored%SB$SBID%.cube.Milkyway.contsub.fits'
+WEIGHTS_TYPE = "cube"
+WEIGHTS_FILENAME = 'weights%SB%.cube.Milkyway.fits'
 
 
 # Remove all existing loggers (astroquery.utils.tap.core)
@@ -48,6 +56,38 @@ def parse_args(argv):
         help="Credentials file for CASDA service.",
     )
     parser.add_argument(
+        "-tc",
+        "--cube_type",
+        type=str,
+        required=False,
+        help="CASDA TAP query cube data product type.",
+        default=CUBE_TYPE,
+    )
+    parser.add_argument(
+        "-tw",
+        "--weights_type",
+        type=str,
+        required=False,
+        help="CASDA TAP query weights data product type.",
+        default=WEIGHTS_TYPE,
+    )
+    parser.add_argument(
+        "-fc",
+        "--cube_filename",
+        type=str,
+        required=False,
+        help="CASDA TAP query cube filename.",
+        default=CUBE_FILENAME,
+    )
+    parser.add_argument(
+        "-fw",
+        "--weights_filename",
+        type=str,
+        required=False,
+        help="CASDA TAP query weights filename search.",
+        default=WEIGHTS_FILENAME,
+    )
+    parser.add_argument(
         "-q",
         "--query",
         type=str,
@@ -55,6 +95,7 @@ def parse_args(argv):
         help="CASDA TAP search query.",
         default=QUERY,
     )
+    
     args = parser.parse_args(argv)
     return args
 
@@ -90,11 +131,25 @@ def download(query_result, output, login):
 def main(argv):
     args = parse_args(argv)
     login = parse_config(args.credentials)
-    result = tap_query(args.query.replace("$SBID", str(args.input)))
-    files = download(result, args.output, login)
+    
+    # download cubes
+    cube_result = tap_query(args.query\
+        .replace("$TYPE", args.cube_type)\
+        .replace("$FILENAME", args.cube_filename)\
+        .replace("$SBID", str(args.input))
+    )
+    cube_files = download(cube_result, args.output, login)
 
-    # Output file (expecting only one)
-    return_files = [f for f in files if "checksum" not in f]
+    # download weights
+    weight_result = tap_query(args.query\
+        .replace("$TYPE", args.weights_type)\
+        .replace("$FILENAME", args.weights_type)\
+        .replace("$SBID", str(args.input))
+    )
+    weight_files = download(weight_result, args.output, login)
+
+    # Output cube file to stdout
+    return_files = [f for f in cube_files if "checksum" not in f]
     assert len(return_files) == 1, "Attempted to download more than one image cube."
     print(return_files[0], end="")
 
