@@ -42,12 +42,12 @@ process checksum {
 }
 
 // 3. Generate configuration
-process linmos_config {
+process generate_config {
     input:
         val cubes
 
     output:
-        stdout emit: config
+        stdout emit: linmos_config
 
     script:
         """
@@ -88,7 +88,7 @@ workflow {
     main:
         casda_download(sbids)
         checksum(casda_download.out.cube)
-        linmos_config(checksum.out.collect())
+        generate_config(checksum.out.cube.collect())
         linmos(linmos_config.out.config)
 }
 

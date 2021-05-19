@@ -2,8 +2,10 @@
 import sys
 import io
 import unittest
-import download
 from unittest.mock import patch
+
+import download
+import generate_config
 
 
 class Testing(unittest.TestCase):
@@ -30,7 +32,8 @@ class Testing(unittest.TestCase):
         (sbids) and returns the correct config file.
 
         """
-        pass
+        files = "[image.restored.SB100.cube.contsub.fits,image.restored.SB200.cube.contsub.fits]"
+        generate_config.main(['-i', files, '-o', 'output', '-f', 'filename.config'])
 
 
 if __name__ == "__main__":

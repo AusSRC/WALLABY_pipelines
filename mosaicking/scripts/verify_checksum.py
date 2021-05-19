@@ -7,6 +7,8 @@ automatically alongside an image cube from OPAL.
 Will replace 'image.restored' with 'weights' and remove '.contsub' substring
 to get the weights filename from the cube.
 
+TODO(austin): eventually use argparse
+
 """
 
 import sys
@@ -64,18 +66,18 @@ def main():
     weights_checksum = calculate_checksum(weights_filename)
     with open(f"{weights_filename}.checksum", "r") as fin:
         compare_checksum = fin.read()
-        equal = (compare_checksum == checksum)
+        equal = (compare_checksum == weights_checksum)
         if not equal:
-            raise ValueError("Checksum does not agree.")
+            raise ValueError("Weights checksum does not agree.")
 
     cube_checksum = calculate_checksum(cube_filename)
     with open(f"{cube_filename}.checksum", "r") as fin:
         compare_checksum = fin.read()
-        equal = (compare_checksum == checksum)
+        equal = (compare_checksum == cube_checksum)
         if equal:
-            sys.stdout.write(cube_filename)
+            print(cube_filename, end="")
         else:
-            raise ValueError("Checksum does not agree.")
+            raise ValueError("Cube checksum does not agree.")
 
 
 if __name__ == '__main__':

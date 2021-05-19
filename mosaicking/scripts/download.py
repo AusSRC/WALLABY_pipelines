@@ -24,9 +24,9 @@ QUERY = "SELECT * FROM ivoa.obscore \
         and filename like '$FILENAME' \
         and dataproduct_type = '$TYPE' "
 CUBE_TYPE = "cube"
-CUBE_FILENAME = 'image.restored%SB$SBID%.cube.Milkyway.contsub.fits'
+CUBE_FILENAME = 'image.restored.%SB$SBID%.cube.MilkyWay.contsub.fits'
 WEIGHTS_TYPE = "cube"
-WEIGHTS_FILENAME = 'weights%SB%.cube.Milkyway.fits'
+WEIGHTS_FILENAME = 'weights%SB$SBID%.cube.MilkyWay.fits'
 
 
 # Remove all existing loggers (astroquery.utils.tap.core)
@@ -143,7 +143,7 @@ def main(argv):
     # download weights
     weight_result = tap_query(args.query\
         .replace("$TYPE", args.weights_type)\
-        .replace("$FILENAME", args.weights_type)\
+        .replace("$FILENAME", args.weights_filename)\
         .replace("$SBID", str(args.input))
     )
     weight_files = download(weight_result, args.output, login)
