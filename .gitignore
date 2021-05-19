@@ -7,3 +7,4 @@ nextflow
 venv
 tmp
 credentials.ini
+*__pycache__*

@@ -65,9 +65,11 @@ To parallelise `linmos` across a number of worker nodes in the cluster you can s
 clusterOptions = '--ntasks=324 --ntasks-per-node=18'
 ```
 
-### Other
+## Tests
 
-#### Local/Slurm differences
+## Other
+
+### Local/Slurm differences
 
 There are a few differences between the Nextflow workflow definitions for a local executor compared to the Slurm executor in addition to the configuration. They are
 

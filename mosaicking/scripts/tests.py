@@ -25,6 +25,13 @@ class Testing(unittest.TestCase):
             output.getvalue(), "hello", f"Output was {repr(output.getvalue())}"
         )
 
+    def test_generate_config(self):
+        """Test that generate_config.py takes a list of arguments
+        (sbids) and returns the correct config file.
+
+        """
+        pass
+
 
 if __name__ == "__main__":
     unittest.main()
