@@ -1,6 +1,6 @@
 # End-to-end
 SBIDS: [10809, 10812]
-WORKDIR: "/mnt/shared/home/austin/tmp"
+WORKDIR: "/mnt/shared/home/ashen/tmp"
 
 # Download
 CREDENTIALS: 'credentials.ini'

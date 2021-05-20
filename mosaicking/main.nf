@@ -7,8 +7,10 @@ nextflow.enable.dsl = 2
 // ----------------------------------------------------------------------------------------
 
 // Download image cubes from CASDA
+// TODO(austin): Allow credentials to be passed as parameters?
+// TODO(austin): What to do for authenticated users in our system?
 process casda_download {
-    container = ${params.SCRIPTS_CONTAINER}
+    container = params.SCRIPTS_CONTAINER
 
     input:
         val sbid
@@ -24,7 +26,7 @@ process casda_download {
 
 // Checksum comparison
 process checksum {
-    container = ${params.SCRIPTS_CONTAINER}
+    container = params.SCRIPTS_CONTAINER
 
     input:
         val cube
@@ -40,7 +42,7 @@ process checksum {
 
 // Generate configuration
 process generate_config {
-    container = ${params.SCRIPTS_CONTAINER}
+    container = params.SCRIPTS_CONTAINER
 
     input:
         val cubes
@@ -58,7 +60,7 @@ process generate_config {
 // TODO(austin): emit mosaicked cube location
 process linmos {
     container = "aussrc/yandasoft_devel_focal:latest"
-    clusterOptions = ${params.LINMOS_CLUSTER_OPTIONS}
+    clusterOptions = params.LINMOS_CLUSTER_OPTIONS
 
     input:
         file linmos_config
@@ -82,7 +84,7 @@ workflow {
     main:
         casda_download(sbids)
         checksum(casda_download.out.cube)
-        generate_config(checksum.out.cube.collect().view())
+        generate_config(checksum.out.cube.collect())
         linmos(generate_config.out.linmos_config)
 }
 
