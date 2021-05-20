@@ -3,6 +3,7 @@
 import os
 import sys
 import io
+import configparser
 import unittest
 from unittest.mock import patch
 
@@ -24,7 +25,22 @@ linmos.psfref       = 0
 
 
 class Testing(unittest.TestCase):
-    """Testing suite for WALLABY workflow scripts"""
+    """Testing suite for WALLABY workflow scripts
+
+    """
+    def setUp(self):
+        """Set credentials as environment variables for
+        local and remote testing.
+
+        """
+        creds = "../credentials.ini"
+        if os.path.isfile(creds):
+            config = configparser.ConfigParser()
+            config.read(creds)
+            login = config["login"]
+            os.environ["CASDA_USERNAME"] = login['username']
+            os.environ["CASDA_PASSWORD"] = login['password']
+
     def tearDown(self):
         if os.path.isfile(TMP_FILE):
             os.remove(TMP_FILE)
@@ -38,7 +54,7 @@ class Testing(unittest.TestCase):
         output = io.StringIO()
         sys.stdout = output
 
-        download.main(["-i", "10809", "-o", "mosaicked", "-c", "../credentials.ini"])  # noqa
+        download.main(["-i", "10809", "-o", "mosaicked"])
         sys.stdout = sys.__stdout__
 
         self.assertEqual(

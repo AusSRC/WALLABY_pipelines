@@ -93,7 +93,7 @@ workflow {
     main:
         casda_download(sbids)
         checksum(casda_download.out.cube)
-        generate_config(checksum.out.cube.collect())
+        generate_config(checksum.out.cube.collect().view())
         linmos(linmos_config.out.config)
 }
 

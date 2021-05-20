@@ -56,8 +56,9 @@ def parse_args(argv):
         "-c",
         "--credentials",
         type=str,
-        required=True,
+        required=False,
         help="Credentials file for CASDA service.",
+        default=None
     )
     parser.add_argument(
         "-tc",
@@ -103,10 +104,26 @@ def parse_args(argv):
     return args
 
 
-def parse_config(credentials):
-    config = configparser.ConfigParser()
-    config.read(credentials)
-    login = config["login"]
+def get_credentials(credentials):
+    """Get credentials for CASDA. Look first for environment
+    variables and if they do not exist use argument.
+
+    TODO(austin): document passing credentials
+    """
+    username = os.environ.get("CASDA_USERNAME")
+    password = os.environ.get("CASDA_PASSWORD")
+
+    if username and password:
+        login = {
+            'username': username,
+            'password': password
+        }
+    else:
+        if credentials is None:
+            raise ValueError("Credentials required either as environment variables or file argument.")  # noqa
+        config = configparser.ConfigParser()
+        config.read(credentials)
+        login = config["login"]
     return login
 
 
@@ -133,7 +150,7 @@ def download(query_result, output, login):
 
 def main(argv):
     args = parse_args(argv)
-    login = parse_config(args.credentials)
+    login = get_credentials(args.credentials)
 
     # download cubes
     cube_query = args.query\
