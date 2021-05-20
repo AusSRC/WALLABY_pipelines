@@ -1,15 +1,17 @@
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl = 2
-projectDir = projectDir
-launchDir = launchDir
-scratchRoot = '/mnt/shared/'
 
 // ----------------------------------------------------------------------------------------
 // Processes
 // ----------------------------------------------------------------------------------------
 
-// 3. Source finding
+// Generate sofia config
+process generate_config {
+
+}
+
+// Run source finder
 process sofia {
     container = "astroaustin/sofia:latest"
     containerOptions = "-v $launchDir/test_case:/app/test_case"
@@ -28,7 +30,7 @@ process sofia {
         """
 }
 
-// 4. Write to database
+// Write to database
 process sofiax {
     container = "astroaustin/sofiax:latest"
     containerOptions = "-v $launchDir/test_case:/app/test_case"
@@ -48,7 +50,7 @@ process sofiax {
 }
 
 // ----------------------------------------------------------------------------------------
-// Main
+// Workflow
 // ----------------------------------------------------------------------------------------
 
 workflow {
@@ -56,7 +58,8 @@ workflow {
     conf = file( './test_case/config.ini' )
 
     main:
-        sofia(params_ch, conf)
+        generate_config()
+        sofia(generate_config.out.sofia_config)
         sofiax(sofia.out.params, sofia.out.conf)
 }
 

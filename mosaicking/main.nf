@@ -1,17 +1,14 @@
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl = 2
-scratchRoot = '/mnt/shared/'
-scriptsContainer = 'astroaustin/wallaby_scripts:latest'
 
 // ----------------------------------------------------------------------------------------
 // Processes
 // ----------------------------------------------------------------------------------------
 
-// 1. Download image cubes from CASDA
+// Download image cubes from CASDA
 process casda_download {
-    container = $scriptsContainer
-    containerOptions = "--bind $scratchRoot:$scratchRoot"
+    container = $wallabyScriptsContainer
 
     input:
         val sbid
@@ -25,10 +22,9 @@ process casda_download {
         """
 }
 
-// 2. Checksum comparison
+// Checksum comparison
 process checksum {
-    container = $scriptsContainer
-    containerOptions = "--bind $scratchRoot:$scratchRoot"
+    container = $wallabyScriptsContainer
 
     input:
         val cube
@@ -42,10 +38,9 @@ process checksum {
         """
 }
 
-// 3. Generate configuration
+// Generate configuration
 process generate_config {
-    container = $scriptsContainer
-    containerOptions = "--bind $scratchRoot:$scratchRoot"
+    container = $wallabyScriptsContainer
 
     input:
         val cubes
@@ -55,36 +50,30 @@ process generate_config {
 
     script:
         """
-        python3 -u /app/generate_config.py -i $cubes -f mosaicked -c linmos.config
+        python3 -u /app/generate_config.py -i "$cubes" -f mosaicked -c linmos.config
         """
 }
 
-// 4. Linear mosaicking
+// Linear mosaicking
+// TODO(austin): emit mosaicked cube location
 process linmos {
     container = "aussrc/yandasoft_devel_focal:latest"
-    containerOptions = "--bind $scratchRoot:$scratchRoot"
+    clusterOptions = "--ntasks=324 --ntasks-per-node=18"
 
     input:
         file linmos_config
 
-    output:
-        val "$outputDir/$outputFilename.fits", emit: image_out
-        val "$outputDir/$outputFilename.weights.fits", emit: weight_out
-
     script:
         """
         #!/bin/bash
-        if [ ! -f "$outputDir/$outputFilename.fits" ]; then
-            mpirun linmos-mpi -c $linmos_config
-        fi
+        mpirun linmos-mpi -c $linmos_config
         """
 }
 
-// TODO(austin):
-// automated check on data cube for reasonable outcome from mosaicking.
+// TODO(austin): statistical check of mosaicked cube
 
 // ----------------------------------------------------------------------------------------
-// Main
+// Workflow
 // ----------------------------------------------------------------------------------------
 
 workflow {
@@ -94,7 +83,7 @@ workflow {
         casda_download(sbids)
         checksum(casda_download.out.cube)
         generate_config(checksum.out.cube.collect().view())
-        linmos(linmos_config.out.config)
+        linmos(generate_config.out.linmos_config)
 }
 
 // ----------------------------------------------------------------------------------------
