@@ -2,6 +2,7 @@
 
 nextflow.enable.dsl = 2
 scratchRoot = '/mnt/shared/'
+scriptsContainer = 'astroaustin/wallaby_scripts:latest'
 
 // ----------------------------------------------------------------------------------------
 // Processes
@@ -9,7 +10,7 @@ scratchRoot = '/mnt/shared/'
 
 // 1. Download image cubes from CASDA
 process casda_download {
-    container = "astroaustin/wallaby_scripts:latest"
+    container = $scriptsContainer
     containerOptions = "--bind $scratchRoot:$scratchRoot"
 
     input:
@@ -20,13 +21,13 @@ process casda_download {
 
     script:
         """
-        /app/download.py -i $sbid -o $launchDir -c $launchDir/credentials.ini
+        python3 -u /app/download.py -i $sbid -o $launchDir -c $launchDir/credentials.ini
         """
 }
 
 // 2. Checksum comparison
 process checksum {
-    container = "astroaustin/wallaby_scripts:latest"
+    container = $scriptsContainer
     containerOptions = "--bind $scratchRoot:$scratchRoot"
 
     input:
@@ -37,12 +38,15 @@ process checksum {
 
     script:
         """
-        python3 /app/verify_checksum.py $cube
+        python3 -u /app/verify_checksum.py $cube
         """
 }
 
 // 3. Generate configuration
 process generate_config {
+    container = $scriptsContainer
+    containerOptions = "--bind $scratchRoot:$scratchRoot"
+
     input:
         val cubes
 
@@ -51,6 +55,7 @@ process generate_config {
 
     script:
         """
+        python3 -u /app/generate_config.py -i $cubes -f mosaicked -c linmos.config
         """
 }
 

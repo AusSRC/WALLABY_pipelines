@@ -9,14 +9,14 @@ import argparse
 
 
 CONFIG = """
-linmos.names        = [$CUBES]\n
-linmos.weights      = [$WEIGHTS]\n
-linmos.imagetype    = fits\n
-linmos.outname      = $OUTFILE\n
-linmos.outweight    = weights.$OUTFILE\n
-linmos.weighttype   = FromWeightImages\n
-linmos.weightstate  = Corrected\n
-linmos.psfref       = 0\n
+linmos.names        = $CUBES
+linmos.weights      = $WEIGHTS
+linmos.imagetype    = fits
+linmos.outname      = $OUTFILE
+linmos.outweight    = weights.$OUTFILE
+linmos.weighttype   = FromWeightImages
+linmos.weightstate  = Corrected
+linmos.psfref       = 0
 """.strip()
 
 
@@ -30,21 +30,21 @@ def parse_args(argv):
         help="Input file names for CASDA image cubes.",
     )
     parser.add_argument(
-        "-o",
-        "--output",
+        "-f",
+        "--filename",
         type=str,
         required=True,
         help="Output filename and directory for mosiacked image cubes.",
     )
     parser.add_argument(
-        "-f",
-        "--filename",
+        "-c",
+        "--config",
         type=str,
         required=True,
-        help="Filename and directory for output config file.",
+        help="Filename and path for linmos configuration.",
     )
     parser.add_argument(
-        "-c",
+        "-t",
         "--config_template",
         type=str,
         required=False,
@@ -55,6 +55,14 @@ def parse_args(argv):
     return args
 
 
+def write_file(filename, content):
+    """Wrapping file writing in function for testing purposes.
+
+    """
+    with open(filename, 'w') as f:
+        f.writelines(content)
+
+
 def main(argv):
     args = parse_args(argv)
 
@@ -63,14 +71,13 @@ def main(argv):
         .replace('image.restored', 'weights')\
         .replace('.contsub', '')
 
-    content = args.config_template
-    content.replace('$CUBES', cubes)\
+    content = args.config_template\
+        .replace('$CUBES', cubes)\
         .replace('$WEIGHTS', weights)\
-        .replace('$OUTFILE', args.output)
+        .replace('$OUTFILE', args.filename)
 
-    # write to file
-    with open(args.filename, 'w') as fout:
-        fout.writelines(lines)
+    write_file(args.config, content)
+    print(args.config, end='')
 
 
 if __name__ == "__main__":

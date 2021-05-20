@@ -2,6 +2,8 @@
 
 Collection of [Nextflow](https://www.nextflow.io/) workflow definitions for the WALLABY science teams.
 
+<!-- TODO(austin): Tests and linting CI -->
+
 ## Workflow description
 
 Here we describe the processing steps of the WALLABY workflow. Currently the steps are:
@@ -66,6 +68,25 @@ clusterOptions = '--ntasks=324 --ntasks-per-node=18'
 ```
 
 ## Tests
+
+Unit tests for the WALLABY scripts can be found at [`mosaicking/scripts/tests.py`](mosaicking/scripts/tests.py). They can be run locally with the following commands
+
+```
+cd mosaicking/scripts/
+./tests.py
+```
+
+You may need to create a virtual environment `venv` and install the [requirements.txt](mosiacking/requirements.txt) first.
+
+**download.py**
+
+* Assert `stdout` is the filename of the downloaded image cube only
+
+**generate_config.py**
+
+* Assert the configuration file is written
+* Assert the content of the configuration file is as expected
+* Assert the `stdout` is the configuration filename.
 
 ## Other
 
