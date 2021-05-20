@@ -39,7 +39,11 @@ logging.config.dictConfig({
 def parse_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-i", "--input", type=int, required=True, help="Input observing block number."
+        "-i",
+        "--input",
+        type=int,
+        required=True,
+        help="Input observing block number."
     )
     parser.add_argument(
         "-o",
@@ -95,7 +99,6 @@ def parse_args(argv):
         help="CASDA TAP search query.",
         default=QUERY,
     )
-    
     args = parser.parse_args(argv)
     return args
 
@@ -131,26 +134,27 @@ def download(query_result, output, login):
 def main(argv):
     args = parse_args(argv)
     login = parse_config(args.credentials)
-    
+
     # download cubes
-    cube_result = tap_query(args.query\
+    cube_query = args.query\
         .replace("$TYPE", args.cube_type)\
         .replace("$FILENAME", args.cube_filename)\
         .replace("$SBID", str(args.input))
-    )
+    cube_result = tap_query(cube_query)
     cube_files = download(cube_result, args.output, login)
 
     # download weights
-    weight_result = tap_query(args.query\
+    weight_query = args.query\
         .replace("$TYPE", args.weights_type)\
         .replace("$FILENAME", args.weights_filename)\
         .replace("$SBID", str(args.input))
-    )
-    weight_files = download(weight_result, args.output, login)
+    weight_result = tap_query(weight_query)
+    download(weight_result, args.output, login)
 
     # Output cube file to stdout
     return_files = [f for f in cube_files if "checksum" not in f]
-    assert len(return_files) == 1, "Attempted to download more than one image cube."
+    assert len(return_files) == 1,\
+        "Attempted to download more than one image cube."
     print(return_files[0], end="")
 
 

@@ -55,7 +55,8 @@ def main():
     files downloaded from CASDA.
 
     First checks weights checksum. If not equal then will exit (failure).
-    Then check cube checksum. If not equal 
+    Then check cube checksum. If not equal will exit otherwise print
+    image cube filename.
 
     """
     cube_filename = sys.argv[1]

@@ -2,8 +2,6 @@
 
 Collection of [Nextflow](https://www.nextflow.io/) workflow definitions for the WALLABY science teams.
 
-<!-- TODO(austin): Tests and linting CI -->
-
 ## Workflow description
 
 Here we describe the processing steps of the WALLABY workflow. Currently the steps are:
