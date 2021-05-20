@@ -8,7 +8,7 @@ nextflow.enable.dsl = 2
 
 // Download image cubes from CASDA
 process casda_download {
-    container = $wallabyScriptsContainer
+    container = ${params.SCRIPTS_CONTAINER}
 
     input:
         val sbid
@@ -18,13 +18,13 @@ process casda_download {
 
     script:
         """
-        python3 -u /app/download.py -i $sbid -o $launchDir -c $launchDir/credentials.ini
+        python3 -u /app/download.py -i $sbid -o ${params.WORKDIR} -c ${params.CREDENTIALS}
         """
 }
 
 // Checksum comparison
 process checksum {
-    container = $wallabyScriptsContainer
+    container = ${params.SCRIPTS_CONTAINER}
 
     input:
         val cube
@@ -40,7 +40,7 @@ process checksum {
 
 // Generate configuration
 process generate_config {
-    container = $wallabyScriptsContainer
+    container = ${params.SCRIPTS_CONTAINER}
 
     input:
         val cubes
@@ -50,7 +50,7 @@ process generate_config {
 
     script:
         """
-        python3 -u /app/generate_config.py -i "$cubes" -f mosaicked -c linmos.config
+        python3 -u /app/generate_config.py -i "$cubes" -f ${params.WORKDIR}/${params.LINMOS_OUTPUT_IMAGE} -c ${params.WORKDIR}/${params.LINMOS_CONFIG}
         """
 }
 
@@ -58,7 +58,7 @@ process generate_config {
 // TODO(austin): emit mosaicked cube location
 process linmos {
     container = "aussrc/yandasoft_devel_focal:latest"
-    clusterOptions = "--ntasks=324 --ntasks-per-node=18"
+    clusterOptions = ${params.LINMOS_CLUSTER_OPTIONS}
 
     input:
         file linmos_config
@@ -77,7 +77,7 @@ process linmos {
 // ----------------------------------------------------------------------------------------
 
 workflow {
-    sbids = Channel.of(10809, 10812)
+    sbids = Channel.fromList(params.SBIDS)
 
     main:
         casda_download(sbids)

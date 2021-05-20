@@ -14,7 +14,6 @@ process generate_config {
 // Run source finder
 process sofia {
     container = "astroaustin/sofia:latest"
-    containerOptions = "-v $launchDir/test_case:/app/test_case"
     
     input:
         file params
@@ -33,7 +32,6 @@ process sofia {
 // Write to database
 process sofiax {
     container = "astroaustin/sofiax:latest"
-    containerOptions = "-v $launchDir/test_case:/app/test_case"
 
     input:
         path params
