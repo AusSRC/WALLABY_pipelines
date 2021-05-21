@@ -20,7 +20,7 @@ process casda_download {
 
     script:
         """
-        python3 -u /app/download.py -i $sbid -o ${params.WORKDIR} -c ${params.CREDENTIALS}
+        python3 -u /app/download.py -i $sbid -o ${params.WORKDIR} -c ${params.CASDA_CREDENTIALS}
         """
 }
 
@@ -63,7 +63,7 @@ process linmos {
     clusterOptions = params.LINMOS_CLUSTER_OPTIONS
 
     input:
-        file linmos_config
+        val linmos_config
 
     script:
         """
