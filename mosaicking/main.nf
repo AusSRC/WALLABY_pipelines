@@ -19,15 +19,15 @@ process casda_download {
     script:
         """
         python3 -u /app/download.py \
-            -i $sbid \
-            -o ${params.WORKDIR} \
-            -u ${params.CASDA_USERNAME} \
-            -p ${params.CASDA_PASSWORD} \
-            -ct ${params.CASDA_CUBE_TYPE} \
-            -cf ${params.CASDA_CUBE_FILENAME}
-            -wt ${params.CASDA_WEIGHT_TYPE} \
-            -wf ${params.CASDA_WEIGHT_FILENAME} \
-            -q ${params.CASDA_QUERY}
+            -i '$sbid' \
+            -o '${params.WORKDIR}' \
+            -u '${params.CASDA_USERNAME}' \
+            -p '${params.CASDA_PASSWORD}' \
+            -ct '${params.CASDA_CUBE_TYPE}' \
+            -cf '${params.CASDA_CUBE_FILENAM'E}
+            -wt '${params.CASDA_WEIGHT_TYPE}' \
+            -wf '${params.CASDA_WEIGHT_FILENAME}' \
+            -q '${params.CASDA_QUERY}'
         """
 }
 
@@ -89,7 +89,7 @@ process linmos {
 // ----------------------------------------------------------------------------------------
 
 workflow {
-    sbids = Channel.of(params.SBIDS)
+    sbids = Channel.of(params.SBIDS.split(',') as List)
 
     main:
         casda_download(sbids)

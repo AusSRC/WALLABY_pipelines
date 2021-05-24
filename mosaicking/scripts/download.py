@@ -21,7 +21,7 @@ URL = "https://casda.csiro.au/casda_vo_tools/tap"
 QUERY = "SELECT * FROM ivoa.obscore \
         where obs_collection like '%WALLABY%' \
         and filename like '$FILENAME' \
-        and dataproduct_type = '$TYPE' "
+        and dataproduct_type = '$TYPE'"
 CUBE_TYPE = "cube"
 CUBE_FILENAME = 'image.restored.%SB$SBID%.cube.MilkyWay.contsub.fits'
 WEIGHTS_TYPE = "cube"
