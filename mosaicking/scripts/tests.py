@@ -64,7 +64,7 @@ class Testing(unittest.TestCase):
         output = io.StringIO()
         sys.stdout = output
 
-        download.main(["-i", "10809", "-o", "mosaicked"])        
+        download.main(["-i", "10809", "-o", "mosaicked"])
         sys.stdout = sys.__stdout__
 
         self.assertEqual(
@@ -73,8 +73,8 @@ class Testing(unittest.TestCase):
 
     @patch("download.download", lambda *_: ["hello", "hello.checksum"])
     def test_download_from_nextflow(self):
-        """Run the download command as called by nextflow to ensure there are no
-        errors.
+        """Run the download command as called by nextflow to ensure there
+        are no errors.
 
         """
         output = io.StringIO()
@@ -88,8 +88,7 @@ class Testing(unittest.TestCase):
             "-ct", "cube",
             "-cf", "image.restored.%SB$SBID%.cube.MilkyWay.contsub.fits",
             "-wt", "cube",
-            "-wf", "weights%SB$SBID%.cube.MilkyWay.fits",
-            "-q" 'SELECT * FROM ivoa.obscore where obs_collection like \'%WALLABY%\' and filename like \'$FILENAME\' and dataproduct_type = \'$TYPE\''  # noqa
+            "-wf", "weights%SB$SBID%.cube.MilkyWay.fits"
         ])
         sys.stdout = sys.__stdout__
 
@@ -158,6 +157,14 @@ class Testing(unittest.TestCase):
         self.assertEqual(
             output.getvalue(), TMP_FILE, f"Output was {repr(output.getvalue())}"  # noqa
         )
+
+    def test_number_of_print_statements(self):
+        """Each script should only produce a single output
+        (for stdout to nextflow) so we will test that there
+        is at most one print statement per file.
+
+        """
+        pass
 
 
 if __name__ == "__main__":

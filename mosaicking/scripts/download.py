@@ -99,6 +99,7 @@ def parse_args(argv):
         help="CASDA TAP query weights filename search.",
         default=WEIGHTS_FILENAME,
     )
+    # TODO(austin): remove this if not necessary
     parser.add_argument(
         "-q",
         "--query",
@@ -122,7 +123,6 @@ def get_credentials(args):
     if username is None and password is None:
         username = args.username
         password = args.password
-        print(username, password)
         if username is None and password is None:
             raise ValueError("CASDA credentials required as environment variables or parameters.")  # noqa
     return username, password

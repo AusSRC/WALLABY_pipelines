@@ -19,15 +19,14 @@ process casda_download {
     script:
         """
         python3 -u /app/download.py \
-            -i '$sbid' \
-            -o '${params.WORKDIR}' \
-            -u '${params.CASDA_USERNAME}' \
-            -p '${params.CASDA_PASSWORD}' \
-            -ct '${params.CASDA_CUBE_TYPE}' \
-            -cf '${params.CASDA_CUBE_FILENAME}' \
-            -wt '${params.CASDA_WEIGHTS_TYPE}' \
-            -wf '${params.CASDA_WEIGHTS_FILENAME}' \
-            -q '${params.CASDA_QUERY}'
+            -i $sbid \
+            -o ${params.WORKDIR} \
+            -u ${params.CASDA_USERNAME} \
+            -p ${params.CASDA_PASSWORD} \
+            -ct ${params.CASDA_CUBE_TYPE} \
+            -cf ${params.CASDA_CUBE_FILENAME} \
+            -wt ${params.CASDA_WEIGHTS_TYPE} \
+            -wf ${params.CASDA_WEIGHTS_FILENAME}
         """
 }
 
