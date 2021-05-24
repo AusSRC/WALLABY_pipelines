@@ -89,7 +89,7 @@ process linmos {
 // ----------------------------------------------------------------------------------------
 
 workflow {
-    sbids = Channel.fromList(params.SBIDS)
+    sbids = Channel.of(params.SBIDS)
 
     main:
         casda_download(sbids)
