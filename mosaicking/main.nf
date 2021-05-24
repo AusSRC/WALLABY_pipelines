@@ -24,9 +24,9 @@ process casda_download {
             -u '${params.CASDA_USERNAME}' \
             -p '${params.CASDA_PASSWORD}' \
             -ct '${params.CASDA_CUBE_TYPE}' \
-            -cf '${params.CASDA_CUBE_FILENAM'E}
-            -wt '${params.CASDA_WEIGHT_TYPE}' \
-            -wf '${params.CASDA_WEIGHT_FILENAME}' \
+            -cf '${params.CASDA_CUBE_FILENAME}' \
+            -wt '${params.CASDA_WEIGHTS_TYPE}' \
+            -wf '${params.CASDA_WEIGHTS_FILENAME}' \
             -q '${params.CASDA_QUERY}'
         """
 }
@@ -89,7 +89,7 @@ process linmos {
 // ----------------------------------------------------------------------------------------
 
 workflow {
-    sbids = Channel.of(params.SBIDS.split(',') as List)
+    sbids = Channel.of(params.SBIDS.split(','))
 
     main:
         casda_download(sbids)
