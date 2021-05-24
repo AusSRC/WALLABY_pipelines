@@ -19,5 +19,5 @@ jobs:
           key: ${{ runner.os }}-build-${{ env.cache-name }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}
-      - run: pip3 install -r mosaicking/requirements.txt
-      - run: cd mosaicking/scripts && python3 tests.py
+      - run: pip3 install -r scripts/requirements.txt
+      - run: cd scripts && python3 tests.py
