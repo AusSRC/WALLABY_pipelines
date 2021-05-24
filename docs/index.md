@@ -1,37 +1,40 @@
-## Welcome to GitHub Pages
+# Configuration
 
-You can use the [editor on GitHub](https://github.com/AusSRC/WALLABY_workflows/edit/main/docs/index.md) to maintain and preview the content for your website in Markdown files.
+There are a number of parameters required to run the entire WALLABY workflow. Users can provide these through the `-params-file` option when launching a workflow. Users can use the content of the `workflow.params` file below
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
-
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+```
+TBA
 ```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+Users should read on to understand the additional configuration requirements.
 
-### Jekyll Themes
+## Download
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/AusSRC/WALLABY_workflows/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+You need CASDA credentials in order to download files from their archive. These can be provided to the workflow as a `credentials.ini` file or as environment variables.
 
-### Support or Contact
+Should you choose to create a credentials file, the format should be as follows
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+```
+[login]
+username = austin.shen@csiro.au
+password = <PASSWORD>
+```
+
+## Linmos
+
+To parallelise `linmos` across a number of worker nodes in the cluster you can specify the number of tasks and number of tasks per node as follows in the nextflow configuration:
+
+```
+clusterOptions = '--ntasks=324 --ntasks-per-node=18'
+```
+
+## SoFiAX
+
+You will also need to define a file called `database.env` which contains details about the PostgreSQL database to connect with. You will need to populate it with the following:
+
+```
+DJANGO_DATABASE_NAME=<NAME>
+DJANGO_DATABASE_USER=<USER>
+DJANGO_DATABASE_PASSWORD=<PASSWORD
+DJANGO_DATABASE_HOST=<HOST>
+```

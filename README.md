@@ -37,61 +37,23 @@ Run the source finding code on the mosaicked image cube with the configuration f
 
 Write detections from `sofia` into a database.
 
-## Configuration
-
-There are a number of parameters required to run the entire WALLABY workflow. Users can provide these through the `-params-file` option when launching a workflow. Users can use the content of the `workflow.params` file below
-
-```
-TBA
-```
-
-Users should read on to understand the additional configuration requirements.
-
-#### Download
-
-You need CASDA credentials in order to download files from their archive. These can be provided to the workflow as a `credentials.ini` file or as environment variables.
-
-Should you choose to create a credentials file, the format should be as follows
-
-```
-[login]
-username = austin.shen@csiro.au
-password = <PASSWORD>
-```
-
-#### Linmos
-
-To parallelise `linmos` across a number of worker nodes in the cluster you can specify the number of tasks and number of tasks per node as follows in the nextflow configuration:
-
-```
-clusterOptions = '--ntasks=324 --ntasks-per-node=18'
-```
-
-#### SoFiAX
-
-You will also need to define a file called `database.env` which contains details about the PostgreSQL database to connect with. You will need to populate it with the following:
-
-```
-DJANGO_DATABASE_NAME=<NAME>
-DJANGO_DATABASE_USER=<USER>
-DJANGO_DATABASE_PASSWORD=<PASSWORD
-DJANGO_DATABASE_HOST=<HOST>
-```
-
 ## Run workflow
 
-We have two subdirectories for logically separate parts of the workflow: `mosaicking` and `source_extraction`. These together compose the WALLABY workflow, but they can be run indepdendently where necessary.
+The components of the workflow are created to be modular. You are able to run the `mosaicking` or `source-extraction` part of the workflows independently, or together. Here we describe the basics for deploying workflows. More configuration details can be found on the [documentation page](https://aussrc.github.io/WALLABY_workflows/).
 
-You will need to specify whether to run locally or with the Slurm executor by explicitly stating the configuration file
+### Mosaicking
+
+The mosaicking workflow can be run with only the following parameter values
+
+* SBIDS (comma separated string e.g. '10809,10812')
+* WORKDIR (space to store downloaded and mosaicked data)
+* CASDA_USERNAME (OPAL credentials)
+* CASDA_PASSWORD (OPAL credentials)
+
+You can run it as such
 
 ```
-nextflow run main.nf -c local.config
-```
-
-or
-
-```
-nextflow run main.nf -c slurm.config
+nextflow run main.nf --SBIDS '10809,10812' --WORKDIR /mnt/shared/home/ashen/tmp --CASDA_USERNAME <USERNAME> --CASDA_PASSWORD <PASSWORD>
 ```
 
 ## Tests
@@ -103,22 +65,21 @@ cd mosaicking/scripts/
 ./tests.py
 ```
 
-You may need to create a virtual environment `venv` and install the [requirements.txt](mosiacking/requirements.txt) first.
+You may need to create a virtual environment `venv` and install the [requirements.txt](mosiacking/requirements.txt) first. Run the following and you will be able to run the tests from the virtual environment created
+
+```
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
 **download.py**
 
 * Assert `stdout` is the filename of the downloaded image cube only
+* Run download with all arguments (rather than relying on `argparse` default values)
 
 **generate_config.py**
 
 * Assert the configuration file is written
 * Assert the content of the configuration file is as expected
 * Assert the `stdout` is the configuration filename.
-
-## Other
-
-### Local/Slurm differences
-
-There are a few differences between the Nextflow workflow definitions for a local executor compared to the Slurm executor in addition to the configuration. They are
-
-* Update `containerOptions` for mounting in the `source_finding.nf` file. Local uses Docker's volume `-v` flag whereas Slurm uses `--bind` to mount volumes.
