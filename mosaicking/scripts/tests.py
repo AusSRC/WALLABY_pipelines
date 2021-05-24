@@ -64,7 +64,33 @@ class Testing(unittest.TestCase):
         output = io.StringIO()
         sys.stdout = output
 
-        download.main(["-i", "10809", "-o", "mosaicked"])
+        download.main(["-i", "10809", "-o", "mosaicked"])        
+        sys.stdout = sys.__stdout__
+
+        self.assertEqual(
+            output.getvalue(), "hello", f"Output was {repr(output.getvalue())}"
+        )
+
+    @patch("download.download", lambda *_: ["hello", "hello.checksum"])
+    def test_download_from_nextflow(self):
+        """Run the download command as called by nextflow to ensure there are no
+        errors.
+
+        """
+        output = io.StringIO()
+        sys.stdout = output
+
+        download.main([
+            "-i", "10809",
+            "-o", "/mnt/shared/home/ashen/tmp",
+            "-u", os.environ["CASDA_USERNAME"],
+            "-p", os.environ["CASDA_PASSWORD"],
+            "-ct", "cube",
+            "-cf", "image.restored.%SB$SBID%.cube.MilkyWay.contsub.fits",
+            "-wt", "cube",
+            "-wf", "weights%SB$SBID%.cube.MilkyWay.fits",
+            "-q" 'SELECT * FROM ivoa.obscore where obs_collection like \'%WALLABY%\' and filename like \'$FILENAME\' and dataproduct_type = \'$TYPE\''  # noqa
+        ])
         sys.stdout = sys.__stdout__
 
         self.assertEqual(
