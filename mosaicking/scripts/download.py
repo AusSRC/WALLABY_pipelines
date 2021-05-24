@@ -12,7 +12,6 @@ import os
 import sys
 import logging.config
 import argparse
-import configparser
 from astroquery.utils.tap.core import TapPlus
 from astroquery.casda import Casda
 
@@ -53,15 +52,23 @@ def parse_args(argv):
         help="Output directory for downloaded files.",
     )
     parser.add_argument(
-        "-c",
-        "--credentials",
+        "-u",
+        "--username",
         type=str,
         required=False,
-        help="Credentials file for CASDA service.",
+        help="Username for CASDA data portal.",
         default=None
     )
     parser.add_argument(
-        "-tc",
+        "-p",
+        "--password",
+        type=str,
+        required=False,
+        help="Password for CASDA data portal.",
+        default=None
+    )
+    parser.add_argument(
+        "-ct",
         "--cube_type",
         type=str,
         required=False,
@@ -69,7 +76,7 @@ def parse_args(argv):
         default=CUBE_TYPE,
     )
     parser.add_argument(
-        "-tw",
+        "-wt",
         "--weights_type",
         type=str,
         required=False,
@@ -77,7 +84,7 @@ def parse_args(argv):
         default=WEIGHTS_TYPE,
     )
     parser.add_argument(
-        "-fc",
+        "-cf",
         "--cube_filename",
         type=str,
         required=False,
@@ -85,7 +92,7 @@ def parse_args(argv):
         default=CUBE_FILENAME,
     )
     parser.add_argument(
-        "-fw",
+        "-wf",
         "--weights_filename",
         type=str,
         required=False,
@@ -104,27 +111,21 @@ def parse_args(argv):
     return args
 
 
-def get_credentials(credentials):
+def get_credentials(args):
     """Get credentials for CASDA. Look first for environment
     variables and if they do not exist use argument.
 
-    TODO(austin): document passing credentials
     """
     username = os.environ.get("CASDA_USERNAME")
     password = os.environ.get("CASDA_PASSWORD")
 
-    if username and password:
-        login = {
-            'username': username,
-            'password': password
-        }
-    else:
-        if credentials is None:
-            raise ValueError("Credentials required either as environment variables or file argument.")  # noqa
-        config = configparser.ConfigParser()
-        config.read(credentials)
-        login = config["login"]
-    return login
+    if username is None and password is None:
+        username = args.username
+        password = args.password
+        print(username, password)
+        if username is None and password is None:
+            raise ValueError("CASDA credentials required as environment variables or parameters.")  # noqa
+    return username, password
 
 
 def tap_query(query):
@@ -134,13 +135,13 @@ def tap_query(query):
     return query_result
 
 
-def download(query_result, output, login):
+def download(query_result, output, username, password):
     """Download CASDA data cubes from archive.
     TODO(austin): CASDA bug still causing issues - use this once fixed.
     download_files = casda.download_files(url_list, savedir=args.output)
 
     """
-    casda = Casda(login["username"], login["password"])
+    casda = Casda(username, password)
     url_list = casda.stage_data(query_result)
     downloads = list(map(lambda x: f"{output}/{x.split('/')[-1]}", url_list))
     for (link, f) in zip(url_list, downloads):
@@ -150,7 +151,7 @@ def download(query_result, output, login):
 
 def main(argv):
     args = parse_args(argv)
-    login = get_credentials(args.credentials)
+    username, password = get_credentials(args)
 
     # download cubes
     cube_query = args.query\
@@ -158,7 +159,7 @@ def main(argv):
         .replace("$FILENAME", args.cube_filename)\
         .replace("$SBID", str(args.input))
     cube_result = tap_query(cube_query)
-    cube_files = download(cube_result, args.output, login)
+    cube_files = download(cube_result, args.output, username, password)
 
     # download weights
     weight_query = args.query\
@@ -166,7 +167,7 @@ def main(argv):
         .replace("$FILENAME", args.weights_filename)\
         .replace("$SBID", str(args.input))
     weight_result = tap_query(weight_query)
-    download(weight_result, args.output, login)
+    download(weight_result, args.output, username, password)
 
     # Output cube file to stdout
     return_files = [f for f in cube_files if "checksum" not in f]

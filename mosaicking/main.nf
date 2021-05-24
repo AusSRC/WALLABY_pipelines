@@ -7,8 +7,6 @@ nextflow.enable.dsl = 2
 // ----------------------------------------------------------------------------------------
 
 // Download image cubes from CASDA
-// TODO(austin): Allow credentials to be passed as parameters?
-// TODO(austin): What to do for authenticated users in our system?
 process casda_download {
     container = params.SCRIPTS_CONTAINER
 
@@ -20,7 +18,16 @@ process casda_download {
 
     script:
         """
-        python3 -u /app/download.py -i $sbid -o ${params.WORKDIR} -c ${params.CASDA_CREDENTIALS}
+        python3 -u /app/download.py \
+            -i $sbid \
+            -o ${params.WORKDIR} \
+            -u ${params.CASDA_USERNAME} \
+            -p ${params.CASDA_PASSWORD} \
+            -ct ${params.CASDA_CUBE_TYPE} \
+            -cf ${params.CASDA_CUBE_FILENAME}
+            -wt ${params.CASDA_WEIGHT_TYPE} \
+            -wf ${params.CASDA_WEIGHT_FILENAME} \
+            -q ${params.CASDA_QUERY}
         """
 }
 
@@ -52,7 +59,10 @@ process generate_config {
 
     script:
         """
-        python3 -u /app/generate_config.py -i "$cubes" -f ${params.WORKDIR}/${params.LINMOS_OUTPUT_IMAGE} -c ${params.WORKDIR}/${params.LINMOS_CONFIG}
+        python3 -u /app/generate_config.py \
+            -i "$cubes" \
+            -f ${params.WORKDIR}/${params.LINMOS_OUTPUT_IMAGE_CUBE} \
+            -c ${params.WORKDIR}/${params.LINMOS_CONFIG_FILENAME}
         """
 }
 

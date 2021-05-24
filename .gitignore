@@ -1,10 +1,10 @@
 .DS_Store
 .nextflow*
-test_case
-work
 nextflow
-*.env
+work
 venv
+test_case
 tmp
-credentials.ini
+database.env
 *__pycache__*
+credentials.ini
