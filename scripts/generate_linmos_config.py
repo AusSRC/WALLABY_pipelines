@@ -2,6 +2,8 @@
 """Create a linmos configuration file from the image cubes and
 weights downloaded from CASDA.
 
+TODO(austin): use templating library
+
 """
 
 import sys

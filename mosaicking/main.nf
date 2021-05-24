@@ -58,7 +58,7 @@ process generate_config {
 
     script:
         """
-        python3 -u /app/generate_config.py \
+        python3 -u /app/generate_linmos_config.py \
             -i "$cubes" \
             -f ${params.WORKDIR}/${params.LINMOS_OUTPUT_IMAGE_CUBE} \
             -c ${params.WORKDIR}/${params.LINMOS_CONFIG_FILENAME}

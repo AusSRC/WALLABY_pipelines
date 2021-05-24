@@ -8,10 +8,11 @@ import unittest
 from unittest.mock import patch
 
 import download
-import generate_config
+import generate_linmos_config
+import generate_sofia_config
 
 
-TMP_FILE = "filename.config"
+LINMOS_CONFIG = "filename.config"
 EXPECTED_CONFIG = """
 linmos.names        = [image.restored.SB100.cube.contsub,image.restored.SB200.cube.contsub]
 linmos.weights      = [weights.SB100.cube,weights.SB200.cube]
@@ -32,6 +33,7 @@ linmos.weighttype   = FromWeightImages
 linmos.weightstate  = Corrected
 linmos.psfref       = 0
 """.strip()  # noqa
+SOFIA_PARAMS = "sofia.par"
 
 
 class Testing(unittest.TestCase):
@@ -52,8 +54,10 @@ class Testing(unittest.TestCase):
             os.environ["CASDA_PASSWORD"] = login['password']
 
     def tearDown(self):
-        if os.path.isfile(TMP_FILE):
-            os.remove(TMP_FILE)
+        if os.path.isfile(LINMOS_CONFIG):
+            os.remove(LINMOS_CONFIG)
+        if os.path.isfile(SOFIA_PARAMS):
+            os.remove(SOFIA_PARAMS)
 
     @patch("download.download", lambda *_: ["hello", "hello.checksum"])
     def test_download(self):
@@ -96,8 +100,8 @@ class Testing(unittest.TestCase):
             output.getvalue(), "hello", f"Output was {repr(output.getvalue())}"
         )
 
-    def test_generate_config(self):
-        """Test that generate_config.py takes a list of arguments
+    def test_generate_linmos_config(self):
+        """Test that generate_linmos_config.py takes a list of arguments
         (sbids) and returns the correct config file.
 
         Asserts three things:
@@ -110,24 +114,26 @@ class Testing(unittest.TestCase):
         sys.stdout = output
 
         files = "[image.restored.SB100.cube.contsub.fits,image.restored.SB200.cube.contsub.fits]"  # noqa
-        generate_config.main(["-i", files, "-f", "mosaicked", "-c", TMP_FILE])
+        generate_linmos_config.main([
+            "-i", files, "-f", "mosaicked", "-c", LINMOS_CONFIG
+        ])
 
         # 1. Config generated
-        self.assertTrue(os.path.isfile(TMP_FILE))
+        self.assertTrue(os.path.isfile(LINMOS_CONFIG))
 
         # 2. Config content
-        with open(TMP_FILE, 'r') as f:
+        with open(LINMOS_CONFIG, 'r') as f:
             content = f.read().strip()
         self.assertEqual(content, EXPECTED_CONFIG)
 
         # 3. Stdout
         sys.stdout = sys.__stdout__
         self.assertEqual(
-            output.getvalue(), TMP_FILE, f"Output was {repr(output.getvalue())}"  # noqa
+            output.getvalue(), LINMOS_CONFIG, f"Output was {repr(output.getvalue())}"  # noqa
         )
 
-    def test_generate_config_with_file_path(self):
-        """Test that generate_config.py takes a list of arguments
+    def test_generate_linmos_config_with_file_path(self):
+        """Test that generate_linmos_config.py takes a list of arguments
         (sbids) and returns the correct config file. Ensure that when the file
         path is provided for the image cubes, the correct weight file is
         created.
@@ -142,20 +148,20 @@ class Testing(unittest.TestCase):
         sys.stdout = output
 
         files = "[/mnt/shared/image.restored.SB100.cube.contsub.fits,/mnt/shared/image.restored.SB200.cube.contsub.fits]"  # noqa
-        generate_config.main(["-i", files, "-f", "/mnt/shared/mosaicked", "-c", TMP_FILE])  # noqa
+        generate_linmos_config.main(["-i", files, "-f", "/mnt/shared/mosaicked", "-c", LINMOS_CONFIG])  # noqa
 
         # 1. Config generated
-        self.assertTrue(os.path.isfile(TMP_FILE))
+        self.assertTrue(os.path.isfile(LINMOS_CONFIG))
 
         # 2. Config content
-        with open(TMP_FILE, 'r') as f:
+        with open(LINMOS_CONFIG, 'r') as f:
             content = f.read().strip()
         self.assertEqual(content, EXPECTED_CONFIG_FILE_PATH)
 
         # 3. Stdout
         sys.stdout = sys.__stdout__
         self.assertEqual(
-            output.getvalue(), TMP_FILE, f"Output was {repr(output.getvalue())}"  # noqa
+            output.getvalue(), LINMOS_CONFIG, f"Output was {repr(output.getvalue())}"  # noqa
         )
 
     def test_number_of_print_statements(self):
@@ -165,6 +171,38 @@ class Testing(unittest.TestCase):
 
         """
         pass
+
+    def test_generate_sofia_params(self):
+        """Test to ensure a sofia parameter file is generated correctly.
+        Asserts the following:
+            1. Parameter file is generated
+            2. Output (stdout) is the configuration filename.
+
+        """
+        output = io.StringIO()
+        sys.stdout = output
+
+        generate_sofia_config.main([
+            "-i", "test",
+            "-o", SOFIA_PARAMS,
+            "-d", "templates/sofia_default.ini",
+            "-t", "templates/sofia.j2",
+            "-p", "SOFIA_PIPELINE_VERBOSE=1"
+        ])
+
+        # 1. Config generated
+        self.assertTrue(os.path.isfile(SOFIA_PARAMS))
+
+        # 2. Stdout
+        sys.stdout = sys.__stdout__
+        self.assertEqual(
+            output.getvalue(), SOFIA_PARAMS, f"Output was {repr(output.getvalue())}"  # noqa
+        )
+
+        # TODO(austin): get output the same.
+        # with open(SOFIA_PARAMS, 'r') as f:
+        #     content = f.read().strip()
+        # self.assertEqual(content, EXPECTED_CONFIG)
 
 
 if __name__ == "__main__":

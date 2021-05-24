@@ -78,7 +78,7 @@ pip install -r requirements.txt
 * Assert `stdout` is the filename of the downloaded image cube only
 * Run download with all arguments (rather than relying on `argparse` default values)
 
-**generate_config.py**
+**generate_linmos_config.py**
 
 * Assert the configuration file is written
 * Assert the content of the configuration file is as expected
