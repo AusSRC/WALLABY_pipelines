@@ -73,6 +73,9 @@ process linmos {
 
     input:
         val linmos_config
+    
+    output:
+        val "${params.WORKDIR}/${params.LINMOS_OUTPUT_IMAGE_CUBE}", emit: cube_file
 
     script:
         """

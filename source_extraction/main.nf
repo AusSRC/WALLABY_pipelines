@@ -27,6 +27,7 @@ process generate_config {
 }
 
 // Run source finder
+// TODO(austin): how to parallelise this.
 process sofia {
     container = "astroaustin/sofia:latest"
     
@@ -71,8 +72,7 @@ workflow {
 
     main:
         generate_config(cube_file)
-        generate_config.out.sofia_params.view()
-        // sofia(generate_config.out.sofia_config)
+        sofia(generate_config.out.params)
         // sofiax(sofia.out.params, sofia.out.conf)
 }
 

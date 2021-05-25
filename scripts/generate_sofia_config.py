@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Create a SoFiA-2 configuration file based on key word arguments.
-Mosaicked image cube and output configuration filename are passed in
-as named arguments.
+Mosaicked image cube and parameter filename are passed in
+as named arguments. Default output directory is that of the sofia
+parameter file.
 Parameter values are passed as keyword arguments.
 
 """
@@ -30,11 +31,11 @@ def parse_args(argv):
         help="Input file for mosaicked image cube.",
     )
     parser.add_argument(
-        "-o",
-        "--output",
+        "-f",
+        "--filename",
         type=str,
         required=True,
-        help="Output filename and path for sofia parameter file.",
+        help="Sofia parameters filename",
     )
     parser.add_argument(
         "-t",
@@ -77,18 +78,9 @@ def read_defaults(f):
 def main(argv):
     # Get arguments
     args = parse_args(argv)
-    output = args.output.rsplit('/', 1)
-    if len(output) == 1:
-        io = {
-            'SOFIA_INPUT_DATA': args.input,
-            'SOFIA_OUTPUT_FILENAME': output[0],
-        }
-    else:
-        io = {
-            'SOFIA_INPUT_DATA': args.input,
-            'SOFIA_OUTPUT_DIRECTORY': output[0],
-            'SOFIA_OUTPUT_FILENAME': output[1],
-        }
+    data = {
+        'SOFIA_INPUT_DATA': args.input,
+    }
 
     # Get sofia parameter file template
     with open(args.template, 'r') as f:
@@ -96,19 +88,20 @@ def main(argv):
 
     # Get default values
     defaults = read_defaults(args.defaults)
+    defaults['SOFIA_OUTPUT_DIRECTORY'] = args.filename.rsplit('/', 1)[0]
 
     # Update template with parameters
     if args.params is not None:
         params = {**defaults, **args.params}
-        params = {**params, **io}
+        params = {**params, **data}
     else:
-        params = {**defaults, **io}
+        params = {**defaults, **data}
     config = template.render(params)
 
-    # Write output and print file
-    with open(args.output, 'w') as f:
+    # Write parameter file
+    with open(args.filename, 'w') as f:
         f.writelines(config)
-    print(args.output, end="")
+    print(args.filename, end="")
 
 
 if __name__ == "__main__":

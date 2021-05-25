@@ -184,7 +184,7 @@ class Testing(unittest.TestCase):
 
         generate_sofia_config.main([
             "-i", "/mnt/shared/test.fits",
-            "-o", SOFIA_PARAMS,
+            "-f", SOFIA_PARAMS,
             "-d", "templates/sofia.ini",
             "-t", "templates/sofia.j2",
             "-p", "SOFIA_PIPELINE_VERBOSE=1"
@@ -213,7 +213,7 @@ class Testing(unittest.TestCase):
 
         generate_sofia_config.main([
             "-i", "/mnt/shared/test.fits",
-            "-o", SOFIA_PARAMS,
+            "-f", SOFIA_PARAMS,
             "-d", "templates/sofia.ini",
             "-t", "templates/sofia.j2"
         ])
