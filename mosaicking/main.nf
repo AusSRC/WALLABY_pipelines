@@ -75,7 +75,7 @@ process linmos {
         val linmos_config
     
     output:
-        val "${params.WORKDIR}/${params.LINMOS_OUTPUT_IMAGE_CUBE}", emit: cube_file
+        val "${params.WORKDIR}/${params.LINMOS_OUTPUT_IMAGE_CUBE}.fits", emit: cube_file
 
     script:
         """
