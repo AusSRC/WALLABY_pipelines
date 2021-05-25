@@ -2,8 +2,8 @@
 
 Collection of [Nextflow](https://www.nextflow.io/) workflows for the WALLABY science teams.
 
-[![Tests](https://github.com/AusSRC/WALLABY_workflow/actions/workflows/tests.yaml/badge.svg)](https://github.com/AusSRC/WALLABY_workflow/actions/workflows/tests.yaml)
-[![Linting](https://github.com/AusSRC/WALLABY_workflow/actions/workflows/lint.yaml/badge.svg)](https://github.com/AusSRC/WALLABY_workflow/actions/workflows/lint.yaml)
+[![Tests](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/tests.yaml/badge.svg)](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/tests.yaml)
+[![Linting](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/lint.yaml/badge.svg)](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/lint.yaml)
 
 ## Description
 

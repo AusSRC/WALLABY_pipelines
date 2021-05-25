@@ -21,12 +21,12 @@ process casda_download {
         python3 -u /app/download.py \
             -i $sbid \
             -o ${params.WORKDIR} \
-            -u ${params.CASDA_USERNAME} \
-            -p ${params.CASDA_PASSWORD} \
-            -ct ${params.CASDA_CUBE_TYPE} \
-            -cf ${params.CASDA_CUBE_FILENAME} \
-            -wt ${params.CASDA_WEIGHTS_TYPE} \
-            -wf ${params.CASDA_WEIGHTS_FILENAME}
+            -u '${params.CASDA_USERNAME}' \
+            -p '${params.CASDA_PASSWORD}' \
+            -ct '${params.CASDA_CUBE_TYPE}' \
+            -cf '${params.CASDA_CUBE_FILENAME}' \
+            -wt '${params.CASDA_WEIGHTS_TYPE}' \
+            -wf '${params.CASDA_WEIGHTS_FILENAME}'
         """
 }
 
