@@ -20,7 +20,7 @@ process generate_config {
         """
         python3 -u /app/generate_sofia_config.py \
             -i $cube_file \
-            -o ${params.WORKDIR}/${params.SOFIA_PARAMS_FILE} \
+            -f ${params.WORKDIR}/${params.SOFIA_PARAMS_FILE} \
             -d /app/templates/sofia.ini \
             -t /app/templates/sofia.j2
         """
@@ -32,15 +32,16 @@ process sofia {
     container = "astroaustin/sofia:latest"
     
     input:
-        file params
+        val params
 
     output:
-        path params, emit: params
+        stdout emit: output
+        val params, emit: params
 
     script:
         """
         #!/bin/bash
-        sofia /app/test_case/$params
+        sofia $params
         """
 }
 
@@ -49,8 +50,8 @@ process sofiax {
     container = "astroaustin/sofiax:latest"
 
     input:
-        path params
-        path conf
+        val params
+        val conf
 
     output:
         stdout emit: output
@@ -59,7 +60,7 @@ process sofiax {
     script:
         """
         #!/bin/bash
-        sofiax -c /app/test_case/$conf -p /app/test_case/$params
+        sofiax -c $conf -p $params
         """
 }
 
@@ -67,11 +68,11 @@ process sofiax {
 // Workflow
 // ----------------------------------------------------------------------------------------
 
-workflow {
-    cube_file = params.CUBE_FILE
+workflow source_extraction {
+    take: cube
 
     main:
-        generate_config(cube_file)
+        generate_config(cube)
         sofia(generate_config.out.params)
         // sofiax(sofia.out.params, sofia.out.conf)
 }

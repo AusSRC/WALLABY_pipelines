@@ -90,14 +90,17 @@ process linmos {
 // Workflow
 // ----------------------------------------------------------------------------------------
 
-workflow {
-    sbids = Channel.of(params.SBIDS.split(','))
+workflow mosaicking {
+    take: sbids
 
     main:
         casda_download(sbids)
         checksum(casda_download.out.cube)
         generate_config(checksum.out.cube.collect())
         linmos(generate_config.out.linmos_config)
+    
+    emit:
+        cube: linmos.out.cube_file
 }
 
 // ----------------------------------------------------------------------------------------
