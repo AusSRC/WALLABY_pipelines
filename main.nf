@@ -90,7 +90,7 @@ process linmos {
 // Workflow
 // ----------------------------------------------------------------------------------------
 
-workflow mosaicking {
+workflow {
     sbids = Channel.of(params.SBIDS.split(','))
 
     main:
