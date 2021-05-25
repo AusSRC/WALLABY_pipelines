@@ -1,11 +1,11 @@
 <h1 align="center">WALLABY workflows</h1>
 
-Collection of [Nextflow](https://www.nextflow.io/) workflows for the WALLABY science teams.
+Collection of [Nextflow](https://www.nextflow.io/) workflows and components for the WALLABY science project.
 
 [![Tests](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/tests.yaml/badge.svg)](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/tests.yaml)
 [![Linting](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/lint.yaml/badge.svg)](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/lint.yaml)
 
-## Description
+## Overview
 
 Here we describe the processing steps for the WALLABY workflow. They are:
 
@@ -68,32 +68,18 @@ nextflow run source_extraction/main.nf --CUBE_FILE /mnt/shared/home/ashen/tmp/mo
 
 ### Full pipeline
 
-You can run the mosaicking and source extraction together.
-
-## Tests
-
-Unit tests for the WALLABY scripts can be found at [`mosaicking/scripts/tests.py`](mosaicking/scripts/tests.py). They can be run locally with the following commands
+You can run the mosaicking and source extraction together
 
 ```
-cd mosaicking/scripts/
-./tests.py
+nextflow run main.nf --SBIDS '10809,10812' --WORKDIR /mnt/shared/home/ashen/tmp --CASDA_USERNAME <USERNAME> --CASDA_PASSWORD <PASSWORD>
 ```
 
-You may need to create a virtual environment `venv` and install the [requirements.txt](mosiacking/requirements.txt) first. Run the following and you will be able to run the tests from the virtual environment created
+### Pipeline sharing
+
+You can run the full pipeline without cloning the repository locally by giving `nextflow` the repository location
 
 ```
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+nextflow run https://github.com/AusSRC/WALLABY_workflows.git -r main --SBIDS '10809,10812' --WORKDIR /mnt/shared/home/ashen/tmp --CASDA_USERNAME <USERNAME> --CASDA_PASSWORD <PASSWORD>
 ```
 
-**download.py**
-
-* Assert `stdout` is the filename of the downloaded image cube only
-* Run download with all arguments (rather than relying on `argparse` default values)
-
-**generate_linmos_config.py**
-
-* Assert the configuration file is written
-* Assert the content of the configuration file is as expected
-* Assert the `stdout` is the configuration filename.
+for more sharing options you can look at the [pipeline sharing](https://www.nextflow.io/blog/2014/share-nextflow-pipelines-with-github.html) documentation. 
