@@ -8,7 +8,22 @@ nextflow.enable.dsl = 2
 
 // Generate sofia config
 process generate_config {
+    container = params.SCRIPTS_CONTAINER
 
+    input:
+        val cube_file
+
+    output:
+        stdout emit: sofia_params
+
+    script:
+        """
+        python3 -u /app/generate_sofia_config.py \
+            -i $cube_file \
+            -o ${params.WORKDIR}/${params.SOFIA_PARAMS_FILE} \
+            -d /app/templates/sofia.ini \
+            -t /app/templates/sofia.j2
+        """
 }
 
 // Run source finder
@@ -17,10 +32,9 @@ process sofia {
     
     input:
         file params
-        file conf 
+
     output:
         path params, emit: params
-        path conf, emit: conf
 
     script:
         """
@@ -36,6 +50,7 @@ process sofiax {
     input:
         path params
         path conf
+
     output:
         stdout emit: output
         val dependency = 'sofiax', emit: dependency
@@ -52,13 +67,13 @@ process sofiax {
 // ----------------------------------------------------------------------------------------
 
 workflow {
-    params_ch = Channel.fromPath( './test_case/*.par' )
-    conf = file( './test_case/config.ini' )
+    cube_file = "/mnt/shared/home/ashen/tmp/mosaicked.fits"
 
     main:
-        generate_config()
-        sofia(generate_config.out.sofia_config)
-        sofiax(sofia.out.params, sofia.out.conf)
+        generate_config(cube_file)
+        generate_config.out.sofia_params.view()
+        // sofia(generate_config.out.sofia_config)
+        // sofiax(sofia.out.params, sofia.out.conf)
 }
 
 // ----------------------------------------------------------------------------------------

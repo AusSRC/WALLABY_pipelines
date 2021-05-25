@@ -183,9 +183,9 @@ class Testing(unittest.TestCase):
         sys.stdout = output
 
         generate_sofia_config.main([
-            "-i", "test",
+            "-i", "/mnt/shared/test.fits",
             "-o", SOFIA_PARAMS,
-            "-d", "templates/sofia_default.ini",
+            "-d", "templates/sofia.ini",
             "-t", "templates/sofia.j2",
             "-p", "SOFIA_PIPELINE_VERBOSE=1"
         ])
@@ -198,11 +198,6 @@ class Testing(unittest.TestCase):
         self.assertEqual(
             output.getvalue(), SOFIA_PARAMS, f"Output was {repr(output.getvalue())}"  # noqa
         )
-
-        # TODO(austin): get output the same.
-        # with open(SOFIA_PARAMS, 'r') as f:
-        #     content = f.read().strip()
-        # self.assertEqual(content, EXPECTED_CONFIG)
 
 
 if __name__ == "__main__":

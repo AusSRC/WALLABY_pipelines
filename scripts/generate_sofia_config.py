@@ -74,7 +74,20 @@ def read_defaults(f):
 
 
 def main(argv):
+    # Get arguments
     args = parse_args(argv)
+    output = args.output.rsplit('/', 1)
+    if len(output) == 1:
+        io = {
+            'SOFIA_INPUT_DATA': args.input,
+            'SOFIA_OUTPUT_FILENAME': output[0],
+        }
+    else:
+        io = {
+            'SOFIA_INPUT_DATA': args.input,
+            'SOFIA_OUTPUT_DIRECTORY': output[0],
+            'SOFIA_OUTPUT_FILENAME': output[1],
+        }
 
     # Get sofia parameter file template
     with open(args.template, 'r') as f:
@@ -85,6 +98,7 @@ def main(argv):
 
     # Update template with parameters
     params = {**defaults, **args.params}
+    params = {**params, **io}
     config = template.render(params)
 
     # Write output and print file

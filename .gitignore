@@ -8,3 +8,4 @@ tmp
 database.env
 *__pycache__*
 credentials.ini
+config*
