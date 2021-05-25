@@ -53,7 +53,11 @@ The mosaicking workflow can be run with only the following parameter values
 You can run it as such
 
 ```
-nextflow run mosaicking/main.nf --SBIDS '10809,10812' --WORKDIR /mnt/shared/home/ashen/tmp --CASDA_USERNAME <USERNAME> --CASDA_PASSWORD <PASSWORD>
+nextflow run mosaicking/main.nf \
+  --SBIDS '10809,10812' \
+  --WORKDIR /mnt/shared/home/ashen/tmp \
+  --CASDA_USERNAME <USERNAME> \
+  --CASDA_PASSWORD <PASSWORD>
 ```
 
 ### Source extraction
@@ -63,7 +67,9 @@ To run the source extraction workflow independently you need to provide the foll
 * CUBE_FILE (full path to image cube)
 
 ```
-nextflow run source_extraction/main.nf --CUBE_FILE /mnt/shared/home/ashen/tmp/mosaicked.fits
+nextflow run source_extraction/main.nf \
+  --CUBE_FILE /mnt/shared/home/ashen/tmp/mosaicked.fits
+  --WORKDIR /mnt/shared/home/ashen/tmp
 ```
 
 ### Full pipeline
@@ -71,7 +77,11 @@ nextflow run source_extraction/main.nf --CUBE_FILE /mnt/shared/home/ashen/tmp/mo
 You can run the mosaicking and source extraction together
 
 ```
-nextflow run main.nf --SBIDS '10809,10812' --WORKDIR /mnt/shared/home/ashen/tmp --CASDA_USERNAME <USERNAME> --CASDA_PASSWORD <PASSWORD>
+nextflow run main.nf \
+  --SBIDS '10809,10812' \
+  --WORKDIR /mnt/shared/home/ashen/tmp \
+  --CASDA_USERNAME <USERNAME> \
+  --CASDA_PASSWORD <PASSWORD>
 ```
 
 ### Pipeline sharing
@@ -79,7 +89,11 @@ nextflow run main.nf --SBIDS '10809,10812' --WORKDIR /mnt/shared/home/ashen/tmp 
 You can run the full pipeline without cloning the repository locally by giving `nextflow` the repository location
 
 ```
-nextflow run https://github.com/AusSRC/WALLABY_workflows.git -r main --SBIDS '10809,10812' --WORKDIR /mnt/shared/home/ashen/tmp --CASDA_USERNAME <USERNAME> --CASDA_PASSWORD <PASSWORD>
+nextflow run https://github.com/AusSRC/WALLABY_workflows.git -r main \
+  --SBIDS '10809,10812' \
+  --WORKDIR /mnt/shared/home/ashen/tmp \
+  --CASDA_USERNAME <USERNAME> \
+  --CASDA_PASSWORD <PASSWORD>
 ```
 
 for more sharing options you can look at the [pipeline sharing](https://www.nextflow.io/blog/2014/share-nextflow-pipelines-with-github.html) documentation. 
