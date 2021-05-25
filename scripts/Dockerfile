@@ -9,4 +9,8 @@ RUN pip install -r requirements.txt
 COPY templates templates
 
 # Copy files
-COPY *.py .
+COPY download.py \
+    generate_linmos_config.py \
+    generate_sofia_config.py \
+    verify_checksum.py \
+    /app/
