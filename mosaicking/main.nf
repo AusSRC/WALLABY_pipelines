@@ -8,7 +8,7 @@ nextflow.enable.dsl = 2
 
 // Download image cubes from CASDA
 process casda_download {
-    container = params.SCRIPTS_CONTAINER
+    container = params.WALLABY_SCRIPTS
 
     input:
         val sbid
@@ -32,7 +32,7 @@ process casda_download {
 
 // Checksum comparison
 process checksum {
-    container = params.SCRIPTS_CONTAINER
+    container = params.WALLABY_SCRIPTS
 
     input:
         val cube
@@ -48,7 +48,7 @@ process checksum {
 
 // Generate configuration
 process generate_config {
-    container = params.SCRIPTS_CONTAINER
+    container = params.WALLABY_SCRIPTS
 
     input:
         val cubes
@@ -100,7 +100,7 @@ workflow mosaicking {
         linmos(generate_config.out.linmos_config)
     
     emit:
-        cube: linmos.out.cube_file
+        cube = linmos.out.cube_file
 }
 
 // ----------------------------------------------------------------------------------------

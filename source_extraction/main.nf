@@ -8,7 +8,7 @@ nextflow.enable.dsl = 2
 
 // Generate sofia config
 process generate_config {
-    container = params.SCRIPTS_CONTAINER
+    container = params.WALLABY_SCRIPTS
 
     input:
         val cube_file
@@ -73,7 +73,7 @@ workflow source_extraction {
 
     main:
         generate_config(cube)
-        sofia(generate_config.out.params)
+        sofia(generate_config.out.sofia_params)
         // sofiax(sofia.out.params, sofia.out.conf)
 }
 
