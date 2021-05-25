@@ -57,7 +57,8 @@ def parse_args(argv):
         nargs='*',
         help="Values for SoFiA parameters",
         required=False,
-        action=ParseKwargs
+        action=ParseKwargs,
+        default=None
     )
     args = parser.parse_args(argv)
     return args
@@ -97,8 +98,11 @@ def main(argv):
     defaults = read_defaults(args.defaults)
 
     # Update template with parameters
-    params = {**defaults, **args.params}
-    params = {**params, **io}
+    if args.params is not None:
+        params = {**defaults, **args.params}
+        params = {**params, **io}
+    else:
+        params = {**defaults, **io}
     config = template.render(params)
 
     # Write output and print file

@@ -67,7 +67,7 @@ process sofiax {
 // ----------------------------------------------------------------------------------------
 
 workflow {
-    cube_file = "/mnt/shared/home/ashen/tmp/mosaicked.fits"
+    cube_file = params.CUBE_FILE
 
     main:
         generate_config(cube_file)

@@ -199,6 +199,34 @@ class Testing(unittest.TestCase):
             output.getvalue(), SOFIA_PARAMS, f"Output was {repr(output.getvalue())}"  # noqa
         )
 
+    def test_generate_sofia_params_no_params(self):
+        """Test to ensure a sofia parameter file is generated correctly even
+        when no custom parameters are passed.
+
+        Asserts the following:
+            1. Parameter file is generated
+            2. Output (stdout) is the configuration filename.
+
+        """
+        output = io.StringIO()
+        sys.stdout = output
+
+        generate_sofia_config.main([
+            "-i", "/mnt/shared/test.fits",
+            "-o", SOFIA_PARAMS,
+            "-d", "templates/sofia.ini",
+            "-t", "templates/sofia.j2"
+        ])
+
+        # 1. Config generated
+        self.assertTrue(os.path.isfile(SOFIA_PARAMS))
+
+        # 2. Stdout
+        sys.stdout = sys.__stdout__
+        self.assertEqual(
+            output.getvalue(), SOFIA_PARAMS, f"Output was {repr(output.getvalue())}"  # noqa
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
