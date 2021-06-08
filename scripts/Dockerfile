@@ -8,9 +8,6 @@ RUN pip install -r requirements.txt
 # Copy templates
 COPY templates templates
 
-# Copy sofia catalog
-COPY catalog catalog
-
 # Copy python scripts
 COPY download.py \
     generate_linmos_config.py \

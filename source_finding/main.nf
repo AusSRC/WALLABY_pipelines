@@ -27,7 +27,7 @@ process generate_params {
 // Create scripts for running SoFiA via SoFiAX
 process s2p_setup {
     container = params.S2P_IMAGE
-    run_name = params.SOFIA_RUN_NAME
+    containerOptions = '--bind /mnt/shared:/mnt/shared'
 
     input:
         val cube_file
@@ -38,7 +38,8 @@ process s2p_setup {
         python3 -u /app/s2p_setup.py \
             $cube_file \
             $sofia_params \
-            $run_name
+            ${params.SOFIA_RUN_NAME} \
+            ${params.WORKDIR}
         """
 }
 
@@ -69,8 +70,8 @@ workflow source_finding {
     take: cube
 
     main:
-        generate_config(cube)
-        s2p_setup(cube, generate_config.out.sofia_params)
+        generate_params(cube)
+        s2p_setup(cube, generate_params.out.sofia_params)
 }
 
 // ----------------------------------------------------------------------------------------

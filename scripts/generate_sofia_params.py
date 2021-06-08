@@ -34,7 +34,7 @@ def parse_args(argv):
         "-t",
         "--template",
         type=str,
-        required=True,
+        required=False,
         help="SoFiA parameter file template",
         default="/app/templates/sofia.j2"
     )
@@ -42,7 +42,7 @@ def parse_args(argv):
         "-d",
         "--defaults",
         type=str,
-        required=True,
+        required=False,
         help="SoFiA parameter file default values",
         default="/app/templates/sofia.ini"
     )
