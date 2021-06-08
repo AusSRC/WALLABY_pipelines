@@ -1,9 +1,0 @@
-FROM python:3.8
-WORKDIR /app
-
-# Install SoFiAX
-RUN git clone --single-branch --branch refactor_austin https://github.com/AusSRC/SoFiAX.git &&\
-    cd SoFiAX &&\
-    python setup.py install
-
-ENTRYPOINT [ "sofiax" ]

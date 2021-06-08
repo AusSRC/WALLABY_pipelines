@@ -25,6 +25,7 @@ process generate_params {
 }
 
 // Create scripts for running SoFiA via SoFiAX
+// NOTE: unused output used for workflow composition
 process s2p_setup {
     container = params.S2P_IMAGE
     containerOptions = '--bind /mnt/shared:/mnt/shared'
@@ -32,6 +33,9 @@ process s2p_setup {
     input:
         val cube_file
         val sofia_params
+
+    output:
+        stdout emit: block
 
     script:
         """
@@ -44,12 +48,11 @@ process s2p_setup {
 }
 
 // Run source finding application (sofia) through sofiax
-// TODO(austin): actually get this working.
-process sofia {
-    container = "astroaustin/sofiax:latest"
+// NOTE: unused input used for workflow composition
+process sofiax {
+    container = params.SOFIAX_IMAGE
     
     input:
-        val config
         val params
 
     output:
@@ -58,7 +61,7 @@ process sofia {
     script:
         """
         #!/bin/bash
-        sofia $params
+        bash ${params.WORKDIR}/run_sofiax.sh
         """
 }
 
@@ -72,6 +75,7 @@ workflow source_finding {
     main:
         generate_params(cube)
         s2p_setup(cube, generate_params.out.sofia_params)
+        sofiax(s2p_setup.out.block)
 }
 
 // ----------------------------------------------------------------------------------------

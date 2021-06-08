@@ -5,6 +5,11 @@ WORKDIR /app
 RUN apt-get update &&\
     apt-get install -y git build-essential wcslib-dev &&\
     apt install -y libomp-dev
+RUN apt update &&\
+    apt install -y python3 python3-pip
+
+# Copy files
+COPY catalog catalog
 
 # SoFiA
 RUN git clone https://github.com/SoFiA-Admin/SoFiA-2.git &&\
@@ -12,5 +17,7 @@ RUN git clone https://github.com/SoFiA-Admin/SoFiA-2.git &&\
     ./compile.sh -fopenmp &&\
     mv sofia /usr/local/bin
 
-# Entrypoint
-ENTRYPOINT ["sofia"]
+# SoFiAX
+RUN git clone https://github.com/AusSRC/SoFiAX.git &&\
+    cd SoFiAX &&\
+    python3 setup.py install
