@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 import download
 import generate_linmos_config
-import generate_sofia_config
+import generate_sofia_params
 
 
 LINMOS_CONFIG = "filename.config"
@@ -182,7 +182,7 @@ class Testing(unittest.TestCase):
         output = io.StringIO()
         sys.stdout = output
 
-        generate_sofia_config.main([
+        generate_sofia_params.main([
             "-i", "/mnt/shared/test.fits",
             "-f", SOFIA_PARAMS,
             "-d", "templates/sofia.ini",
@@ -211,7 +211,7 @@ class Testing(unittest.TestCase):
         output = io.StringIO()
         sys.stdout = output
 
-        generate_sofia_config.main([
+        generate_sofia_params.main([
             "-i", "/mnt/shared/test.fits",
             "-f", SOFIA_PARAMS,
             "-d", "templates/sofia.ini",

@@ -56,19 +56,19 @@ You can run it as such
 nextflow run mosaicking/main.nf --SBIDS '10809,10812' --WORKDIR /mnt/shared/home/ashen/tmp --CASDA_USERNAME <USERNAME> --CASDA_PASSWORD <PASSWORD>
 ```
 
-### Source extraction
+### Source finding
 
-To run the source extraction workflow independently you need to provide the following arguments
+To run the source finding workflow independently you need to provide the following arguments
 
 * CUBE_FILE (full path to image cube)
 
 ```
-nextflow run source_extraction/main.nf --CUBE_FILE /mnt/shared/home/ashen/tmp/mosaicked.fits
+nextflow run source_finding/main.nf --CUBE_FILE /mnt/shared/home/ashen/tmp/mosaicked.fits
 ```
 
 ### Full pipeline
 
-You can run the mosaicking and source extraction together.
+You can run the mosaicking and source finding together.
 
 ## Tests
 

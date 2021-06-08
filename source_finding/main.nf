@@ -6,8 +6,8 @@ nextflow.enable.dsl = 2
 // Processes
 // ----------------------------------------------------------------------------------------
 
-// Generate sofia config
-process generate_config {
+// Generate sofia parameter file from Nextflow params and defaults
+process generate_params {
     container = params.WALLABY_SCRIPTS
 
     input:
@@ -18,25 +18,41 @@ process generate_config {
 
     script:
         """
-        python3 -u /app/generate_sofia_config.py \
+        python3 -u /app/generate_sofia_params.py \
             -i $cube_file \
-            -f ${params.WORKDIR}/${params.SOFIA_PARAMS_FILE} \
-            -d /app/templates/sofia.ini \
-            -t /app/templates/sofia.j2
+            -f ${params.WORKDIR}/${params.SOFIA_PARAMS_FILE}
         """
 }
 
-// Run source finder
-// TODO(austin): how to parallelise this.
+// Create scripts for running SoFiA via SoFiAX
+process s2p_setup {
+    container = params.S2P_IMAGE
+    run_name = params.SOFIA_RUN_NAME
+
+    input:
+        val cube_file
+        val sofia_params
+
+    script:
+        """
+        python3 -u /app/s2p_setup.py \
+            $cube_file \
+            $sofia_params \
+            $run_name
+        """
+}
+
+// Run source finding application (sofia) through sofiax
+// TODO(austin): actually get this working.
 process sofia {
-    container = "astroaustin/sofia:latest"
+    container = "astroaustin/sofiax:latest"
     
     input:
+        val config
         val params
 
     output:
         stdout emit: output
-        val params, emit: params
 
     script:
         """
@@ -45,37 +61,16 @@ process sofia {
         """
 }
 
-// Write to database
-process sofiax {
-    container = "astroaustin/sofiax:latest"
-
-    input:
-        val params
-        val conf
-
-    output:
-        stdout emit: output
-        val dependency = 'sofiax', emit: dependency
-
-    script:
-        """
-        #!/bin/bash
-        sofiax -c $conf -p $params
-        """
-}
-
 // ----------------------------------------------------------------------------------------
 // Workflow
 // ----------------------------------------------------------------------------------------
 
-workflow source_extraction {
+workflow source_finding {
     take: cube
 
     main:
         generate_config(cube)
-        sofia(generate_config.out.sofia_params)
-        // sofiax(sofia.out.params, sofia.out.conf)
+        s2p_setup(cube, generate_config.out.sofia_params)
 }
 
 // ----------------------------------------------------------------------------------------
-

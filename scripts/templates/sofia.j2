@@ -1,4 +1,4 @@
-# SoFiA 2 parameter file template
+# SoFiA 2 parameter file
 
 # Global settings
 
@@ -28,35 +28,16 @@ flag.threshold             = {{ SOFIA_FLAG_THRESHOLD }}
 flag.log                   = {{ SOFIA_FLAG_LOG }}
 
 
-# Continuum subtraction
-
-contsub.enable             = {{ SOFIA_CONTSUB_ENABLE }}
-contsub.order              = {{ SOFIA_CONTSUB_ORDER }}
-contsub.threshold          = {{ SOFIA_CONTSUB_THRESHOLD }}
-contsub.shift              = {{ SOFIA_CONTSUB_SHIFT }}
-contsub.padding            = {{ SOFIA_CONTSUB_PADDING }}
-
-
 # Noise scaling
 
 scaleNoise.enable          = {{ SOFIA_SCALENOISE_ENABLE }}
 scaleNoise.mode            = {{ SOFIA_SCALENOISE_MODE }}
-scaleNoise.statistic       = {{ SOFIA_SCALENOISE_STATISTIC }}
-scaleNoise.fluxRange       = {{ SOFIA_SCALENOISE_FLUXRANGE }}
 scaleNoise.windowXY        = {{ SOFIA_SCALENOISE_WINDOWXY }}
 scaleNoise.windowZ         = {{ SOFIA_SCALENOISE_WINDOWZ }}
 scaleNoise.gridXY          = {{ SOFIA_SCALENOISE_GRIDXY }}
 scaleNoise.gridZ           = {{ SOFIA_SCALENOISE_GRIDZ }}
 scaleNoise.interpolate     = {{ SOFIA_SCALENOISE_INTERPOLATE }}
 scaleNoise.scfind          = {{ SOFIA_SCALENOISE_SCFIND }}
-
-
-# Spatial filter
-
-spatFilter.enable          = {{ SOFIA_SPATFILTER_ENABLE }}
-spatFilter.window          = {{ SOFIA_SPATFILTER_WINDOW }}
-spatFilter.statistic       = {{ SOFIA_SPATFILTER_STATISTIC }}
-spatFilter.boxcar          = {{ SOFIA_SPATFILTER_BOXCAR }}
 
 
 # S+C finder
@@ -81,7 +62,6 @@ threshold.fluxRange        = {{ SOFIA_THRESHOLD_FLUXRANGE }}
 
 # Linker
 
-linker.enable              = {{ SOFIA_LINKER_ENABLE }}
 linker.radiusXY            = {{ SOFIA_LINKER_RADIUSXY }}
 linker.radiusZ             = {{ SOFIA_LINKER_RADIUSZ }}
 linker.minSizeXY           = {{ SOFIA_LINKER_MINSIZEXY }}
@@ -96,17 +76,8 @@ linker.keepNegative        = {{ SOFIA_LINKER_KEEPNEGATIVE }}
 reliability.enable         = {{ SOFIA_RELIABILITY_ENABLE }}
 reliability.threshold      = {{ SOFIA_RELIABILITY_THRESHOLD }}
 reliability.scaleKernel    = {{ SOFIA_RELIABILITY_SCALEKERNEL }}
-reliability.fmin           = {{ SOFIA_RELIABILITY_FMIN }}
+reliability.minSNR         = {{ SOFIA_RELIABILITY_MINSNR }}
 reliability.plot           = {{ SOFIA_RELIABILITY_PLOT }}
-reliability.catalog        = {{ SOFIA_RELIABILITY_CATALOG }}
-
-
-# Mask dilation
-
-dilation.enable            = {{ SOFIA_DILATION_ENABLE }}
-dilation.iterationsXY      = {{ SOFIA_DILATION_ITERATIONSXY }}
-dilation.iterationsZ       = {{ SOFIA_DILATION_ITERATIONSZ }}
-dilation.threshold         = {{ SOFIA_DILATION_THRESHOLD }}
 
 
 # Parameterisation

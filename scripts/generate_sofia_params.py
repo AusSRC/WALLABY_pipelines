@@ -1,11 +1,4 @@
 #!/usr/bin/env python3
-"""Create a SoFiA-2 configuration file based on key word arguments.
-Mosaicked image cube and parameter filename are passed in
-as named arguments. Default output directory is that of the sofia
-parameter file.
-Parameter values are passed as keyword arguments.
-
-"""
 
 import sys
 import argparse
@@ -43,7 +36,7 @@ def parse_args(argv):
         type=str,
         required=True,
         help="SoFiA parameter file template",
-        default="sofia.j2"
+        default="/app/templates/sofia.j2"
     )
     parser.add_argument(
         "-d",
@@ -51,6 +44,7 @@ def parse_args(argv):
         type=str,
         required=True,
         help="SoFiA parameter file default values",
+        default="/app/templates/sofia.ini"
     )
     parser.add_argument(
         '-p',
@@ -76,6 +70,11 @@ def read_defaults(f):
 
 
 def main(argv):
+    """Create a SoFiA parameter file from Nextflow parameters.
+    Default values provided in templates/sofia.ini file.
+    Parameter values are passed as keyword arguments.
+
+    """
     # Get arguments
     args = parse_args(argv)
     data = {

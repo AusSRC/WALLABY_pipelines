@@ -9,3 +9,4 @@ database.env
 *__pycache__*
 credentials.ini
 config*
+s2p_setup
