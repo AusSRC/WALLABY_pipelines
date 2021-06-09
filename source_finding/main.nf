@@ -32,16 +32,16 @@ process s2p_setup {
 
     input:
         val cube_file
-        val sofia_params
+        val param_file
 
     output:
-        stdout emit: block
+        val "${params.WORKDIR}/config.ini", emit: sofiax_config
 
     script:
         """
         python3 -u /app/s2p_setup.py \
             $cube_file \
-            $sofia_params \
+            $param_file \
             ${params.SOFIA_RUN_NAME} \
             ${params.WORKDIR}
         """
@@ -53,7 +53,8 @@ process sofiax {
     container = params.SOFIAX_IMAGE
     
     input:
-        val params
+        val sofiax_config
+        val param_file
 
     output:
         stdout emit: output
@@ -61,7 +62,7 @@ process sofiax {
     script:
         """
         #!/bin/bash
-        bash ${params.WORKDIR}/run_sofiax.sh
+        sofiax -c $sofiax_config -p $param_file
         """
 }
 
@@ -75,7 +76,7 @@ workflow source_finding {
     main:
         generate_params(cube)
         s2p_setup(cube, generate_params.out.sofia_params)
-        sofiax(s2p_setup.out.block)
+        sofiax(s2p_setup.out.sofiax_config, Channel.fromPath("${params.WORKDIR}/*.par"))
 }
 
 // ----------------------------------------------------------------------------------------
