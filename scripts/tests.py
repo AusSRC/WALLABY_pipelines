@@ -10,6 +10,7 @@ from unittest.mock import patch
 import download
 import generate_linmos_config
 import generate_sofia_params
+import database_credentials
 
 
 LINMOS_CONFIG = "filename.config"
@@ -34,6 +35,7 @@ linmos.weightstate  = Corrected
 linmos.psfref       = 0
 """.strip()  # noqa
 SOFIA_PARAMS = "sofia.par"
+SOFIAX_CONFIG = "config.ini"
 
 
 class Testing(unittest.TestCase):
@@ -53,11 +55,23 @@ class Testing(unittest.TestCase):
             os.environ["CASDA_USERNAME"] = login['username']
             os.environ["CASDA_PASSWORD"] = login['password']
 
+        config = configparser.RawConfigParser()
+        config.optionxform = str
+        config.add_section('SoFiAX')
+        config.set('SoFiAX', 'db_hostname', 'db_hostname')
+        config.set('SoFiAX', 'db_name', 'db_name')
+        config.set('SoFiAX', 'db_username', 'db_username')
+        config.set('SoFiAX', 'db_password', 'db_password')
+        with open(SOFIAX_CONFIG, 'w') as f:
+            config.write(f)
+
     def tearDown(self):
         if os.path.isfile(LINMOS_CONFIG):
             os.remove(LINMOS_CONFIG)
         if os.path.isfile(SOFIA_PARAMS):
             os.remove(SOFIA_PARAMS)
+        if os.path.isfile(SOFIAX_CONFIG):
+            os.remove(SOFIAX_CONFIG)
 
     @patch("download.download", lambda *_: ["hello", "hello.checksum"])
     def test_download(self):
@@ -226,6 +240,33 @@ class Testing(unittest.TestCase):
         self.assertEqual(
             output.getvalue(), SOFIA_PARAMS, f"Output was {repr(output.getvalue())}"  # noqa
         )
+
+    def test_sofiax_config_write(self):
+        """Assert that database credentials are updated with the
+        database_credentials.py file.
+
+        """
+        host = "hostname"
+        name = "user"
+        user = "admin"
+        pwd = "admin"
+
+        database_credentials.main([
+            "--config", SOFIAX_CONFIG,
+            "--host", host,
+            "--name", name,
+            "--username", user,
+            "--password", pwd
+        ])
+
+        config = configparser.RawConfigParser()
+        config.optionxform = str
+        config.read(SOFIAX_CONFIG)
+
+        self.assertEqual(host, config.get('SoFiAX', 'db_hostname'))
+        self.assertEqual(name, config.get('SoFiAX', 'db_name'))
+        self.assertEqual(user, config.get('SoFiAX', 'db_username'))
+        self.assertEqual(pwd, config.get('SoFiAX', 'db_password'))
 
 
 if __name__ == "__main__":

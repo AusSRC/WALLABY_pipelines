@@ -47,8 +47,45 @@ process s2p_setup {
         """
 }
 
-// Run source finding application (sofia) through sofiax
-// NOTE: unused input used for workflow composition
+// Another process for updating the config.ini file database credentials
+process credentials {
+    container = params.WALLABY_SCRIPTS
+
+    input:
+        val sofiax_config
+
+    output:
+        val sofiax_config, emit: sofiax_config
+    
+    script:
+        """
+        python3 /app/database_credentials.py \
+            --config $sofiax_config \
+            --host ${params.DATABASE_HOSTNAME} \
+            --name ${params.DATABASE_NAME} \
+            --username ${params.DATABASE_USER} \
+            --password ${params.DATABASE_PASSWORD}
+        """
+}
+
+// Run source finding application (sofia)
+process sofia {
+    container = params.SOFIAX_IMAGE
+    
+    input:
+        val sofiax_config
+        val param_file
+
+    output:
+        val sofiax_config, emit: sofiax_config
+
+    script:
+        """
+        #!/bin/bash
+        sofia $param_file
+        """
+}
+
 process sofiax {
     container = params.SOFIAX_IMAGE
     
@@ -62,7 +99,7 @@ process sofiax {
     script:
         """
         #!/bin/bash
-        sofiax -c $sofiax_config -p $param_file
+        sofia $param_file
         """
 }
 
@@ -76,7 +113,9 @@ workflow source_finding {
     main:
         generate_params(cube)
         s2p_setup(cube, generate_params.out.sofia_params)
-        sofiax(s2p_setup.out.sofiax_config, Channel.fromPath("${params.WORKDIR}/*.par"))
+        credentials(s2p_setup.out.sofiax_config)
+        sofia(credentials.out.sofiax_config, Channel.fromPath("${params.WORKDIR}/*.par"))
+        sofiax(sofia.out.sofiax_config, Channel.fromPath("${params.WORKDIR}/*.par"))
 }
 
 // ----------------------------------------------------------------------------------------
