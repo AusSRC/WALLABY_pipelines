@@ -1,0 +1,94 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://github.com/AusSRC/WALLABY_workflows/master/nextflow_schema.json",
+    "title": "WALLABY workflow pipeline",
+    "description": "Pipeline execution tool for the WALLABY science team. Will run the entire workflow including downloading of footprints from CASDA, running linmos and source finding.",
+    "type": "object",
+    "definitions": {
+        "casda": {
+            "title": "CASDA",
+            "type": "object",
+            "description": "CASDA credentials to download WALLABY footprints from the archive",
+            "default": "",
+            "properties": {
+                "CASDA_USERNAME": {
+                    "type": "string",
+                    "description": "Username for OPAL account"
+                },
+                "CASDA_PASSWORD": {
+                    "type": "string",
+                    "description": "Password for OPAL account"
+                }
+            },
+            "required": [
+                "CASDA_USERNAME",
+                "CASDA_PASSWORD"
+            ]
+        },
+        "required": {
+            "title": "Required",
+            "type": "object",
+            "description": "These credentials are required for every run of the full WALLABY pipeline.",
+            "default": "",
+            "properties": {
+                "RUN_NAME": {
+                    "type": "string",
+                    "description": "Name for this run of the WALLABY workflow"
+                },
+                "SBIDS": {
+                    "type": "string",
+                    "description": "Scheduling block IDs of footprints to download from CASDA (comma separated string)"
+                },
+                "WORKDIR": {
+                    "type": "string",
+                    "description": "Working directory in the shared file system to save all WALLABY workflow files"
+                }
+            },
+            "required": [
+                "SBIDs",
+                "WORKDIR"
+            ]
+        },
+        "database": {
+            "title": "Database",
+            "type": "object",
+            "description": "Database credentials required to write source finding outputs",
+            "default": "",
+            "properties": {
+                "DATABASE_HOST": {
+                    "type": "string",
+                    "description": "Hostname of the database to write SoFiA outputs"
+                },
+                "DATABASE_USER": {
+                    "type": "string",
+                    "description": "User for the database to write SoFiA outputs"
+                },
+                "DATABASE_USERNAME": {
+                    "type": "string",
+                    "description": "Username for database access"
+                },
+                "DATABASE_PASSWORD": {
+                    "type": "string",
+                    "description": "Password for database access"
+                }
+            },
+            "required": [
+                "DATABASE_HOST",
+                "DATABASE_USER",
+                "DATABASE_USERNAME",
+                "DATABASE_PASSWORD"
+            ]
+        }
+    },
+    "allOf": [
+        {
+            "$ref": "#/definitions/casda"
+        },
+        {
+            "$ref": "#/definitions/required"
+        },
+        {
+            "$ref": "#/definitions/database"
+        }
+    ]
+}
