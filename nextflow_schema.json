@@ -45,8 +45,8 @@
                 }
             },
             "required": [
-                "SBIDs",
-                "WORKDIR"
+                "WORKDIR",
+                "SBIDS"
             ]
         },
         "database": {
