@@ -18,6 +18,6 @@ RUN git clone https://github.com/SoFiA-Admin/SoFiA-2.git &&\
     mv sofia /usr/local/bin
 
 # SoFiAX
-RUN git clone --single-branch --branch refactor_austin https://github.com/AusSRC/SoFiAX.git &&\
+RUN git clone https://github.com/AusSRC/SoFiAX.git &&\
     cd SoFiAX &&\
     python3 setup.py install

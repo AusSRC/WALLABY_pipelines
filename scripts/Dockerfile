@@ -13,4 +13,5 @@ COPY download.py \
     generate_linmos_config.py \
     generate_sofia_params.py \
     verify_checksum.py \
+    database_credentials.py \
     /app/

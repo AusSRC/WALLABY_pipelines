@@ -9,6 +9,7 @@ nextflow.enable.dsl = 2
 // Generate sofia parameter file from Nextflow params and defaults
 process generate_params {
     container = params.WALLABY_SCRIPTS
+    containerOptions = '--bind /mnt/shared:/mnt/shared'
 
     input:
         val cube_file
@@ -50,6 +51,7 @@ process s2p_setup {
 // Another process for updating the config.ini file database credentials
 process credentials {
     container = params.WALLABY_SCRIPTS
+    containerOptions = '--bind /mnt/shared:/mnt/shared'
 
     input:
         val sofiax_config
@@ -61,7 +63,7 @@ process credentials {
         """
         python3 /app/database_credentials.py \
             --config $sofiax_config \
-            --host ${params.DATABASE_HOSTNAME} \
+            --host ${params.DATABASE_HOST} \
             --name ${params.DATABASE_NAME} \
             --username ${params.DATABASE_USER} \
             --password ${params.DATABASE_PASSWORD}
@@ -71,6 +73,7 @@ process credentials {
 // Run source finding application (sofia)
 process sofia {
     container = params.SOFIAX_IMAGE
+    containerOptions = '--bind /mnt/shared:/mnt/shared'
     
     input:
         val sofiax_config
@@ -87,7 +90,8 @@ process sofia {
 }
 
 process sofiax {
-    container = params.SOFIAX_IMAGE
+    container = params.SOFIAX_IMAGE\
+    containerOptions = '--bind /mnt/shared:/mnt/shared'
     
     input:
         val sofiax_config
@@ -114,8 +118,8 @@ workflow source_finding {
         generate_params(cube)
         s2p_setup(cube, generate_params.out.sofia_params)
         credentials(s2p_setup.out.sofiax_config)
-        sofia(credentials.out.sofiax_config, Channel.fromPath("${params.WORKDIR}/*.par"))
-        sofiax(sofia.out.sofiax_config, Channel.fromPath("${params.WORKDIR}/*.par"))
+        sofia(credentials.out.sofiax_config, Channel.fromPath("${params.WORKDIR}/sofia_*.par"))
+        sofiax(sofia.out.sofiax_config, Channel.fromPath("${params.WORKDIR}/sofia_*.par"))
 }
 
 // ----------------------------------------------------------------------------------------
