@@ -53,7 +53,7 @@ Write detections from `sofia` into a database by running `sofiax`. SoFiAX will b
 
 ## Configuration
 
-See [documentation](https://aussrc.github.io/WALLABY_workflows/) for configuration of the end-to-end WALLABY workflow.
+See [documentation](https://aussrc.github.io/WALLABY_workflows/) for configuration of the WALLABY workflow.
 
 ## Execution
 

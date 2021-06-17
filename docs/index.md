@@ -27,11 +27,9 @@ Note that the `SBIDS` parameter expects a string with commas to separate each SB
 
 Flags:
 
-:exclamation:		: the parameter is required for running the entire workflow
-
-:milky_way: 		: the parameter is required when running the mosaicking module only
-
-:sparkles: 		: the parameter is required when running the source finding module only
+❗  : the parameter is required for running the entire workflow
+🌌  : the parameter is required when running the mosaicking module only
+✨  : the parameter is required when running the source finding module only
 
 Otherwise optional.
 
@@ -40,16 +38,16 @@ Otherwise optional.
 | Parameter Name  | Description | Default Value (if applicable) |
 |---|---|---|---|
 | `RUN_NAME` | Name for the Nextflow run which will be written into the database. |  |
-| :exclamation:	:milky_way: `SBIDS` | The scheduling block IDs for the footprints of interest |  |
-| :exclamation:	`WORKDIR` | Working directory in the AusSRC shared file system to store all temporary files. This should start with `/mnt/shared/home/` followed by your username. |  |
+| ❗	🌌 `SBIDS` | The scheduling block IDs for the footprints of interest |  |
+| ❗	`WORKDIR` | Working directory in the AusSRC shared file system to store all temporary files. This should start with `/mnt/shared/home/` followed by your username. |  |
 
 
 ### CASDA
 
 | Parameter Name  | Description | Default Value |
 |---|---|---|---|
-| :exclamation: `CASDA_USERNAME` | Username for [OPAL](https://opal.atnf.csiro.au/) account that is required to programatically access the [CASDA Data Access Portal](https://data.csiro.au/collections/domain/casdaObservation/search/) |  |
-| :exclamation: `CASDA_PASSWORD` | Password for the [OPAL](https://opal.atnf.csiro.au/) account |  |
+| ❗ `CASDA_USERNAME` | Username for [OPAL](https://opal.atnf.csiro.au/) account that is required to programatically access the [CASDA Data Access Portal](https://data.csiro.au/collections/domain/casdaObservation/search/) |  |
+| ❗ `CASDA_PASSWORD` | Password for the [OPAL](https://opal.atnf.csiro.au/) account |  |
 
 
 ### Download
