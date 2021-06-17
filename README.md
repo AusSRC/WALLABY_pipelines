@@ -1,6 +1,6 @@
 <h1 align="center">WALLABY workflows</h1>
 
-Collection of [Nextflow](https://www.nextflow.io/) workflows and components for the WALLABY science project.
+[Nextflow](https://www.nextflow.io/) workflow modules for the WALLABY science project.
 
 [![Tests](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/tests.yaml/badge.svg)](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/tests.yaml)
 [![Linting](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/lint.yaml/badge.svg)](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/lint.yaml)
@@ -11,7 +11,7 @@ Here we describe the processing steps for the WALLABY workflow. They are:
 
 #### 1. Download
 
-Download data cube and weights from CASDA. Uses the [download.py](mosaicking/scripts/download.py) script to query and download. You can view the CASDA data manually through their [Data Access Portal](https://data.csiro.au/collections/domain/casdaObservation/search/)
+Download data cube and weights from CASDA. Uses the [casda_download.py](mosaicking/scripts/casda_download.py) script to query and download. You can view the CASDA data manually through their [Data Access Portal](https://data.csiro.au/collections/domain/casdaObservation/search/)
 
 #### 2. Checkum
 

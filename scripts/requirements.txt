@@ -1,3 +1,0 @@
-astroquery==0.4.1
-configparser==5.0.2
-jinja2>=2.11.3

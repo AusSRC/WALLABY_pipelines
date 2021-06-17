@@ -26,7 +26,7 @@ process generate_params {
 }
 
 // Create scripts for running SoFiA via SoFiAX
-// NOTE: unused output used for workflow composition
+// NOTE: output used only for workflow composition
 process s2p_setup {
     container = params.S2P_IMAGE
     containerOptions = '--bind /mnt/shared:/mnt/shared'
@@ -72,7 +72,7 @@ process credentials {
 
 // Run source finding application (sofia)
 process sofia {
-    container = params.SOFIAX_IMAGE
+    container = params.SOFIA_IMAGE
     containerOptions = '--bind /mnt/shared:/mnt/shared'
     
     input:
@@ -89,8 +89,9 @@ process sofia {
         """
 }
 
+// Write sofia output to database (sofiax)
 process sofiax {
-    container = params.SOFIAX_IMAGE\
+    container = params.SOFIAX_IMAGE
     containerOptions = '--bind /mnt/shared:/mnt/shared'
     
     input:

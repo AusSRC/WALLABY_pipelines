@@ -18,7 +18,7 @@ process casda_download {
 
     script:
         """
-        python3 -u /app/download.py \
+        python3 -u /app/casda_download.py \
             -i $sbid \
             -o ${params.WORKDIR} \
             -u '${params.CASDA_USERNAME}' \
