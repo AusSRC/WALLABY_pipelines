@@ -2,9 +2,6 @@
 
 [Nextflow](https://www.nextflow.io/) workflow modules for the WALLABY science project.
 
-[![Tests](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/tests.yaml/badge.svg)](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/tests.yaml)
-[![Linting](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/lint.yaml/badge.svg)](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/lint.yaml)
-
 ## Overview
 
 Here we describe the processing steps for the WALLABY workflow. They are:
