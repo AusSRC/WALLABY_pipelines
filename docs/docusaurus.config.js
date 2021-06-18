@@ -3,7 +3,7 @@ module.exports = {
   title: 'WALLABY Workflows',
   tagline: 'An AusSRC project',
   url: 'https://aussrc.github.io/',
-  baseUrl: '/',
+  baseUrl: '/WALLABY_workflows/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
