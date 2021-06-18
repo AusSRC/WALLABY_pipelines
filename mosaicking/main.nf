@@ -66,7 +66,6 @@ process generate_config {
 }
 
 // Linear mosaicking
-// TODO(austin): emit mosaicked cube location
 process linmos {
     container = "aussrc/yandasoft_devel_focal:latest"
     clusterOptions = params.LINMOS_CLUSTER_OPTIONS
