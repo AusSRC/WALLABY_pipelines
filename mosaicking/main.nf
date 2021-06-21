@@ -9,6 +9,7 @@ nextflow.enable.dsl = 2
 // Download image cubes from CASDA
 process casda_download {
     container = params.WALLABY_SCRIPTS
+    containerOptions = '--bind /mnt/shared:/mnt/shared'
 
     input:
         val sbid
@@ -33,6 +34,7 @@ process casda_download {
 // Checksum comparison
 process checksum {
     container = params.WALLABY_SCRIPTS
+    containerOptions = '--bind /mnt/shared:/mnt/shared'
 
     input:
         val cube
@@ -49,6 +51,7 @@ process checksum {
 // Generate configuration
 process generate_config {
     container = params.WALLABY_SCRIPTS
+    containerOptions = '--bind /mnt/shared:/mnt/shared'
 
     input:
         val cubes
@@ -68,6 +71,7 @@ process generate_config {
 // Linear mosaicking
 process linmos {
     container = "aussrc/yandasoft_devel_focal:latest"
+    containerOptions = '--bind /mnt/shared:/mnt/shared'
     clusterOptions = params.LINMOS_CLUSTER_OPTIONS
 
     input:
