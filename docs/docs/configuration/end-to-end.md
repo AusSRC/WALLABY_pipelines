@@ -13,7 +13,7 @@ We use ❗ to indicate that a parameter is required and no default value is prov
 ### Environment
 
 | Parameter Name  | Description | Default Value |
-|---|---|---|---|
+|---|---|---|
 |	`WORKDIR`❗| Working directory in the AusSRC shared file system to store all temporary files. This should start with `/mnt/shared/home/` followed by your username, or in the WALLABY shared space `/mnt/shared/wallaby/` | `/mnt/shared/wallaby/nextflow_runs/` |
 
 
@@ -21,7 +21,7 @@ We use ❗ to indicate that a parameter is required and no default value is prov
 
 
 | Parameter Name  | Description | Default Value |
-|---|---|---|---|
+|---|---|---|
 | `SBIDS`❗ | The scheduling block IDs for the footprints of interest |  |
 | `CASDA_USERNAME`❗ | Username for [OPAL](https://opal.atnf.csiro.au/) account that is required to programatically access the [CASDA Data Access Portal](https://data.csiro.au/collections/domain/casdaObservation/search/) |  |
 | `CASDA_PASSWORD`❗ | Password for the [OPAL](https://opal.atnf.csiro.au/) account |  |
@@ -38,7 +38,7 @@ We use ❗ to indicate that a parameter is required and no default value is prov
 ### Linmos
 
 | Parameter Name  | Description | Default Value | 
-|---|---|---|---|
+|---|---|---|
 | `LINMOS_OUTPUT_IMAGE_CUBE` | Name of the mosaicked output image cube | `mosaicked` |  |
 | `LINMOS_CONFIG_FILENAME ` | Name of the temporary `linmos` configuration file | `linmos.config` |  |
 | `LINMOS_CLUSTER_OPTIONS` | Cluster options for the execution of `linmos` | `--ntasks=324 --ntasks-per-node=18` |  |
@@ -46,16 +46,16 @@ We use ❗ to indicate that a parameter is required and no default value is prov
 ### SoFiA
 
 | Parameter Name  | Description | Default Value | 
-|---|---|---|---|
-| `SOFIA_RUN_NAME` | Name for the SoFiA run which will be written into the database. |  |  |
+|---|---|---|
+| `SOFIA_RUN_NAME` | Name for the SoFiA run which will be written into the database. |  |
 
 
 ### SoFiAX
 
 | Parameter Name  | Description | Default Value | 
-|---|---|---|---|
-| `DATABASE_HOST` | Host address for the PostgreSQL database |  | ❗ |
-| `DATABASE_NAME` | Name of the PostgreSQL database |  | ❗ |
-| `DATABASE_USERNAME` | Username for PostgreSQL database access |  | ❗✨ |
-| `DATABASE_PASSWORD` | Password for PostgreSQL database access |  | ❗✨ |
+|---|---|---|
+| `DATABASE_HOST`❗ | Host address for the PostgreSQL database |  |
+| `DATABASE_NAME`❗ | Name of the PostgreSQL database |  |
+| `DATABASE_USERNAME`❗ | Username for PostgreSQL database access |  |
+| `DATABASE_PASSWORD`❗ | Password for PostgreSQL database access |  |
 

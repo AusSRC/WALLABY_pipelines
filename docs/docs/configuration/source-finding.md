@@ -13,22 +13,22 @@ We use ❗ to indicate that a parameter is required and no default value is prov
 ### Environment 
 
 | Parameter Name  | Description | Default Value |
-|---|---|---|---|
-|	`IMAGE_CUBE`❗| Path to the mosaicked image cube for SoFiA |  |
+|---|---|---|
+|	`IMAGE_CUBE`❗ | Path to the mosaicked image cube for SoFiA |  |
 |	`WORKDIR`❗| Working directory in the AusSRC shared file system to store all temporary files. This should start with `/mnt/shared/home/` followed by your username, or in the WALLABY shared space `/mnt/shared/wallaby/` | `/mnt/shared/wallaby/nextflow_runs/` |
 
 ### SoFiA
 
 | Parameter Name  | Description | Default Value | 
-|---|---|---|---|
+|---|---|---|
 | `SOFIA_RUN_NAME` | Name for the SoFiA run which will be written into the database. |  | `sofia` |
 
 
 ### SoFiAX
 
 | Parameter Name  | Description | Default Value | 
-|---|---|---|---|
-| `DATABASE_HOST` | Host address for the PostgreSQL database |  | ❗ |
-| `DATABASE_NAME` | Name of the PostgreSQL database |  | ❗ |
-| `DATABASE_USERNAME` | Username for PostgreSQL database access |  | ❗✨ |
-| `DATABASE_PASSWORD` | Password for PostgreSQL database access |  | ❗✨ |
+|---|---|---|
+| `DATABASE_HOST`❗ | Host address for the PostgreSQL database |  |
+| `DATABASE_NAME`❗ | Name of the PostgreSQL database |  |
+| `DATABASE_USERNAME`❗ | Username for PostgreSQL database access |  |
+| `DATABASE_PASSWORD`❗ | Password for PostgreSQL database access |  |
