@@ -1,79 +1,53 @@
-<h1 align="center">WALLABY workflows</h1>
+<h1 align="center"><a href="https://aussrc.github.io/WALLABY_workflows/">WALLABY workflows</a></h1>
 
 [![Docs](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/documentation.yml/badge.svg)](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/documentation.yml)
 
-[Nextflow](https://www.nextflow.io/) workflow for the WALLABY science project data post-processing.
+WALLABY survey data post-processing pipelines by the [AusSRC](https://aussrc.org). 
 
-The WALLABY workflow is composed of two separate Nextflow modules for the two key functional components of the workflow. The end-to-end workflow takes raw footprints from [CASDA's Data Access Portal](https://data.csiro.au/collections/domain/casdaObservation/search/), performs linear mosaicking with [linmos](https://www.atnf.csiro.au/computing/software/askapsoft/sdp/docs/current/calim/linmos.html) to generate a WALLABY image cube. We then run source finding with [SoFiA-2](https://github.com/SoFiA-Admin/SoFiA-2) and write the output to a PostgreSQL database with [SoFiAX](https://github.com/AusSRC/SoFiAX).
+## Overview
 
-## Modules
+The WALLABY survey science data post-processing generates advanced data products, that are used by scientists for their research. We have composed some of these data post-processing tasks into [Nextflow](https://www.nextflow.io/) pipelines for convenient execution, thereby abstracting the low-level computing details of these activities from the science users.
 
-### Mosaicking
+Currently we provide support for two modules for the pipeline, which each produce an important advanced data product. These components are the following: 
 
-The mosaicking workflow module downloads the image cubes for specified SBIDs 
+*  mosaicking of image footprints (taken directly from ASKAP), 
+*  source finding to generate the detections for the WALLABY catalogue. 
 
-Steps:
+The WALLABY workflow is composed of two separate Nextflow modules for the two key functional components of the workflow. The end-to-end workflow takes raw footprints from [CASDA's Data Access Portal](https://data.csiro.au/collections/domain/casdaObservation/search/), performs linear mosaicking with [linmos](https://www.atnf.csiro.au/computing/software/askapsoft/sdp/docs/current/calim/linmos.html) to generate a WALLABY image cube. We then run source finding with [SoFiA-2](https://github.com/SoFiA-Admin/SoFiA-2) and write the output to a PostgreSQL database with [SoFiAX](https://github.com/AusSRC/SoFiAX). We provide the capability to run the two modules independently or together on a variety of computing resources.
 
-##### 1. Download
+## Quick Start
 
-Download data cube and weights from CASDA. Uses the [casda_download.py](mosaicking/scripts/casda_download.py) script to query and download. You can view the CASDA data manually through their [Data Access Portal](https://data.csiro.au/collections/domain/casdaObservation/search/)
+**AusSRC science users, [Nextflow Tower](https://tower.nf) provides a visual interface and preferred method for submitting this workflow.**
 
-##### 2. Checksum
-
-Calculate the checksum for the image cube and weights. Compare with the checksum that is downloaded from the previous step.
-
-##### 3. Generate config
-
-Create the `linmos` configuration file from a template. It will replace the input image cube and weights with those downloaded as part of the workflow. The user specifies the filename and location of the temporary configuration file and `linmos` mosaicked image cube output.
-
-##### 4. Run linmos
-Run `linmos` on the image cubes downloaded with the configuration file generated.
-
-### Source finding
-
-##### 1. Generate sofia parameters
-
-Generate the default `sofia.par` file based on user-provided configuration details. This step is just used to parameterise the `sofia` run.
-
-##### 2. s2p
-
-Based on scripts written by the SoFiA Admin to generate the `sofia` and `sofiax` parameter/configuration files for a given data cube ([repository](https://github.com/SoFiA-Admin/s2p_setup)).
-
-Will generate all of the `sofia.par` files and the `config.ini` for the execution of both `sofia` and `sofiax`. Will take a selected WALLABY data cube and automatically decide on the best sub-cube splitting arrangement for running on the AusSRC Slurm cluster.
-
-##### 3. Database credentials
-
-Update the `config.ini` file with database credentials. This is required by `sofiax` to write `sofia` outputs.
-
-##### 4. Run `sofia`
-
-Run `sofia` on the entire data cube. 
-
-##### 5. Run `sofiax`
-
-Write detections from `sofia` into a database by running `sofiax`. SoFiAX will be run without executing `sofia`.
-
-## Configuration
-
-See [documentation](https://aussrc.github.io/WALLABY_workflows/) for configuration of the WALLABY workflow.
-
-## Execution
-
-We suggest using the AusSRC RADEC platform for executing this workflow as it provides all configuration requirements in a simple web form. 
-
-The workflow is intended to be executed on a Slurm cluster via `ssh` access to the head node, or with a job submitted to the cluster through RADEC. 
-
-### End-to-end
+The pipeline can be run from a Slurm cluster head node. This is provided by AusSRC for the WALLABY science community, but it can be run on public cloud providers or other on-premise clusters. To submit the `nextflow` jobs to the cluster run the following command 
 
 ```
 nextflow run https://github.com/AusSRC/WALLABY_workflows -params-file <PARAMETER_FILE>
 ```
 
-### Mosaicking
+A parameter file is required for the direct execution of the workflow via the Slurm head node. It is the mechanism by which the user can pass run-specific configuration information to Nextflow. This parameter file is accepted with the flag `-params-file` as shown above.
 
-TBA
+The parameter file needs to be either `json` or `yaml` format. Below is a template that the user should feel free to copy.
 
-### Source finding
+```
+{
+  "SBIDS" : <SBIDS>,
+  "WORKDIR" : <WORK_DIRECTORY>,
+  "CASDA_USERNAME" : <YOUR_CASDA_USERNAME>,
+  "CASDA_PASSWORD" : <YOUR_CASDA_PASSWORD>,
+  "DATABASE_HOST" : <YOUR_DATABASE_HOST>,
+  "DATABASE_NAME" : <YOUR_DATABASE_NAME>,
+  "DATABASE_USERNAME" : <YOUR_DATABASE_USERNAME>,
+  "DATABASE_PASSWORD" : <YOUR_DATABASE_PASSWORD>
+  
+}
+```
 
-TBA
+More information can be found in the documentation.
 
+## Documentation
+
+* [Documentation home](https://aussrc.github.io/WALLABY_workflows/)
+* [Modules](https://aussrc.github.io/WALLABY_workflows/docs/overview#modules)
+* [Getting started](https://aussrc.github.io/WALLABY_workflows/docs/getting_started)
+* [Configuration reference](https://aussrc.github.io/WALLABY_workflows/docs/configuration/end-to-end)

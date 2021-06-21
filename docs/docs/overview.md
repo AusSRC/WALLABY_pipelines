@@ -6,7 +6,12 @@ sidebar_position: 1
 
 The WALLABY survey science data post-processing generates advanced data products, that are used by scientists for their research. We have composed some of these data post-processing tasks into [Nextflow](https://www.nextflow.io/) pipelines for convenient execution, thereby abstracting the low-level computing details of these activities from the science users.
 
-Currently we provide support for two modules for the pipeline, which each produce an important advanced data product. These components are the mosaicking of image footprints (taken directly from [ASKAP](https://www.atnf.csiro.au/projects/askap/index.html)), and the source finding used to generate the detections for the WALLABY catalogue. The mosaicking is performed by [linmos](https://www.atnf.csiro.au/computing/software/askapsoft/sdp/docs/current/calim/linmos.html), while the source finding uses [SoFiA-2](https://github.com/SoFiA-Admin/SoFiA-2) to detect sources and [SoFiAX](https://github.com/AusSRC/SoFiAX) to write the outputs to a PostgreSQL database. We provide the capability to run the two modules independently or together on a variety of computing resources.
+Currently we provide support for two modules for the pipeline, which each produce an important advanced data product. These components are the following: 
+
+*  mosaicking of image footprints (taken directly from ASKAP), 
+*  source finding to generate the detections for the WALLABY catalogue. 
+
+The WALLABY workflow is composed of two separate Nextflow modules for the two key functional components of the workflow. The end-to-end workflow takes raw footprints from [CASDA's Data Access Portal](https://data.csiro.au/collections/domain/casdaObservation/search/), performs linear mosaicking with [linmos](https://www.atnf.csiro.au/computing/software/askapsoft/sdp/docs/current/calim/linmos.html) to generate a WALLABY image cube. We then run source finding with [SoFiA-2](https://github.com/SoFiA-Admin/SoFiA-2) and write the output to a PostgreSQL database with [SoFiAX](https://github.com/AusSRC/SoFiAX). We provide the capability to run the two modules independently or together on a variety of computing resources.
 
 ## Modules
 
