@@ -8,5 +8,5 @@ tmp
 database.env
 *__pycache__*
 credentials.ini
-config*
+config.*
 s2p_setup
