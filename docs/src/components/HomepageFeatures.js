@@ -4,32 +4,29 @@ import styles from './HomepageFeatures.module.css';
 
 const FeatureList = [
   {
-    title: 'Easy to Use',
-    img: '../../static/img/askap.jpg',
+    title: 'Mosaicking',
+    img: 'img/mosaicking.png',
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Apply linear mosaicking to CASDA footprints to generate high quality WALLABY image cubes.
       </>
     ),
   },
   {
-    title: 'Optimised',
-    img: '../../static/img/askap.jpg',
+    title: 'Source finding',
+    img: 'img/source-finding.jpg',
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Execution of source finding algorithms (sofia) on WALLABY image cubes.
       </>
     ),
   },
   {
-    title: 'Powered by Nextflow',
-    img: '../../static/img/askap.jpg',
+    title: 'ASKAP science',
+    img: 'img/askap.jpg',
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Assisting scientists with the computing for the full WALLABY survey - one of two projects currently running on the Australian SKA Pathfinder (ASKAP).
       </>
     ),
   },

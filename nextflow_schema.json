@@ -5,12 +5,32 @@
     "description": "Pipeline execution tool for the WALLABY science team. Will run the entire workflow including downloading of footprints from CASDA, running linmos and source finding.",
     "type": "object",
     "definitions": {
+        "environment": {
+            "title": "Environment",
+            "type": "object",
+            "description": "Environment details for the execution of the WALLABY workflow in the AusSRC shared file system.",
+            "default": "",
+            "properties": {      
+                "WORKDIR": {
+                    "type": "string",
+                    "description": "Working directory in the shared file system to save all WALLABY workflow files",
+                    "default": "/mnt/shared/wallaby/nextflow_runs"
+                }
+            },
+            "required": [
+                "WORKDIR"
+            ]
+        },
         "casda": {
             "title": "CASDA",
             "type": "object",
-            "description": "CASDA credentials to download WALLABY footprints from the archive",
+            "description": "CASDA credentials for downloading WALLABY footprints from the archive.",
             "default": "",
             "properties": {
+                "SBIDS": {
+                    "type": "string",
+                    "description": "Scheduling block IDs of footprints to download from CASDA (comma separated string)"
+                },
                 "CASDA_USERNAME": {
                     "type": "string",
                     "description": "Username for OPAL account"
@@ -18,41 +38,84 @@
                 "CASDA_PASSWORD": {
                     "type": "string",
                     "description": "Password for OPAL account"
+                },
+                "CASDA_CUBE_TYPE": {
+                    "type": "string",
+                    "description": "Cube type parameter for CASDA file search",
+                    "default": "cube"
+                },
+                "CASDA_CUBE_FILENAME": {
+                    "type": "string",
+                    "description": "Filename query string for CASDA cube download",
+                    "default": "image.restored.%SB$SBID%.cube.MilkyWay.contsub.fits"
+                },
+                "CASDA_WEIGHTS_TYPE": {
+                    "type": "string",
+                    "description": "Weight type parameter for CASDA file search",
+                    "default": "cube"
+                },
+                "CASDA_WEIGHTS_FILENAME": {
+                    "type": "string",
+                    "description": "Weight query string for CASDA weight cube download",
+                    "default": "weights%SB$SBID%.cube.MilkyWay.fits"
                 }
             },
             "required": [
+                "SBIDS",
                 "CASDA_USERNAME",
                 "CASDA_PASSWORD"
             ]
         },
-        "required": {
-            "title": "Required",
+        "linmos": {
+            "title": "Linmos",
+            "type": "object",
+            "description": "Information required for the execution of the linear mosaicking application.",
+            "default": "",
+            "properties": {
+                "LINMOS_OUTPUT_IMAGE_CUBE": {
+                    "type": "string",
+                    "description": "Filename of the output mosaicked image cube",
+                    "default": "mosaicked"
+                },
+                "LINMOS_CONFIG_FILENAME": {
+                    "type": "string",
+                    "description": "Filename of the generated linmos configuration file",
+                    "default": "linmos.config"
+                },
+                "LINMOS_CLUSTER_OPTIONS": {
+                    "type": "string",
+                    "description": "Cluster configuration for the execution of linmos.",
+                    "default": "--ntasks=324 --ntasks-per-node=18"
+                }
+            },
+            "required": [
+            ]
+        },
+        "sofia": {
+            "title": "SoFiA",
             "type": "object",
             "description": "These credentials are required for every run of the full WALLABY pipeline.",
             "default": "",
             "properties": {
-                "RUN_NAME": {
+                "SOFIA_RUN_NAME": {
                     "type": "string",
-                    "description": "Name for this run of the WALLABY workflow"
+                    "description": "Name for this run of the WALLABY workflow",
+                    "default": "sofia"
                 },
-                "SBIDS": {
+                "SOFIA_PARAMS_FILE": {
                     "type": "string",
-                    "description": "Scheduling block IDs of footprints to download from CASDA (comma separated string)"
-                },
-                "WORKDIR": {
-                    "type": "string",
-                    "description": "Working directory in the shared file system to save all WALLABY workflow files"
+                    "description": "Filename for the generated sofia parameter file",
+                    "default": "sofia.par"
                 }
             },
             "required": [
-                "WORKDIR",
-                "SBIDS"
+                "SOFIA_RUN_NAME"
             ]
         },
-        "database": {
-            "title": "Database",
+        "sofiax": {
+            "title": "SoFiAX",
             "type": "object",
-            "description": "Database credentials required to write source finding outputs",
+            "description": "Parameters required for the execution of SoFiAX",
             "default": "",
             "properties": {
                 "DATABASE_HOST": {

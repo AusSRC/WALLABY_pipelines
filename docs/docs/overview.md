@@ -4,32 +4,35 @@ sidebar_position: 1
 
 # Overview
 
-[Nextflow](https://www.nextflow.io/) workflow for the WALLABY science project data post-processing.
+The WALLABY survey science data post-processing generates advanced data products, that are used by scientists for their research. We have composed some of these data post-processing tasks into [Nextflow](https://www.nextflow.io/) pipelines for convenient execution, thereby abstracting the low-level computing details of these activities from the science users.
 
-The WALLABY workflow is composed of two separate Nextflow modules for the two key functional components of the workflow. The end-to-end workflow takes raw footprints from [CASDA's Data Access Portal](https://data.csiro.au/collections/domain/casdaObservation/search/), performs linear mosaicking with [linmos](https://www.atnf.csiro.au/computing/software/askapsoft/sdp/docs/current/calim/linmos.html) to generate a WALLABY image cube. We then run source finding with [SoFiA-2](https://github.com/SoFiA-Admin/SoFiA-2) and write the output to a PostgreSQL database with [SoFiAX](https://github.com/AusSRC/SoFiAX).
+Currently we provide support for two modules for the pipeline, which each produce an important advanced data product. These components are the mosaicking of image footprints (taken directly from [ASKAP](https://www.atnf.csiro.au/projects/askap/index.html)), and the source finding used to generate the detections for the WALLABY catalogue. The mosaicking is performed by [linmos](https://www.atnf.csiro.au/computing/software/askapsoft/sdp/docs/current/calim/linmos.html), while the source finding uses [SoFiA-2](https://github.com/SoFiA-Admin/SoFiA-2) to detect sources and [SoFiAX](https://github.com/AusSRC/SoFiAX) to write the outputs to a PostgreSQL database. We provide the capability to run the two modules independently or together on a variety of computing resources.
 
 ## Modules
 
 ### Mosaicking
 
-The mosaicking workflow module downloads the image cubes for specified SBIDs 
+The mosaicking module downloads raw image footprints from CASDA's [Data Access Portal](https://data.csiro.au/collections/domain/casdaObservation/search/) for SBIDs of the user's choosing, and runs the `linmos` application to generate the mosaicked image cube advanced data product.
 
-Steps:
+The individual processes of the workflow are executed sequentially, as they are dependent on the output of the previous process. The steps of the module are:
 
 ##### 1. Download
 
-Download data cube and weights from CASDA. Uses the `casda_download.py` script in the [WALLABY components](https://github.com/AusSRC/WALLABY_components) reposiroty to query and download. You can view the CASDA data manually through their [Data Access Portal](https://data.csiro.au/collections/domain/casdaObservation/search/)
+Download data cube and weights from CASDA's [Data Access Portal](https://data.csiro.au/collections/domain/casdaObservation/search/). Uses the `casda_download.py` script in the [WALLABY components](https://github.com/AusSRC/WALLABY_components) repository to query and download. This step requires users to have an [OPAL](https://opal.atnf.csiro.au/) account for programmatic access to the service. 
+
+This step performs a download of the image cube and weights, both of which are required for the linear mosaicking application.
 
 ##### 2. Checksum
 
-Calculate the checksum for the image cube and weights. Compare with the checksum that is downloaded from the previous step.
+This step will verify that the image cubes and weights downloaded from CASDA are free from error. We calculate the checksum of the downloaded file with that expected.
 
 ##### 3. Generate config
 
-Create the `linmos` configuration file from a template. It will replace the input image cube and weights with those downloaded as part of the workflow. The user specifies the filename and location of the temporary configuration file and `linmos` mosaicked image cube output.
+Create the `linmos` configuration file from the [template](https://github.com/AusSRC/WALLABY_components/blob/main/generate_linmos_config.py). It will replace the input image cube and weights with those downloaded as part of the workflow. The user specifies the filename and location of the temporary configuration file and `linmos` mosaicked image cube output.
 
 ##### 4. Run linmos
-Run `linmos` on the image cubes downloaded with the configuration file generated.
+
+Run `linmos` on the image cubes downloaded with the configuration file generated in the previous step.
 
 ### Source finding
 

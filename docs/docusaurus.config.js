@@ -14,7 +14,7 @@ module.exports = {
       title: 'WALLABY Workflows',
       logo: {
         alt: 'WALLABY Workflows Logo',
-        src: 'img/logo.svg',
+        src: 'img/icon.jpg',
       },
       items: [
         {
