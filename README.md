@@ -1,5 +1,7 @@
 <h1 align="center">WALLABY workflows</h1>
 
+[![Docs](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/documentation.yml/badge.svg)](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/documentation.yml)
+
 [Nextflow](https://www.nextflow.io/) workflow for the WALLABY science project data post-processing.
 
 The WALLABY workflow is composed of two separate Nextflow modules for the two key functional components of the workflow. The end-to-end workflow takes raw footprints from [CASDA's Data Access Portal](https://data.csiro.au/collections/domain/casdaObservation/search/), performs linear mosaicking with [linmos](https://www.atnf.csiro.au/computing/software/askapsoft/sdp/docs/current/calim/linmos.html) to generate a WALLABY image cube. We then run source finding with [SoFiA-2](https://github.com/SoFiA-Admin/SoFiA-2) and write the output to a PostgreSQL database with [SoFiAX](https://github.com/AusSRC/SoFiAX).
