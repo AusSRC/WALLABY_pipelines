@@ -8,7 +8,7 @@ nextflow.enable.dsl = 2
 
 // Download image cubes from CASDA
 process casda_download {
-    container = params.WALLABY_SCRIPTS
+    container = params.WALLABY_COMPONENTS_IMAGE
     containerOptions = '--bind /mnt/shared:/mnt/shared'
 
     input:
@@ -33,7 +33,7 @@ process casda_download {
 
 // Checksum comparison
 process checksum {
-    container = params.WALLABY_SCRIPTS
+    container = params.WALLABY_COMPONENTS_IMAGE
     containerOptions = '--bind /mnt/shared:/mnt/shared'
 
     input:
@@ -50,7 +50,7 @@ process checksum {
 
 // Generate configuration
 process generate_config {
-    container = params.WALLABY_SCRIPTS
+    container = params.WALLABY_COMPONENTS_IMAGE
     containerOptions = '--bind /mnt/shared:/mnt/shared'
 
     input:

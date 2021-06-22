@@ -8,7 +8,7 @@ nextflow.enable.dsl = 2
 
 // Generate sofia parameter file from Nextflow params and defaults
 process generate_params {
-    container = params.WALLABY_SCRIPTS
+    container = params.WALLABY_COMPONENTS_IMAGE
     containerOptions = '--bind /mnt/shared:/mnt/shared'
 
     input:
@@ -50,7 +50,7 @@ process s2p_setup {
 
 // Another process for updating the config.ini file database credentials
 process credentials {
-    container = params.WALLABY_SCRIPTS
+    container = params.WALLABY_COMPONENTS_IMAGE
     containerOptions = '--bind /mnt/shared:/mnt/shared'
 
     input:
