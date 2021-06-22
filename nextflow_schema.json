@@ -179,13 +179,22 @@
     },
     "allOf": [
         {
+            "$ref": "#/definitions/environment"
+        },
+        {
             "$ref": "#/definitions/casda"
         },
         {
-            "$ref": "#/definitions/required"
+            "$ref": "#/definitions/linmos"
         },
         {
-            "$ref": "#/definitions/database"
+            "$ref": "#/definitions/sofia"
+        },
+        {
+            "$ref": "#/definitions/sofiax"
+        },
+        {
+            "$ref": "#/definitions/docker"
         }
     ]
 }
