@@ -14,7 +14,7 @@
                 "WORKDIR": {
                     "type": "string",
                     "description": "Working directory in the shared file system to save all WALLABY workflow files",
-                    "default": "/mnt/shared/wallaby/nextflow/runs"
+                    "default": "/mnt/shared/home/ashen/outputs/tmp"
                 }
             },
             "required": [
