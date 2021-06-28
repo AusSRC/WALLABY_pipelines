@@ -65,7 +65,7 @@ process credentials {
             --config $sofiax_config \
             --host ${params.DATABASE_HOST} \
             --name ${params.DATABASE_NAME} \
-            --username ${params.DATABASE_USER} \
+            --username ${params.DATABASE_USERNAME} \
             --password ${params.DATABASE_PASSWORD}
         """
 }
