@@ -104,7 +104,7 @@ process sofiax {
     script:
         """
         #!/bin/bash
-        sofia $param_file
+        sofiax -c $sofiax_config -p $param_file
         """
 }
 
