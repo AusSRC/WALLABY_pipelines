@@ -127,11 +127,11 @@
                     "description": "Name of the database to write SoFiA outputs",
                     "default": "sofiadb"
                 },
-                "DATABASE_USERNAME": {
+                "DATABASE_USER": {
                     "type": "string",
                     "description": "Username for database access"
                 },
-                "DATABASE_PASSWORD": {
+                "DATABASE_PASS": {
                     "type": "string",
                     "description": "Password for database access"
                 }
@@ -139,8 +139,8 @@
             "required": [
                 "DATABASE_HOST",
                 "DATABASE_NAME",
-                "DATABASE_USERNAME",
-                "DATABASE_PASSWORD"
+                "DATABASE_USER",
+                "DATABASE_PASS"
             ]
         },
         "docker": {

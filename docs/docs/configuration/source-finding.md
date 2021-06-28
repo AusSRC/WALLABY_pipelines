@@ -30,5 +30,5 @@ We use ❗ to indicate that a parameter is required and no default value is prov
 |---|---|---|
 | `DATABASE_HOST`❗ | Host address for the PostgreSQL database |  |
 | `DATABASE_NAME`❗ | Name of the PostgreSQL database |  |
-| `DATABASE_USERNAME`❗ | Username for PostgreSQL database access |  |
-| `DATABASE_PASSWORD`❗ | Password for PostgreSQL database access |  |
+| `DATABASE_USER`❗ | Username for PostgreSQL database access |  |
+| `DATABASE_PASS`❗ | Password for PostgreSQL database access |  |
