@@ -142,41 +142,41 @@
                 "DATABASE_USERNAME",
                 "DATABASE_PASSWORD"
             ]
-        }
-    },
-    "docker": {
-        "title": "Docker",
-        "type": "object",
-        "description": "Docker images to use for pipeline execution",
-        "default": "",
-        "properties": {
-            "WALLABY_COMPONENTS_IMAGE": {
-                "type": "string",
-                "description": "Docker image for component functions of the WALLABY workflow.",
-                "default": "aussrc/wallaby_scripts:latest"
-            },
-            "S2P_IMAGE": {
-                "type": "string",
-                "description": "Docker image for generation of sofia parameter and sofiax config files using s2p_setup.py.",
-                "default": "aussrc/s2p_setup:latest"
-            },
-            "SOFIA_IMAGE": {
-                "type": "string",
-                "description": "Docker image for the execution of sofia.",
-                "default": "astroaustin/sofiax:v0.0.5"
-            },
-            "SOFIAX_IMAGE": {
-                "type": "string",
-                "description": "Docker image for the execution of sofiax.",
-                "default": "aussrc/sofiax:latest"
-            }
         },
-        "required": [
-            "WALLABY_COMPONENTS_IMAGE",
-            "S2P_IMAGE",
-            "SOFIAX_IMAGE",
-            "SOFIA_IMAGE"
-        ]
+        "docker": {
+            "title": "Docker",
+            "type": "object",
+            "description": "Docker images to use for pipeline execution",
+            "default": "",
+            "properties": {
+                "WALLABY_COMPONENTS_IMAGE": {
+                    "type": "string",
+                    "description": "Docker image for component functions of the WALLABY workflow.",
+                    "default": "aussrc/wallaby_scripts:latest"
+                },
+                "S2P_IMAGE": {
+                    "type": "string",
+                    "description": "Docker image for generation of sofia parameter and sofiax config files using s2p_setup.py.",
+                    "default": "aussrc/s2p_setup:latest"
+                },
+                "SOFIA_IMAGE": {
+                    "type": "string",
+                    "description": "Docker image for the execution of sofia.",
+                    "default": "astroaustin/sofiax:v0.0.5"
+                },
+                "SOFIAX_IMAGE": {
+                    "type": "string",
+                    "description": "Docker image for the execution of sofiax.",
+                    "default": "aussrc/sofiax:latest"
+                }
+            },
+            "required": [
+                "WALLABY_COMPONENTS_IMAGE",
+                "S2P_IMAGE",
+                "SOFIAX_IMAGE",
+                "SOFIA_IMAGE"
+            ]
+        }
     },
     "allOf": [
         {
