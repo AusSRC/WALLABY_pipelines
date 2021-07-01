@@ -118,6 +118,11 @@
             "description": "Parameters required for the execution of SoFiAX",
             "default": "",
             "properties": {
+                "SOFIAX_CONFIG_FILE": {
+                    "type": "string",
+                    "description": "Filename and path for the automatically generated sofiax configuration file",
+                    "default": "config.ini"
+                },
                 "DATABASE_HOST": {
                     "type": "string",
                     "description": "Hostname of the database to write SoFiA outputs"
@@ -137,6 +142,7 @@
                 }
             },
             "required": [
+                "SOFIAX_CONFIG_FILE",
                 "DATABASE_HOST",
                 "DATABASE_NAME",
                 "DATABASE_USER",

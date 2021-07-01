@@ -81,6 +81,7 @@ process sofia {
 
     output:
         val sofiax_config, emit: sofiax_config
+        val param_file, emit: param_file
 
     script:
         """
@@ -89,14 +90,29 @@ process sofia {
         """
 }
 
+// Join parameter files into single string
+process params_string_join {
+    input:
+        val param_files
+    
+    output:
+        stdout emit: sofiax_params
+    
+    script:
+        """
+        #!/usr/bin/env python3
+
+        print('$param_files'.replace('[', '').replace(']', '').replace(',', ''))
+        """  
+}
+
 // Write sofia output to database (sofiax)
 process sofiax {
     container = params.SOFIAX_IMAGE
     containerOptions = '--bind /mnt/shared:/mnt/shared'
     
     input:
-        val sofiax_config
-        val param_file
+        val param_files
 
     output:
         stdout emit: output
@@ -104,7 +120,7 @@ process sofiax {
     script:
         """
         #!/bin/bash
-        sofiax -c $sofiax_config -p $param_file
+        sofiax -c ${params.WORKDIR}/${params.SOFIAX_CONFIG_FILE} -p $param_files
         """
 }
 
@@ -120,7 +136,8 @@ workflow source_finding {
         s2p_setup(cube, generate_params.out.sofia_params)
         credentials(s2p_setup.out.sofiax_config)
         sofia(credentials.out.sofiax_config, Channel.fromPath("${params.WORKDIR}/sofia_*.par"))
-        sofiax(sofia.out.sofiax_config, Channel.fromPath("${params.WORKDIR}/sofia_*.par"))
+        params_string_join(sofia.out.param_file.collect())
+        sofiax(params_string_join.out.sofiax_params)
 }
 
 // ----------------------------------------------------------------------------------------
