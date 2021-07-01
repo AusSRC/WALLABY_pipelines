@@ -79,7 +79,6 @@ process sofia {
         val param_file
 
     output:
-        val sofiax_config, emit: sofiax_config
         val param_file, emit: param_file
 
     script:
@@ -119,7 +118,7 @@ process sofiax {
     script:
         """
         #!/bin/bash
-        sofiax -c ${params.WORKDIR}/config.ini -p $param_files
+        sofiax -c ${params.WORKDIR}/${params.SOFIAX_CONFIG_FILE} -p $param_files
         """
 }
 
