@@ -168,12 +168,12 @@
                 "SOFIA_IMAGE": {
                     "type": "string",
                     "description": "Docker image for the execution of sofia.",
-                    "default": "astroaustin/sofiax:v0.0.5"
+                    "default": "astroaustin/sofiax:v0.0.6"
                 },
                 "SOFIAX_IMAGE": {
                     "type": "string",
                     "description": "Docker image for the execution of sofiax.",
-                    "default": "aussrc/sofiax:latest"
+                    "default": "aussrc/sofiax:v0.1.1"
                 }
             },
             "required": [

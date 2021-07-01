@@ -26,7 +26,6 @@ process generate_params {
 }
 
 // Create scripts for running SoFiA via SoFiAX
-// NOTE: output used only for workflow composition
 process s2p_setup {
     container = params.S2P_IMAGE
     containerOptions = '--bind /mnt/shared:/mnt/shared'
@@ -120,7 +119,7 @@ process sofiax {
     script:
         """
         #!/bin/bash
-        sofiax -c ${params.WORKDIR}/${params.SOFIAX_CONFIG_FILE} -p $param_files
+        sofiax -c ${params.WORKDIR}/config.ini -p $param_files
         """
 }
 
@@ -141,3 +140,4 @@ workflow source_finding {
 }
 
 // ----------------------------------------------------------------------------------------
+

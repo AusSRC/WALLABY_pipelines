@@ -1,3 +1,7 @@
+# SoFiAX image for execution of SoFiA.
+# This version is necessary because of the catalog subfolder that is
+# included for this execution with default sofia parameters.
+
 FROM ubuntu:20.04
 WORKDIR /app
 
