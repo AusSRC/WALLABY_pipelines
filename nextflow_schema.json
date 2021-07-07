@@ -94,7 +94,7 @@
         "sofia": {
             "title": "SoFiA",
             "type": "object",
-            "description": "These credentials are required for every run of the full WALLABY pipeline.",
+            "description": "Information for the SoFiA run.",
             "default": "",
             "properties": {
                 "SOFIA_RUN_NAME": {
@@ -152,7 +152,7 @@
         "docker": {
             "title": "Docker",
             "type": "object",
-            "description": "Docker images to use for pipeline execution",
+            "description": "Docker images to use for pipeline execution.",
             "default": "",
             "properties": {
                 "WALLABY_COMPONENTS_IMAGE": {
@@ -182,6 +182,273 @@
                 "SOFIAX_IMAGE",
                 "SOFIA_IMAGE"
             ]
+        },
+        "sofia_parameters": {
+            "title": "Sofia parameters",
+            "type": "object",
+            "description": "Optional parameters for the execution of SoFiA.",
+            "properties": {
+                "SOFIA_PIPELINE_VERBOSE": {
+                    "type": "string",
+                    "default": "false"
+                },
+                "SOFIA_PIPELINE_PEDANTIC": {
+                    "type": "string",
+                    "default": "true"
+                },
+                "SOFIA_PIPELINE_THREADS": {
+                    "type": "string",
+                    "default": "0"
+                },
+                "SOFIA_INPUT_GAIN": {
+                    "type": "string",
+                    "default": ""
+                },
+                "SOFIA_INPUT_NOISE": {
+                    "type": "string",
+                    "default": ""
+                },
+                "SOFIA_INPUT_WEIGHTS": {
+                    "type": "string",
+                    "default": ""
+                },
+                "SOFIA_INPUT_MASK": {
+                    "type": "string",
+                    "default": ""
+                },
+                "SOFIA_INPUT_INVERT": {
+                    "type": "string",
+                    "default": "false"
+                },
+                "SOFIA_FLAG_REGION": {
+                    "type": "string",
+                    "default": ""
+                },
+                "SOFIA_FLAG_CATALOG": {
+                    "type": "string",
+                    "default": ""
+                },
+                "SOFIA_FLAG_RADIUS": {
+                    "type": "string",
+                    "default": "5"
+                },
+                "SOFIA_FLAG_AUTO": {
+                    "type": "string",
+                    "default": "true"
+                },
+                "SOFIA_FLAG_THRESHOLD": {
+                    "type": "string",
+                    "default": "5.0"
+                },
+                "SOFIA_FLAG_LOG": {
+                    "type": "string",
+                    "default": "true"
+                },
+                "SOFIA_SCALENOISE_ENABLE": {
+                    "type": "string",
+                    "default": "true"
+                },
+                "SOFIA_SCALENOISE_MODE": {
+                    "type": "string",
+                    "default": "local"
+                },
+                "SOFIA_SCALENOISE_WINDOWXY": {
+                    "type": "string",
+                    "default": "51"
+                },
+                "SOFIA_SCALENOISE_WINDOWZ": {
+                    "type": "string",
+                    "default": "51"
+                },
+                "SOFIA_SCALENOISE_GRIDXY": {
+                    "type": "string",
+                    "default": "0"
+                },
+                "SOFIA_SCALENOISE_GRIDZ": {
+                    "type": "string",
+                    "default": "0"
+                },
+                "SOFIA_SCALENOISE_INTERPOLATE": {
+                    "type": "string",
+                    "default": "true"
+                },
+                "SOFIA_SCALENOISE_SCFIND": {
+                    "type": "string",
+                    "default": "false"
+                },
+                "SOFIA_SCFIND_ENABLE": {
+                    "type": "string",
+                    "default": "true"
+                },
+                "SOFIA_SCFIND_KERNELSXY": {
+                    "type": "string",
+                    "default": "0, 5, 10"
+                },
+                "SOFIA_SCFIND_KERNELSZ": {
+                    "type": "string",
+                    "default": "0, 3, 7, 15, 31"
+                },
+                "SOFIA_SCFIND_THRESHOLD": {
+                    "type": "string",
+                    "default": "3.8"
+                },
+                "SOFIA_SCFIND_REPLACEMENT": {
+                    "type": "string",
+                    "default": "2.0"
+                },
+                "SOFIA_SCFIND_STATISTIC": {
+                    "type": "string",
+                    "default": "mad"
+                },
+                "SOFIA_SCFIND_FLUXRANGE": {
+                    "type": "string",
+                    "default": "negative"
+                },
+                "SOFIA_THRESHOLD_ENABLE": {
+                    "type": "string",
+                    "default": "false"
+                },
+                "SOFIA_THRESHOLD_THRESHOLD": {
+                    "type": "string",
+                    "default": "5.0"
+                },
+                "SOFIA_THRESHOLD_MODE": {
+                    "type": "string",
+                    "default": "relative"
+                },
+                "SOFIA_THRESHOLD_STATISTIC": {
+                    "type": "string",
+                    "default": "mad"
+                },
+                "SOFIA_THRESHOLD_FLUXRANGE": {
+                    "type": "string",
+                    "default": "negative"
+                },
+                "SOFIA_LINKER_RADIUSXY": {
+                    "type": "string",
+                    "default": "2"
+                },
+                "SOFIA_LINKER_RADIUSZ": {
+                    "type": "string",
+                    "default": "2"
+                },
+                "SOFIA_LINKER_MINSIZEXY": {
+                    "type": "string",
+                    "default": "8"
+                },
+                "SOFIA_LINKER_MINSIZEZ": {
+                    "type": "string",
+                    "default": "5"
+                },
+                "SOFIA_LINKER_MAXSIZEXY": {
+                    "type": "string",
+                    "default": "0"
+                },
+                "SOFIA_LINKER_MAXSIZEZ": {
+                    "type": "string",
+                    "default": "0"
+                },
+                "SOFIA_LINKER_KEEPNEGATIVE": {
+                    "type": "string",
+                    "default": "false"
+                },
+                "SOFIA_RELIABILITY_ENABLE": {
+                    "type": "string",
+                    "default": "true"
+                },
+                "SOFIA_RELIABILITY_THRESHOLD": {
+                    "type": "string",
+                    "default": "0.8"
+                },
+                "SOFIA_RELIABILITY_SCALEKERNEL": {
+                    "type": "string",
+                    "default": "0.4"
+                },
+                "SOFIA_RELIABILITY_MINSNR": {
+                    "type": "string",
+                    "default": "3.0"
+                },
+                "SOFIA_RELIABILITY_PLOT": {
+                    "type": "string",
+                    "default": "true"
+                },
+                "SOFIA_PARAMETER_ENABLE": {
+                    "type": "string",
+                    "default": "true"
+                },
+                "SOFIA_PARAMETER_WCS": {
+                    "type": "string",
+                    "default": "true"
+                },
+                "SOFIA_PARAMETER_PHYSICAL": {
+                    "type": "string",
+                    "default": "true"
+                },
+                "SOFIA_PARAMETER_PREFIX": {
+                    "type": "string",
+                    "default": "WALLABY"
+                },
+                "SOFIA_PARAMETER_OFFSET": {
+                    "type": "string",
+                    "default": "false"
+                },
+                "SOFIA_OUTPUT_DIRECTORY": {
+                    "type": "string",
+                    "default": ""
+                },
+                "SOFIA_OUTPUT_FILENAME": {
+                    "type": "string",
+                    "default": "sofia_output"
+                },
+                "SOFIA_OUTPUT_WRITECATASCII": {
+                    "type": "string",
+                    "default": "true"
+                },
+                "SOFIA_OUTPUT_WRITECATXML": {
+                    "type": "string",
+                    "default": "true"
+                },
+                "SOFIA_OUTPUT_WRITECATSQL": {
+                    "type": "string",
+                    "default": "true"
+                },
+                "SOFIA_OUTPUT_WRITENOISE": {
+                    "type": "string",
+                    "default": "false"
+                },
+                "SOFIA_OUTPUT_WRITEFILTERED": {
+                    "type": "string",
+                    "default": "false"
+                },
+                "SOFIA_OUTPUT_WRITEMASK": {
+                    "type": "string",
+                    "default": "false"
+                },
+                "SOFIA_OUTPUT_WRITEMASK2D": {
+                    "type": "string",
+                    "default": "true"
+                },
+                "SOFIA_OUTPUT_WRITERAWMASK": {
+                    "type": "string",
+                    "default": "false"
+                },
+                "SOFIA_OUTPUT_WRITEMOMENTS": {
+                    "type": "string",
+                    "default": "true"
+                },
+                "SOFIA_OUTPUT_WRITECUBELETS": {
+                    "type": "string",
+                    "default": "true"
+                },
+                "SOFIA_OUTPUT_MARGINCUBELETS": {
+                    "type": "string",
+                    "default": "10"
+                },
+                "SOFIA_OUTPUT_OVERWRITE": {
+                    "type": "string",
+                    "default": "true"
+                }   
+            }
         }
     },
     "allOf": [
@@ -202,6 +469,9 @@
         },
         {
             "$ref": "#/definitions/docker"
+        },
+        {
+            "$ref": "#/definitions/sofia_parameters"
         }
     ]
 }
