@@ -158,7 +158,7 @@
                 "WALLABY_COMPONENTS_IMAGE": {
                     "type": "string",
                     "description": "Docker image for component functions of the WALLABY workflow.",
-                    "default": "aussrc/wallaby_scripts:v0.1.0"
+                    "default": "aussrc/wallaby_scripts:v0.1.1"
                 },
                 "S2P_IMAGE": {
                     "type": "string",
@@ -294,7 +294,7 @@
                 },
                 "SOFIA_SCFIND_REPLACEMENT": {
                     "type": "string",
-                    "default": "2.0"
+                    "default": ""
                 },
                 "SOFIA_SCFIND_STATISTIC": {
                     "type": "string",
@@ -314,7 +314,7 @@
                 },
                 "SOFIA_THRESHOLD_MODE": {
                     "type": "string",
-                    "default": "relative"
+                    "default": ""
                 },
                 "SOFIA_THRESHOLD_STATISTIC": {
                     "type": "string",
@@ -366,7 +366,7 @@
                 },
                 "SOFIA_RELIABILITY_MINSNR": {
                     "type": "string",
-                    "default": "3.0"
+                    "default": ""
                 },
                 "SOFIA_RELIABILITY_PLOT": {
                     "type": "string",
