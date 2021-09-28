@@ -53,7 +53,7 @@
                 "CASDA_CUBE_FILENAME": {
                     "type": "string",
                     "description": "Filename query string for CASDA cube download",
-                    "default": "image.restored.%SB$SBID%.cube.MilkyWay.contsub.fits"
+                    "default": "image.restored.%SB$SBID%.cube.contsub.fits"
                 },
                 "CASDA_WEIGHTS_TYPE": {
                     "type": "string",
@@ -63,7 +63,7 @@
                 "CASDA_WEIGHTS_FILENAME": {
                     "type": "string",
                     "description": "Weight query string for CASDA weight cube download",
-                    "default": "weights%SB$SBID%.cube.MilkyWay.fits"
+                    "default": "weights%SB$SBID%.cube.fits"
                 }
             },
             "required": [
