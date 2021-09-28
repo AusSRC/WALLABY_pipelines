@@ -70,7 +70,6 @@ process generate_config {
 
 // Linear mosaicking
 process linmos {
-    container = "aussrc/yandasoft_devel_focal:latest"
     containerOptions = '--bind /mnt/shared:/mnt/shared'
     clusterOptions = params.LINMOS_CLUSTER_OPTIONS
 
@@ -78,14 +77,18 @@ process linmos {
         val linmos_config
     
     output:
-        val "${params.WORKDIR}/${params.LINMOS_OUTPUT_IMAGE_CUBE}.fits", emit: cube_file
+        val "${params.WORKDIR}/${params.LINMOS_OUTPUT_IMAGE_CUBE}.fits", emit: mosaicked_cube
 
     script:
         """
         #!/bin/bash
-        mpirun linmos-mpi -c $linmos_config
+
+        mpirun --mca btl_tcp_if_exclude docker0,lo \
+            singularity exec ${params.SINGULARITY_CACHEDIR}/yandasoft_linmos.sif \
+            linmos-mpi -c $linmos_config
         """
 }
+
 
 // TODO(austin): statistical check of mosaicked cube
 

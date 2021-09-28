@@ -15,10 +15,16 @@
                     "type": "string",
                     "description": "Working directory in the shared file system to save all WALLABY workflow files",
                     "default": "/mnt/shared/home/ashen/outputs/tmp"
+                },
+                "SINGULARITY_CACHEDIR": {
+                    "type": "string",
+                    "description": "Directory where singularity images are cached.",
+                    "default": "/mnt/shared/wallaby/apps/singularity"
                 }
             },
             "required": [
-                "WORKDIR"
+                "WORKDIR",
+                "SINGULARITY_CACHEDIR"
             ]
         },
         "casda": {
@@ -85,7 +91,7 @@
                 "LINMOS_CLUSTER_OPTIONS": {
                     "type": "string",
                     "description": "Cluster configuration for the execution of linmos.",
-                    "default": "--ntasks=324 --ntasks-per-node=18"
+                    "default": "--nodes=12 --ntasks-per-node=24 --cpus-per-task=1"
                 }
             },
             "required": [
@@ -160,6 +166,11 @@
                     "description": "Docker image for component functions of the WALLABY workflow.",
                     "default": "aussrc/wallaby_scripts:v0.1.1"
                 },
+                "LINMOS_IMAGE": {
+                    "type": "string",
+                    "description": "Docker image for executing linmos-mpi from Yandasoft.",
+                    "default": "csirocass/yandasoft:1.3.0-openmpi4"
+                },
                 "S2P_IMAGE": {
                     "type": "string",
                     "description": "Docker image for generation of sofia parameter and sofiax config files using s2p_setup.py.",
@@ -178,6 +189,7 @@
             },
             "required": [
                 "WALLABY_COMPONENTS_IMAGE",
+                "LINMOS_IMAGE",
                 "S2P_IMAGE",
                 "SOFIAX_IMAGE",
                 "SOFIA_IMAGE"
