@@ -100,7 +100,7 @@ process s2p_setup {
         val sofia_parameter_file_template
 
     output:
-        stdout emit: stdout
+        val "${params.WORKDIR}/${params.SOFIAX_CONFIG_FILE}", emit: sofiax_config
 
     script:
         """
@@ -110,37 +110,6 @@ process s2p_setup {
             ${params.SOURCE_FINDING_RUN_NAME} \
             ${params.SOURCE_FINDING_NODE_SIZE} \
             ${params.WORKDIR}
-        """
-}
-
-// Read parameter files and create Channel for parallel execution
-process get_parameter_files {
-    input:
-        val s2p_setup
-    
-    output:
-        val parameter_files, emit: parameter_files
-
-    exec:
-        parameter_files = file("${params.WORKDIR}/sofia_*.par")
-}
-
-// Run source finding application (sofia)
-process sofia {
-    container = params.SOFIA_IMAGE
-    containerOptions = '--bind /mnt/shared:/mnt/shared'
-    
-    input:
-        file parameter_file
-
-    output:
-        val parameter_file, emit: parameter_file
-
-    script:
-        """
-        #!/bin/bash
-        
-        sofia $parameter_file
         """
 }
 
@@ -166,19 +135,34 @@ process credentials {
         """
 }
 
-// Join parameter files into single string
-process params_string_join {
+// Read parameter files and create Channel for parallel execution
+process get_parameter_files {
     input:
-        val parameter_files
+        val s2p_setup
     
     output:
-        stdout emit: sofiax_params
+        val parameter_files, emit: parameter_files
+
+    exec:
+        parameter_files = file("${params.WORKDIR}/sofia_*.par")
+}
+
+// Run source finding application (sofia)
+process sofia {
+    container = params.SOFIA_IMAGE
+    containerOptions = '--bind /mnt/shared:/mnt/shared'
     
+    input:
+        file parameter_file
+
+    output:
+        path parameter_file, emit: parameter_file
+
     script:
         """
-        #!/usr/bin/env python3
-
-        print('$parameter_files'.replace('[', '').replace(']', '').replace(',', ''))
+        #!/bin/bash
+        
+        sofia $parameter_file
         """
 }
 
@@ -188,7 +172,7 @@ process sofiax {
     containerOptions = '--bind /mnt/shared:/mnt/shared'
     
     input:
-        val parameter_files
+        file parameter_file
 
     output:
         stdout emit: output
@@ -196,7 +180,7 @@ process sofiax {
     script:
         """
         #!/bin/bash
-        sofiax -c ${params.WORKDIR}/${params.SOFIAX_CONFIG_FILE} -p $parameter_files
+        sofiax -c ${params.WORKDIR}/${params.SOFIAX_CONFIG_FILE} -p $parameter_file
         """
 }
 
@@ -208,16 +192,17 @@ workflow source_finding {
     take: cube
 
     main:
-        // sofia
+        // configuration
         generate_sofia_parameter_file_template(cube)
         s2p_setup(cube, generate_sofia_parameter_file_template.out.file)
-        get_parameter_files(s2p_setup.out.stdout)
+        credentials(s2p_setup.out.sofiax_config)
+        
+        // sofia
+        get_parameter_files(credentials.out.sofiax_config)
         sofia(get_parameter_files.out.parameter_files.flatten())
 
         // sofiax
-        // params_string_join(sofia.out.parameter_file.collect())
-        // credentials(s2p_setup.out.sofiax_config)
-        // sofiax(params_string_join.out.sofiax_params)
+        sofiax(sofia.out.parameter_file)
 }
 
 // ----------------------------------------------------------------------------------------
