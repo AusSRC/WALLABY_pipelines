@@ -103,10 +103,15 @@
             "description": "Information for the SoFiA run.",
             "default": "",
             "properties": {
-                "SOFIA_RUN_NAME": {
+                "SOURCE_FINDING_RUN_NAME": {
                     "type": "string",
                     "description": "Name for this run of the WALLABY workflow",
                     "default": "sofia"
+                },
+                "SOURCE_FINDING_NODE_SIZE": {
+                    "type": "integer",
+                    "description": "Size of the computing worker nodes for the computing cluster.",
+                    "default": 128
                 },
                 "SOFIA_PARAMS_FILE": {
                     "type": "string",
@@ -115,7 +120,7 @@
                 }
             },
             "required": [
-                "SOFIA_RUN_NAME"
+                "SOURCE_FINDING_RUN_NAME"
             ]
         },
         "sofiax": {

@@ -6,55 +6,13 @@ nextflow.enable.dsl = 2
 // Processes
 // ----------------------------------------------------------------------------------------
 
-// Download image cubes from CASDA
-process casda_download {
-    container = params.WALLABY_COMPONENTS_IMAGE
-    containerOptions = '--bind /mnt/shared:/mnt/shared'
-
-    input:
-        val sbid
-
-    output:
-        stdout emit: cube
-
-    script:
-        """
-        python3 -u /app/casda_download.py \
-            -i $sbid \
-            -o ${params.WORKDIR} \
-            -u '${params.CASDA_USERNAME}' \
-            -p '${params.CASDA_PASSWORD}' \
-            -ct '${params.CASDA_CUBE_TYPE}' \
-            -cf '${params.CASDA_CUBE_FILENAME}' \
-            -wt '${params.CASDA_WEIGHTS_TYPE}' \
-            -wf '${params.CASDA_WEIGHTS_FILENAME}'
-        """
-}
-
-// Checksum comparison
-process checksum {
-    container = params.WALLABY_COMPONENTS_IMAGE
-    containerOptions = '--bind /mnt/shared:/mnt/shared'
-
-    input:
-        val cube
-
-    output:
-        stdout emit: cube
-
-    script:
-        """
-        python3 -u /app/verify_checksum.py $cube
-        """
-}
-
 // Generate configuration
 process generate_config {
     container = params.WALLABY_COMPONENTS_IMAGE
     containerOptions = '--bind /mnt/shared:/mnt/shared'
 
     input:
-        val cubes
+        val footprints
 
     output:
         stdout emit: linmos_config
@@ -62,7 +20,7 @@ process generate_config {
     script:
         """
         python3 -u /app/generate_linmos_config.py \
-            -i "$cubes" \
+            -i "$footprints" \
             -f ${params.WORKDIR}/${params.LINMOS_OUTPUT_IMAGE_CUBE} \
             -c ${params.WORKDIR}/${params.LINMOS_CONFIG_FILENAME}
         """
@@ -83,30 +41,26 @@ process linmos {
         """
         #!/bin/bash
 
+        singularity pull ${params.SINGULARITY_CACHEDIR}/csirocass_yandasoft.img ${params.LINMOS_IMAGE}
         mpirun --mca btl_tcp_if_exclude docker0,lo \
-            singularity exec ${params.SINGULARITY_CACHEDIR}/yandasoft_linmos.sif \
+            singularity exec ${params.SINGULARITY_CACHEDIR}/csirocass_yandasoft.img \
             linmos-mpi -c $linmos_config
         """
 }
-
-
-// TODO(austin): statistical check of mosaicked cube
 
 // ----------------------------------------------------------------------------------------
 // Workflow
 // ----------------------------------------------------------------------------------------
 
 workflow mosaicking {
-    take: sbids
+    take: footprints
 
     main:
-        casda_download(sbids)
-        checksum(casda_download.out.cube)
-        generate_config(checksum.out.cube.collect())
+        generate_config(footprints)
         linmos(generate_config.out.linmos_config)
     
     emit:
-        cube = linmos.out.cube_file
+        cube = linmos.out.mosaicked_cube
 }
 
 // ----------------------------------------------------------------------------------------
