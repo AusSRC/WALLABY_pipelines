@@ -57,7 +57,7 @@ workflow download {
 
     main:
         casda_download(sbids)
-        // checksum(casda_download.out.cube)
+        checksum(casda_download.out.cube)
     
     emit:
         footprints = casda_download.out.cube
