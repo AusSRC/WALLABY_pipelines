@@ -101,7 +101,6 @@ process s2p_setup {
 
     output:
         val "${params.WORKDIR}/${params.SOFIAX_CONFIG_FILE}", emit: sofiax_config
-        val file("${params.WORKDIR}/sofia_*.par"), emit: parameter_files
 
     script:
         """
@@ -124,6 +123,7 @@ process credentials {
 
     output:
         val sofiax_config, emit: sofiax_config
+        val file("${params.WORKDIR}/sofia_*.par"), emit: parameter_files
     
     script:
         """
@@ -134,6 +134,19 @@ process credentials {
             --username ${params.DATABASE_USER} \
             --password ${params.DATABASE_PASS}
         """
+}
+
+// Fetch parameter files from the filesystem (dynamically)
+process get_parameter_files {
+    input:
+        val sofiax_config
+    
+    output:
+        stdout emit: stdout
+        val parameter_files, emit: parameter_files
+
+    exec:
+        parameter_files = file("${params.WORKDIR}/sofia_*.par")
 }
 
 // Run source finding application (sofia)
@@ -181,15 +194,11 @@ workflow source_finding {
     take: cube
 
     main:
-        // configuration
         generate_sofia_parameter_file_template(cube)
         s2p_setup(cube, generate_sofia_parameter_file_template.out.file)
         credentials(s2p_setup.out.sofiax_config)
-        
-        // sofia
-        sofia(s2p_setup.out.parameter_files.flatten())
-
-        // sofiax
+        get_parameter_files(credentials.out.sofiax_config)
+        sofia(get_parameter_files.out.parameter_files.flatten())
         sofiax(sofia.out.parameter_file)
 }
 
