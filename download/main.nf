@@ -8,44 +8,37 @@ nextflow.enable.dsl = 2
 
 // Download image cubes from CASDA
 process casda_download {
-    container = params.WALLABY_COMPONENTS_IMAGE
+    container = params.CASDA_DOWNLOAD_COMPONENTS_IMAGE
     containerOptions = '--bind /mnt/shared:/mnt/shared'
 
     input:
-        val sbid
+        val sbids
 
     output:
-        stdout emit: cube
+        stdout emit: stdout
 
     script:
         """
         python3 -u /app/casda_download.py \
-            -i $sbid \
+            -i $sbids \
             -o ${params.WORKDIR} \
             -u '${params.CASDA_USERNAME}' \
-            -p '${params.CASDA_PASSWORD}' \
-            -ct '${params.CASDA_CUBE_TYPE}' \
-            -cf '${params.CASDA_CUBE_FILENAME}' \
-            -wt '${params.CASDA_WEIGHTS_TYPE}' \
-            -wf '${params.CASDA_WEIGHTS_FILENAME}'
+            -p '${params.CASDA_PASSWORD}'
         """
 }
 
-// Checksum comparison
-process checksum {
-    container = params.WALLABY_COMPONENTS_IMAGE
-    containerOptions = '--bind /mnt/shared:/mnt/shared'
-
+// Find downloaded images on file system
+process get_downloaded_files {
     input:
-        val cube
+        val casda_download
 
     output:
-        stdout emit: cube
+        val footprints, emit: footprints
+        val weights, emit: weights
 
-    script:
-        """
-        python3 -u /app/verify_checksum.py $cube
-        """
+    exec:
+        footprints = file("${params.WORKDIR}/image.restored.i.*.cube.contsub.fits")
+        weights = file("${params.WORKDIR}/weights.i.*.cube.fits")
 }
 
 // ----------------------------------------------------------------------------------------
@@ -57,10 +50,11 @@ workflow download {
 
     main:
         casda_download(sbids)
-        checksum(casda_download.out.cube)
+        get_downloaded_files(casda_download.out.stdout)
     
     emit:
-        footprints = casda_download.out.cube
+        footprints = get_downloaded_files.out.footprints
+        weights = get_downloaded_files.out.weights
 }
 
 // ----------------------------------------------------------------------------------------
