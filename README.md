@@ -1,7 +1,5 @@
 <h1 align="center"><a href="https://aussrc.github.io/WALLABY_workflows/">WALLABY workflows</a></h1>
 
-[![Docs](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/documentation.yml/badge.svg)](https://github.com/AusSRC/WALLABY_workflows/actions/workflows/documentation.yml)
-
 WALLABY survey data post-processing pipelines by the [AusSRC](https://aussrc.org). 
 
 ## Overview
@@ -10,44 +8,50 @@ The WALLABY survey science data post-processing generates advanced data products
 
 Currently we provide support for two modules for the pipeline, which each produce an important advanced data product. These components are the following: 
 
-*  mosaicking of image footprints (taken directly from ASKAP), 
-*  source finding to generate the detections for the WALLABY catalogue. 
+* download footprints and weights from CASDA
+* mosaicking with `linmos`
+* source finding to generate the detections for the WALLABY catalogue (using [SoFiA-2](https://github.com/SoFiA-Admin/SoFiA-2) and [SoFiAX](https://github.com/AusSRC/SoFiAX))
 
-The WALLABY workflow is composed of two separate Nextflow modules for the two key functional components of the workflow. The end-to-end workflow takes raw footprints from [CASDA's Data Access Portal](https://data.csiro.au/collections/domain/casdaObservation/search/), performs linear mosaicking with [linmos](https://www.atnf.csiro.au/computing/software/askapsoft/sdp/docs/current/calim/linmos.html) to generate a WALLABY image cube. We then run source finding with [SoFiA-2](https://github.com/SoFiA-Admin/SoFiA-2) and write the output to a PostgreSQL database with [SoFiAX](https://github.com/AusSRC/SoFiAX). We provide the capability to run the two modules independently or together on a variety of computing resources.
+## Getting started
 
-## Quick Start
-
-**AusSRC science users, [Nextflow Tower](https://tower.nf) provides a visual interface and preferred method for submitting this workflow.**
-
-The pipeline can be run from a Slurm cluster head node. This is provided by AusSRC for the WALLABY science community, but it can be run on public cloud providers or other on-premise clusters. To submit the `nextflow` jobs to the cluster run the following command 
+Pipelines are deployed from the head node of a Slurm cluster. The AusSRC cluster is available to the WALLABY community for deploying these jobs. To submit a job run the following:
 
 ```
-nextflow run https://github.com/AusSRC/WALLABY_workflows -params-file <PARAMETER_FILE>
+nextflow run https://github.com/AusSRC/WALLABY_workflows -params-file params.yaml
 ```
 
-A parameter file is required for the direct execution of the workflow via the Slurm head node. It is the mechanism by which the user can pass run-specific configuration information to Nextflow. This parameter file is accepted with the flag `-params-file` as shown above.
-
-The parameter file needs to be either `json` or `yaml` format. Below is a template that the user should feel free to copy.
+where `params.yaml` is the parameter file that we provide. The contents of which is used to configure the pipeline. A template is provided for you below
 
 ```
 {
-  "SBIDS" : <SBIDS>,
-  "WORKDIR" : <WORK_DIRECTORY>,
-  "CASDA_USERNAME" : <YOUR_CASDA_USERNAME>,
-  "CASDA_PASSWORD" : <YOUR_CASDA_PASSWORD>,
-  "DATABASE_HOST" : <YOUR_DATABASE_HOST>,
-  "DATABASE_NAME" : <YOUR_DATABASE_NAME>,
-  "DATABASE_USER" : <YOUR_DATABASE_USER>,
-  "DATABASE_PASS" : <YOUR_DATABASE_PASS>
+  # Required 
+  "SBIDS": "25750 25701",
+  "WORKDIR": "/mnt/shared/home/ashen/runs/NGC5044_4",
   
+  # Download credentials
+  "CASDA_USERNAME": "",
+  "CASDA_PASSWORD": "",
+
+  # Source finding parameters
+  "SOURCE_FINDING_RUN_NAME": "NGC5044_4",
+  "SOFIA_PARAMETER_FILE": "/mnt/shared/home/ashen/runs/NGC5044_4/sofia.par",
+  "S2P_TEMPLATE": "/mnt/shared/home/ashen/runs/NGC5044_4/s2p_setup.ini",
+
+  # Database credentials
+  "DATABASE_HOST": "",
+  "DATABASE_NAME": "wallabydb",
+  "DATABASE_USER": "admin",
+  "DATABASE_PASS": "admin"
 }
 ```
 
 More information can be found in the documentation.
 
-## Documentation
+## Useful Links
 
 * [Documentation home](https://aussrc.github.io/WALLABY_workflows/)
 * [Modules](https://aussrc.github.io/WALLABY_workflows/docs/overview#modules)
 * [Getting started](https://aussrc.github.io/WALLABY_workflows/docs/getting_started)
 * [Configuration reference](https://aussrc.github.io/WALLABY_workflows/docs/configuration/end-to-end)
+* [CASDA's Data Access Portal](https://data.csiro.au/collections/domain/casdaObservation/search/)
+* [YANDASoft linmos](https://www.atnf.csiro.au/computing/software/askapsoft/sdp/docs/current/calim/linmos.html)
