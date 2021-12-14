@@ -1,6 +1,6 @@
-<h1 align="center"><a href="https://aussrc.github.io/WALLABY_workflows/">WALLABY workflows</a></h1>
+<h1 align="center"><a href="https://aussrc.github.io/WALLABY_workflows/">WALLABY pipeline</a></h1>
 
-WALLABY survey data post-processing pipelines by the [AusSRC](https://aussrc.org). 
+WALLABY survey data post-processing pipeline by the [AusSRC](https://aussrc.org). 
 
 ## Overview
 
