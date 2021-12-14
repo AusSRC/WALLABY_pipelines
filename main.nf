@@ -7,8 +7,6 @@ include { source_finding } from './source_finding/main'
 
 workflow {
     sbids = Channel.of(params.SBIDS.replaceAll(',', ' '))
-    footprints = Channel.of(params.FOOTPRINTS.split(','))
-    mosaicked_cube = "${params.MOSAICKED_IMAGE}"
     sofia_parameter_file = "${params.SOFIA_PARAMETER_FILE}"
 
     main:
