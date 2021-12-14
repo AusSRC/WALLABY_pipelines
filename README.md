@@ -4,7 +4,7 @@ WALLABY survey data post-processing pipeline by the [AusSRC](https://aussrc.org)
 
 ## Overview
 
-The WALLABY survey science data post-processing generates advanced data products, that are used by scientists for their research. We have composed some of these data post-processing tasks into [Nextflow](https://www.nextflow.io/) pipelines for convenient execution, thereby abstracting the low-level computing details of these activities from the science users.
+The WALLABY survey science data post-processing generates advanced data products that are used by scientists for their research. We have composed some of these data post-processing tasks into [Nextflow](https://www.nextflow.io/) pipelines for convenient execution, thereby abstracting the low-level computing details of these activities from the science users.
 
 Currently we provide support for two modules for the pipeline, which each produce an important advanced data product. These components are the following: 
 
