@@ -17,6 +17,7 @@ process generate_config {
     output:
         stdout emit: linmos_config
 
+    // TODO(austin): Eventually provide weights image paths here
     script:
         """
         python3 -u /app/generate_linmos_config.py \
@@ -41,9 +42,9 @@ process linmos {
         """
         #!/bin/bash
 
-        singularity pull ${params.SINGULARITY_CACHEDIR}/csirocass_yandasoft.img ${params.LINMOS_IMAGE}
+        singularity pull ${params.SINGULARITY_CACHEDIR}/yandasoft.img ${params.LINMOS_IMAGE}
         mpirun --mca btl_tcp_if_exclude docker0,lo \
-            singularity exec ${params.SINGULARITY_CACHEDIR}/csirocass_yandasoft.img \
+            singularity exec ${params.SINGULARITY_CACHEDIR}/yandasoft.img \
             linmos-mpi -c $linmos_config
         """
 }

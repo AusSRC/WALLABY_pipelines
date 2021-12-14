@@ -58,7 +58,6 @@ process get_parameter_files {
         val sofiax_config
 
     output:
-        stdout emit: stdout
         val parameter_files, emit: parameter_files
 
     exec:
