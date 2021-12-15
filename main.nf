@@ -11,6 +11,6 @@ workflow {
 
     main:
         download(sbids)
-        mosaicking(download.out.footprints.collect())
+        mosaicking(download.out.footprints.collect(), download.out.weights.collect())
         source_finding(mosaicking.out.cube, sofia_parameter_file)
 }

@@ -26,14 +26,14 @@ where `params.yaml` is the parameter file that we provide. The contents of which
 {
   # Required 
   "SBIDS": "25750 25701",
-  "WORKDIR": "/mnt/shared/home/ashen/runs/NGC5044_4",
+  "RUN_NAME": "NGC5044_4",
+  "WORKDIR": "/mnt/shared/home/ashen/runs",
   
   # Download credentials
   "CASDA_USERNAME": "",
   "CASDA_PASSWORD": "",
 
   # Source finding parameters
-  "SOURCE_FINDING_RUN_NAME": "NGC5044_4",
   "SOFIA_PARAMETER_FILE": "/mnt/shared/home/ashen/runs/NGC5044_4/sofia.par",
   "S2P_TEMPLATE": "/mnt/shared/home/ashen/runs/NGC5044_4/s2p_setup.ini",
 

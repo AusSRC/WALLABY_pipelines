@@ -22,8 +22,8 @@ process generate_config {
         """
         python3 -u /app/generate_linmos_config.py \
             -i "$footprints" \
-            -f ${params.WORKDIR}/${params.LINMOS_OUTPUT_IMAGE_CUBE} \
-            -c ${params.WORKDIR}/${params.LINMOS_CONFIG_FILENAME}
+            -f ${params.WORKDIR}/${params.RUN_NAME}/${params.LINMOS_OUTPUT_IMAGE_CUBE} \
+            -c ${params.WORKDIR}/${params.RUN_NAME}/${params.LINMOS_CONFIG_FILENAME}
         """
 }
 
@@ -36,7 +36,7 @@ process linmos {
         val linmos_config
     
     output:
-        val "${params.WORKDIR}/${params.LINMOS_OUTPUT_IMAGE_CUBE}.fits", emit: mosaicked_cube
+        val "${params.WORKDIR}/${params.RUN_NAME}/${params.LINMOS_OUTPUT_IMAGE_CUBE}.fits", emit: mosaicked_cube
 
     script:
         """
@@ -54,7 +54,9 @@ process linmos {
 // ----------------------------------------------------------------------------------------
 
 workflow mosaicking {
-    take: footprints
+    take: 
+        footprints
+        weights
 
     main:
         generate_config(footprints)
@@ -65,4 +67,3 @@ workflow mosaicking {
 }
 
 // ----------------------------------------------------------------------------------------
-

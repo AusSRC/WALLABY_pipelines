@@ -16,7 +16,7 @@ process s2p_setup {
         val sofia_parameter_file_template
 
     output:
-        val "${params.WORKDIR}/${params.SOFIAX_CONFIG_FILE}", emit: sofiax_config
+        val "${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILE}", emit: sofiax_config
 
     script:
         """
@@ -24,8 +24,8 @@ process s2p_setup {
             ${params.S2P_TEMPLATE} \
             $image_cube_file \
             $sofia_parameter_file_template \
-            ${params.SOURCE_FINDING_RUN_NAME} \
-            ${params.WORKDIR}
+            ${params.RUN_NAME} \
+            ${params.WORKDIR}/${params.RUN_NAME}
         """
 }
 
@@ -39,7 +39,7 @@ process credentials {
 
     output:
         val sofiax_config, emit: sofiax_config
-        val file("${params.WORKDIR}/sofia_*.par"), emit: parameter_files
+        val file("${params.WORKDIR}/${params.RUN_NAME}/sofia_*.par"), emit: parameter_files
     
     script:
         """
@@ -54,6 +54,8 @@ process credentials {
 
 // Fetch parameter files from the filesystem (dynamically)
 process get_parameter_files {
+    executor = 'local'
+
     input:
         val sofiax_config
 
@@ -61,7 +63,7 @@ process get_parameter_files {
         val parameter_files, emit: parameter_files
 
     exec:
-        parameter_files = file("${params.WORKDIR}/sofia_*.par")
+        parameter_files = file("${params.WORKDIR}/${params.RUN_NAME}/sofia_*.par")
 }
 
 // Run source finding application (sofia)
@@ -79,7 +81,7 @@ process sofia {
         """
         #!/bin/bash
         
-        sofia $parameter_file
+        OMP_NUM_THREADS=8 sofia $parameter_file
         """
 }
 
@@ -97,7 +99,7 @@ process sofiax {
     script:
         """
         #!/bin/bash
-        sofiax -c ${params.WORKDIR}/${params.SOFIAX_CONFIG_FILE} -p $parameter_file
+        sofiax -c ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILE} -p $parameter_file
         """
 }
 
