@@ -51,7 +51,8 @@ process casda_download {
             -i $sbids \
             -o ${params.WORKDIR}/${params.RUN_NAME} \
             -u '${params.CASDA_USERNAME}' \
-            -p '${params.CASDA_PASSWORD}'
+            -p '${params.CASDA_PASSWORD}' \
+            -q '${params.DOWNLOAD_QUERY}'
         """
 }
 
