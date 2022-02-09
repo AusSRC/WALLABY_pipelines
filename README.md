@@ -29,6 +29,7 @@ where `params.yaml` is the parameter file that we provide. The contents of which
   "SBIDS": "25750 25701",
   "RUN_NAME": "NGC5044_4",
   "WORKDIR": "/mnt/shared/home/ashen/runs",
+  "OUTPUT_DIR": "outputs",
   
   # Download credentials
   "CASDA_USERNAME": "",
