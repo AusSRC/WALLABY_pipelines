@@ -28,7 +28,9 @@ process generate_config {
 }
 
 // Linear mosaicking
+// TODO(austin): add log output location
 process linmos {
+    container = params.LINMOS_IMAGE
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
     clusterOptions = params.LINMOS_CLUSTER_OPTIONS
 
@@ -42,10 +44,7 @@ process linmos {
         """
         #!/bin/bash
 
-        singularity pull ${params.SINGULARITY_CACHEDIR}/yandasoft.img ${params.LINMOS_IMAGE}
-        mpirun --mca btl_tcp_if_exclude docker0,lo \
-            singularity exec ${params.SINGULARITY_CACHEDIR}/yandasoft.img \
-            linmos-mpi -c $linmos_config
+        linmos -c $linmos_config
         """
 }
 
