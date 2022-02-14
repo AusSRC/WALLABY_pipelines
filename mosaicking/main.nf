@@ -28,9 +28,7 @@ process generate_config {
 }
 
 // Linear mosaicking
-// TODO(austin): add log output location
 process linmos {
-    container = params.LINMOS_IMAGE
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
     clusterOptions = params.LINMOS_CLUSTER_OPTIONS
 
@@ -44,7 +42,13 @@ process linmos {
         """
         #!/bin/bash
 
-        linmos -c $linmos_config
+        export SINGULARITY_PULLDIR=${params.SINGULARITY_CACHEDIR}
+        singularity pull ${params.SINGULARITY_CACHEDIR}/${params.LINMOS_IMAGE} ${params.LINMOS_IMAGE}
+        srun --nodes=12 --ntasks-per-node=24 --cpus-per-task=1 \
+            singularity exec \
+            --bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} \
+            ${params.SINGULARITY_CACHEDIR}/${params.LINMOS_IMAGE} \
+            linmos-mpi -c $linmos_config
         """
 }
 
