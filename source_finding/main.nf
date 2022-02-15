@@ -22,7 +22,7 @@ process s2p_setup {
         """
         python3 -u /app/s2p_setup.py \
             ${params.S2P_TEMPLATE} \
-            ${params.WORKDIR}/${params.RUN_NAME}/$image_cube_file \
+            $image_cube_file \
             $sofia_parameter_file_template \
             ${params.RUN_NAME} \
             ${params.WORKDIR}/${params.RUN_NAME} \
