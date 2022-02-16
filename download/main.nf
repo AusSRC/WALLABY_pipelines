@@ -56,6 +56,8 @@ process casda_download {
         """
 }
 
+// TODO(austin): Check file sizes against casda
+
 // Find downloaded images on file system
 process get_downloaded_files {
     executor = 'local'

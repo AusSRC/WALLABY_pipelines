@@ -22,7 +22,7 @@ process generate_config {
         """
         python3 -u /app/generate_linmos_config.py \
             -i "$footprints" \
-            -f ${params.WORKDIR}/${params.RUN_NAME}/${params.LINMOS_OUTPUT_IMAGE_CUBE} \
+            -f ${params.WORKDIR}/${params.RUN_NAME}/mosaic \
             -c ${params.WORKDIR}/${params.RUN_NAME}/${params.LINMOS_CONFIG_FILENAME}
         """
 }
@@ -36,7 +36,7 @@ process linmos {
         val linmos_config
     
     output:
-        val "${params.WORKDIR}/${params.RUN_NAME}/${params.LINMOS_OUTPUT_IMAGE_CUBE}.fits", emit: mosaicked_cube
+        val "${params.WORKDIR}/${params.RUN_NAME}/mosaic.fits", emit: mosaicked_cube
 
     script:
         """
