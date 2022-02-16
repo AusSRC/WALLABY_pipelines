@@ -106,8 +106,6 @@ process sofiax {
 
 // TODO(austin): rename weights cube too
 process rename_mosaic {
-    executor = 'local'
-
     input:
         val sofiax
 
@@ -118,7 +116,7 @@ process rename_mosaic {
         """
         #!/bin/bash
 
-        mv "${params.WORKDIR}/${params.RUN_NAME}/mosaic.fits" $(echo "${params.WORKDIR}/${params.RUN_NAME}/image.restored.i.SB${SBIDS}.mosaic.cube.fits" | tr " " .)
+        mv ${params.WORKDIR}/${params.RUN_NAME}/mosaic.fits $(echo "${params.WORKDIR}/${params.RUN_NAME}/image.restored.i.SB${SBIDS}.mosaic.cube.fits" | tr " " .)
         """
 }
 
