@@ -118,7 +118,7 @@ process rename_mosaic {
         """
         #!/bin/bash
 
-        mv ${params.WORKDIR}/${params.RUN_NAME}/mosaic.fits $(echo "${params.WORKDIR}/${params.RUN_NAME}/image.restored.i.SB${SBIDS}.mosaic.cube.fits" | tr " " .)
+        mv "${params.WORKDIR}/${params.RUN_NAME}/mosaic.fits" $(echo "${params.WORKDIR}/${params.RUN_NAME}/image.restored.i.SB${SBIDS}.mosaic.cube.fits" | tr " " .)
         """
 }
 
