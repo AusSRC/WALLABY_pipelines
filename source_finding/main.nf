@@ -138,7 +138,7 @@ workflow source_finding {
         get_parameter_files(credentials.out.sofiax_config)
         sofia(get_parameter_files.out.parameter_files.flatten())
         sofiax(sofia.out.parameter_file)
-        rename_mosaic(sofiax.out.stdout)
+        rename_mosaic(sofiax.out.output)
 }
 
 // ----------------------------------------------------------------------------------------
