@@ -113,7 +113,13 @@ process rename_mosaic {
         """
         #!/bin/bash
 
-        mv ${params.WORKDIR}/${params.RUN_NAME}/mosaic.fits ${params.WORKDIR}/${params.RUN_NAME}/\$(echo "image.restored.i.SB${params.SBIDS.replaceAll(',', ' ')}.mosaic.cube.fits" | tr " " .)
+        # Rename mosaic image file if it exists
+        [ -f ${params.WORKDIR}/${params.RUN_NAME}/mosaic.fits ] && \
+            { mv ${params.WORKDIR}/${params.RUN_NAME}/mosaic.fits ${params.WORKDIR}/${params.RUN_NAME}/\$(echo "image.restored.i.SB${params.SBIDS.replaceAll(',', ' ')}.mosaic.cube.fits" | tr " " .) }
+
+        # Remame weights image file if it exists
+        [ -f ${params.WORKDIR}/${params.RUN_NAME}/mosaic.fits ] && \
+            { mv ${params.WORKDIR}/${params.RUN_NAME}/mosaic.weights.fits ${params.WORKDIR}/${params.RUN_NAME}/\$(echo "weights.i.SB${params.SBIDS.replaceAll(',', ' ')}.mosaic.cube.fits" | tr " " .) }
         """
 }
 
