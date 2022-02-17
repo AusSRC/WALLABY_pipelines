@@ -104,7 +104,7 @@ process sofiax {
         """
 }
 
-// TODO(austin): rename weights cube too
+// TODO(austin): rename weights cube tools
 process rename_mosaic {
     input:
         sofiax
@@ -113,7 +113,7 @@ process rename_mosaic {
         """
         #!/bin/bash
 
-        mv ${params.WORKDIR}/${params.RUN_NAME}/mosaic.fits ${params.WORKDIR}/${params.RUN_NAME}/$(echo "image.restored.i.SB${params.SBIDS.replaceAll(',', ' ')}.mosaic.cube.fits" | tr " " .)
+        mv ${params.WORKDIR}/${params.RUN_NAME}/mosaic.fits ${params.WORKDIR}/${params.RUN_NAME}/\$(echo "image.restored.i.SB${params.SBIDS.replaceAll(',', ' ')}.mosaic.cube.fits" | tr " " .)
         """
 }
 
