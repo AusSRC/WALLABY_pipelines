@@ -105,6 +105,17 @@ process sofiax {
 }
 
 // TODO(austin): rename weights cube too
+process rename_mosaic {
+    input:
+        sofiax
+    
+    script:
+        """
+        #!/bin/bash
+
+        mv ${params.WORKDIR}/${params.RUN_NAME}/mosaic.fits ${params.WORKDIR}/${params.RUN_NAME}/$(echo "image.restored.i.SB${params.SBIDS.replaceAll(',', ' ')}.mosaic.cube.fits" | tr " " .)
+        """
+}
 
 // ----------------------------------------------------------------------------------------
 // Workflow
@@ -121,6 +132,7 @@ workflow source_finding {
         get_parameter_files(credentials.out.sofiax_config)
         sofia(get_parameter_files.out.parameter_files.flatten())
         sofiax(sofia.out.parameter_file)
+        rename_mosaic(sofiax.out.stdout)
 }
 
 // ----------------------------------------------------------------------------------------
