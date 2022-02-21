@@ -30,7 +30,6 @@ process generate_config {
 // Linear mosaicking
 process linmos {
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
-    clusterOptions = params.LINMOS_CLUSTER_OPTIONS
 
     input:
         val linmos_config
