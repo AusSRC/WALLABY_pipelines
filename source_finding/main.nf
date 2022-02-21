@@ -107,7 +107,7 @@ process sofiax {
 // TODO(austin): rename weights cube tools
 process rename_mosaic {
     input:
-        sofiax
+        val sofiax
     
     script:
         """
