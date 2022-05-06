@@ -9,7 +9,7 @@ nextflow.enable.dsl = 2
 // Generate configuration
 process generate_config {
     container = params.WALLABY_COMPONENTS_IMAGE
-    containerOptions = '--bind /mnt/shared:/mnt/shared'
+    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
         val footprints
@@ -28,7 +28,7 @@ process generate_config {
 
 // Linear mosaicking
 process linmos {
-    containerOptions = '--bind /mnt/shared:/mnt/shared'
+    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
     clusterOptions = params.LINMOS_CLUSTER_OPTIONS
 
     input:

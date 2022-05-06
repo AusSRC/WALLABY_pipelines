@@ -9,7 +9,7 @@ nextflow.enable.dsl = 2
 // Download image cubes from CASDA
 process casda_download {
     container = params.WALLABY_COMPONENTS_IMAGE
-    containerOptions = '--bind /mnt/shared:/mnt/shared'
+    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
         val sbid
@@ -34,7 +34,7 @@ process casda_download {
 // Checksum comparison
 process checksum {
     container = params.WALLABY_COMPONENTS_IMAGE
-    containerOptions = '--bind /mnt/shared:/mnt/shared'
+    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
         val cube

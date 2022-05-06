@@ -9,7 +9,7 @@ nextflow.enable.dsl = 2
 // Generate sofia parameter file from Nextflow params and defaults
 process generate_sofia_parameter_file_template {
     container = params.SOURCE_FINDING_COMPONENTS_IMAGE
-    containerOptions = '--bind /mnt/shared:/mnt/shared'
+    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
         val image_cube_file
@@ -93,7 +93,7 @@ process generate_sofia_parameter_file_template {
 // Create scripts for running SoFiA via SoFiAX
 process s2p_setup {
     container = params.S2P_IMAGE
-    containerOptions = '--bind /mnt/shared:/mnt/shared'
+    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
         val image_cube_file
@@ -117,7 +117,7 @@ process s2p_setup {
 // Another process for updating the sofiax config file database credentials
 process credentials {
     container = params.WALLABY_COMPONENTS_IMAGE
-    containerOptions = '--bind /mnt/shared:/mnt/shared'
+    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
         val sofiax_config
@@ -139,7 +139,7 @@ process credentials {
 // Run source finding application (sofia)
 process sofia {
     container = params.SOFIA_IMAGE
-    containerOptions = '--bind /mnt/shared:/mnt/shared'
+    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
     
     input:
         file parameter_file
@@ -158,7 +158,7 @@ process sofia {
 // Write sofia output to database (sofiax)
 process sofiax {
     container = params.SOFIAX_IMAGE
-    containerOptions = '--bind /mnt/shared:/mnt/shared'
+    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
     
     input:
         file parameter_file
