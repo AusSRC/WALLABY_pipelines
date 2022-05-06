@@ -17,12 +17,13 @@ process generate_config {
     output:
         stdout emit: linmos_config
 
+    // TODO(austin): Eventually provide weights image paths here
     script:
         """
         python3 -u /app/generate_linmos_config.py \
             -i "$footprints" \
-            -f ${params.WORKDIR}/${params.LINMOS_OUTPUT_IMAGE_CUBE} \
-            -c ${params.WORKDIR}/${params.LINMOS_CONFIG_FILENAME}
+            -f ${params.WORKDIR}/${params.RUN_NAME}/mosaic \
+            -c ${params.WORKDIR}/${params.RUN_NAME}/${params.LINMOS_CONFIG_FILENAME}
         """
 }
 
@@ -35,15 +36,18 @@ process linmos {
         val linmos_config
     
     output:
-        val "${params.WORKDIR}/${params.LINMOS_OUTPUT_IMAGE_CUBE}.fits", emit: mosaicked_cube
+        val "${params.WORKDIR}/${params.RUN_NAME}/mosaic.fits", emit: mosaicked_cube
 
     script:
         """
         #!/bin/bash
 
-        singularity pull ${params.SINGULARITY_CACHEDIR}/csirocass_yandasoft.img ${params.LINMOS_IMAGE}
-        mpirun --mca btl_tcp_if_exclude docker0,lo \
-            singularity exec ${params.SINGULARITY_CACHEDIR}/csirocass_yandasoft.img \
+        export SINGULARITY_PULLDIR=${params.SINGULARITY_CACHEDIR}
+        singularity pull ${params.SINGULARITY_CACHEDIR}/yandasoft.img ${params.LINMOS_IMAGE}
+        srun --nodes=12 --ntasks-per-node=24 --cpus-per-task=1 \
+            singularity exec \
+            --bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} \
+            ${params.SINGULARITY_CACHEDIR}/yandasoft.img \
             linmos-mpi -c $linmos_config
         """
 }
@@ -53,7 +57,9 @@ process linmos {
 // ----------------------------------------------------------------------------------------
 
 workflow mosaicking {
-    take: footprints
+    take: 
+        footprints
+        weights
 
     main:
         generate_config(footprints)
@@ -64,4 +70,3 @@ workflow mosaicking {
 }
 
 // ----------------------------------------------------------------------------------------
-

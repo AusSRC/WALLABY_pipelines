@@ -6,6 +6,7 @@ nextflow.enable.dsl = 2
 // Processes
 // ----------------------------------------------------------------------------------------
 
+<<<<<<< HEAD
 // Generate sofia parameter file from Nextflow params and defaults
 process generate_sofia_parameter_file_template {
     container = params.SOURCE_FINDING_COMPONENTS_IMAGE
@@ -90,6 +91,8 @@ process generate_sofia_parameter_file_template {
         """
 }
 
+=======
+>>>>>>> 91567b3711b613014a99ca3dd30c1663196399b7
 // Create scripts for running SoFiA via SoFiAX
 process s2p_setup {
     container = params.S2P_IMAGE
@@ -100,17 +103,17 @@ process s2p_setup {
         val sofia_parameter_file_template
 
     output:
-        val "${params.WORKDIR}/${params.SOFIAX_CONFIG_FILE}", emit: sofiax_config
-        val file("${params.WORKDIR}/sofia_*.par"), emit: parameter_files
+        val "${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILE}", emit: sofiax_config
 
     script:
         """
         python3 -u /app/s2p_setup.py \
+            ${params.S2P_TEMPLATE} \
             $image_cube_file \
             $sofia_parameter_file_template \
-            ${params.SOURCE_FINDING_RUN_NAME} \
-            ${params.SOURCE_FINDING_NODE_SIZE} \
-            ${params.WORKDIR}
+            ${params.RUN_NAME} \
+            ${params.WORKDIR}/${params.RUN_NAME} \
+            ${params.WORKDIR}/${params.RUN_NAME}/${params.OUTPUT_DIR}
         """
 }
 
@@ -124,6 +127,7 @@ process credentials {
 
     output:
         val sofiax_config, emit: sofiax_config
+        val file("${params.WORKDIR}/${params.RUN_NAME}/sofia_*.par"), emit: parameter_files
     
     script:
         """
@@ -134,6 +138,20 @@ process credentials {
             --username ${params.DATABASE_USER} \
             --password ${params.DATABASE_PASS}
         """
+}
+
+// Fetch parameter files from the filesystem (dynamically)
+process get_parameter_files {
+    executor = 'local'
+
+    input:
+        val sofiax_config
+
+    output:
+        val parameter_files, emit: parameter_files
+
+    exec:
+        parameter_files = file("${params.WORKDIR}/${params.RUN_NAME}/sofia_*.par")
 }
 
 // Run source finding application (sofia)
@@ -151,7 +169,7 @@ process sofia {
         """
         #!/bin/bash
         
-        sofia $parameter_file
+        OMP_NUM_THREADS=8 sofia $parameter_file
         """
 }
 
@@ -169,7 +187,26 @@ process sofiax {
     script:
         """
         #!/bin/bash
-        sofiax -c ${params.WORKDIR}/${params.SOFIAX_CONFIG_FILE} -p $parameter_file
+        sofiax -c ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILE} -p $parameter_file
+        """
+}
+
+// TODO(austin): rename weights cube tools
+process rename_mosaic {
+    input:
+        val sofiax
+    
+    script:
+        """
+        #!/bin/bash
+
+        # Rename mosaic image file if it exists
+        [ -f ${params.WORKDIR}/${params.RUN_NAME}/mosaic.fits ] && \
+            { mv ${params.WORKDIR}/${params.RUN_NAME}/mosaic.fits ${params.WORKDIR}/${params.RUN_NAME}/\$(echo "image.restored.i.SB${params.SBIDS.replaceAll(',', ' ')}.mosaic.cube.fits" | tr " " .) }
+
+        # Remame weights image file if it exists
+        [ -f ${params.WORKDIR}/${params.RUN_NAME}/mosaic.fits ] && \
+            { mv ${params.WORKDIR}/${params.RUN_NAME}/mosaic.weights.fits ${params.WORKDIR}/${params.RUN_NAME}/\$(echo "weights.i.SB${params.SBIDS.replaceAll(',', ' ')}.mosaic.cube.fits" | tr " " .) }
         """
 }
 
@@ -178,20 +215,17 @@ process sofiax {
 // ----------------------------------------------------------------------------------------
 
 workflow source_finding {
-    take: cube
+    take: 
+        cube
+        sofia_parameter_file
 
     main:
-        // configuration
-        generate_sofia_parameter_file_template(cube)
-        s2p_setup(cube, generate_sofia_parameter_file_template.out.file)
+        s2p_setup(cube, sofia_parameter_file)
         credentials(s2p_setup.out.sofiax_config)
-        
-        // sofia
-        sofia(s2p_setup.out.parameter_files.flatten())
-
-        // sofiax
+        get_parameter_files(credentials.out.sofiax_config)
+        sofia(get_parameter_files.out.parameter_files.flatten())
         sofiax(sofia.out.parameter_file)
+        rename_mosaic(sofiax.out.output)
 }
 
 // ----------------------------------------------------------------------------------------
-
