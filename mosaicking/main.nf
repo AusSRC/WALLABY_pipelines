@@ -44,25 +44,26 @@ process dependency_check {
         """
 }
 
-// Generate configuration
-process generate_config {
-    container = params.WALLABY_COMPONENTS_IMAGE
+// Update configuration
+process update_linmos_config {
+    container = params.UPDATE_LINMOS_CONFIG_IMAGE
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
         val footprints
+        val weights
         val check
 
     output:
-        stdout emit: linmos_config
+        stdout emit: stdout
 
-    // TODO(austin): Eventually provide weights image paths here
     script:
         """
-        python3 -u /app/generate_linmos_config.py \
-            -i "$footprints" \
-            -f ${params.WORKDIR}/${params.RUN_NAME}/${params.MOSAIC_OUTPUT_FILENAME} \
-            -c ${params.LINMOS_CONFIG_FILE}
+        python3 -u /app/update_linmos_config.py \
+            --config ${params.LINMOS_CONFIG_FILE} \
+            --output ${params.WORKDIR}/${params.RUN_NAME}/linmos.config \
+            --linmos.names "$footprints" \
+            --linmos.weights "$weights"
         """
 }
 
@@ -72,10 +73,10 @@ process linmos {
     clusterOptions = params.LINMOS_CLUSTER_OPTIONS
 
     input:
-        val linmos_config
+        val check
     
     output:
-        val "${params.WORKDIR}/${params.RUN_NAME}/${params.MOSAIC_OUTPUT_FILENAME}.fits", emit: mosaicked_cube
+        val "${params.WORKDIR}/${params.RUN_NAME}/${params.MOSAIC_OUTPUT_FILENAME}.fits", emit: cube
 
     script:
         """
@@ -87,7 +88,7 @@ process linmos {
             singularity exec \
             --bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} \
             ${params.SINGULARITY_CACHEDIR}/yandasoft.img \
-            linmos-mpi -c $linmos_config
+            linmos-mpi -c ${params.WORKDIR}/${params.RUN_NAME}/linmos.config
         """
 }
 
@@ -102,11 +103,11 @@ workflow mosaicking {
 
     main:
         dependency_check(footprints, weights)
-        generate_config(footprints.collect(), dependency_check.out.stdout)
-        linmos(generate_config.out.linmos_config)
+        update_linmos_config(footprints.collect(), weights.collect(), dependency_check.out.stdout)
+        linmos(update_linmos_config.out.stdout)
     
     emit:
-        cube = linmos.out.mosaicked_cube
+        cube = linmos.out.cube
 }
 
 // ----------------------------------------------------------------------------------------
