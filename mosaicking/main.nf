@@ -55,13 +55,13 @@ process update_linmos_config {
         val check
 
     output:
-        stdout emit: stdout
+        val "${params.WORKDIR}/${params.RUN_NAME}/${params.LINMOS_CONFIG_FILENAME}", emit: config
 
     script:
         """
         python3 -u /app/update_linmos_config.py \
             --config ${params.LINMOS_CONFIG_FILE} \
-            --output ${params.WORKDIR}/${params.RUN_NAME}/linmos.config \
+            --output ${params.WORKDIR}/${params.RUN_NAME}/${params.LINMOS_CONFIG_FILENAME} \
             --linmos.names "$footprints" \
             --linmos.weights "$weights"
         """
@@ -73,7 +73,7 @@ process linmos {
     clusterOptions = params.LINMOS_CLUSTER_OPTIONS
 
     input:
-        val check
+        val linmos_config
     
     output:
         val "${params.WORKDIR}/${params.RUN_NAME}/${params.MOSAIC_OUTPUT_FILENAME}.fits", emit: cube
@@ -88,7 +88,7 @@ process linmos {
             singularity exec \
             --bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} \
             ${params.SINGULARITY_CACHEDIR}/yandasoft.img \
-            linmos-mpi -c ${params.WORKDIR}/${params.RUN_NAME}/linmos.config
+            linmos-mpi -c $linmos_config
         """
 }
 
@@ -104,7 +104,7 @@ workflow mosaicking {
     main:
         dependency_check(footprints, weights)
         update_linmos_config(footprints.collect(), weights.collect(), dependency_check.out.stdout)
-        linmos(update_linmos_config.out.stdout)
+        linmos(update_linmos_config.out.config)
     
     emit:
         cube = linmos.out.cube

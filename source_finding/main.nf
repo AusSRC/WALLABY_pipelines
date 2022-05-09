@@ -6,9 +6,9 @@ nextflow.enable.dsl = 2
 // Processes
 // ----------------------------------------------------------------------------------------
 
-// Create scripts for running SoFiA via SoFiAX
+// Create parameter files and config files for running SoFiA via SoFiAX
 process s2p_setup {
-    container = params.S2P_IMAGE
+    container = params.S2P_SETUP_IMAGE
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
@@ -16,7 +16,7 @@ process s2p_setup {
         val sofia_parameter_file_template
 
     output:
-        val "${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILE}", emit: sofiax_config
+        stdout emit: stdout
 
     script:
         """
@@ -27,6 +27,26 @@ process s2p_setup {
             ${params.RUN_NAME} \
             ${params.WORKDIR}/${params.RUN_NAME} \
             ${params.WORKDIR}/${params.RUN_NAME}/${params.OUTPUT_DIR}
+        """
+}
+
+// Update sofiax configuration file with run name
+process update_sofiax_config {
+    container = params.UPDATE_SOFIAX_CONFIG_IMAGE
+    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
+
+    input:
+        val s2p_setup
+
+    output:
+        val "${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILENAME}", emit: sofiax_config
+    
+    script:
+        """
+        python3 -u /app/update_linmos_config.py \
+            --config ${params.SOFIAX_CONFIG_FILE} \
+            --output ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILENAME} \
+            --run_name ${params.RUN_NAME}
         """
 }
 
@@ -111,7 +131,8 @@ workflow source_finding {
 
     main:
         s2p_setup(cube, sofia_parameter_file)
-        get_parameter_files(s2p_setup.out.sofiax_config)
+        update_sofiax_config(s2p_setup.out.stdout)
+        get_parameter_files(update_sofiax_config.out.sofiax_config)
         sofia(get_parameter_files.out.parameter_files.flatten())
         sofiax(sofia.out.parameter_file)
         rename_mosaic(sofiax.out.output)
