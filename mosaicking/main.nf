@@ -28,7 +28,11 @@ process dependency_check {
         # Ensure all weights cube files exist
         [ ! -f ${weights} ] && { echo "Weight file could not be found"; exit 1; }
 
-        # Ensure parameter file exists
+        # Ensure default linmos config file exists
+        [ ! -f ${params.LINMOS_CONFIG_FILE} ] && \
+            { echo "Linmos configuration file (params.LINMOS_CONFIG_FILE) not found"; exit 1; }
+
+        # Ensure source finding parameter file exists
         [ ! -f ${params.SOFIA_PARAMETER_FILE} ] && \
             { echo "Source finding parameter file (params.SOFIA_PARAMETER_FILE) not found"; exit 1; }
 
@@ -58,7 +62,7 @@ process generate_config {
         python3 -u /app/generate_linmos_config.py \
             -i "$footprints" \
             -f ${params.WORKDIR}/${params.RUN_NAME}/${params.MOSAIC_OUTPUT_FILENAME} \
-            -c ${params.LINMOS_CONFIG_FILENAME}
+            -c ${params.LINMOS_CONFIG_FILE}
         """
 }
 
