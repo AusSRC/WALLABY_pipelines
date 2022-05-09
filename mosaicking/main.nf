@@ -6,6 +6,40 @@ nextflow.enable.dsl = 2
 // Processes
 // ----------------------------------------------------------------------------------------
 
+// Check all dependencies in place for pipeline run
+process dependency_check {
+    input:
+        val footprints
+        val weights
+
+    output:
+        stdout emit: stdout
+
+    script:
+        """
+        #!/bin/bash
+
+        # Ensure working directory exists
+        [ ! -d ${params.WORKDIR}/${params.RUN_NAME} ] && mkdir ${params.WORKDIR}/${params.RUN_NAME}
+
+        # Ensure all image cube files exist
+        [ ! -f ${footprints} ] && { echo "Footprint file could not be found"; exit 1; }
+
+        # Ensure all weights cube files exist
+        [ ! -f ${weights} ] && { echo "Weight file could not be found"; exit 1; }
+
+        # Ensure parameter file exists
+        [ ! -f ${params.SOFIA_PARAMETER_FILE} ] && \
+            { echo "Source finding parameter file (params.SOFIA_PARAMETER_FILE) not found"; exit 1; }
+
+        # Ensure s2p setup file exists
+        [ ! -f ${params.S2P_TEMPLATE} ] && \
+            { echo "Source finding s2p_setup template file (params.S2P_TEMPLATE) not found"; exit 1; }
+
+        exit 0
+        """
+}
+
 // Generate configuration
 process generate_config {
     container = params.WALLABY_COMPONENTS_IMAGE
@@ -13,6 +47,7 @@ process generate_config {
 
     input:
         val footprints
+        val check
 
     output:
         stdout emit: linmos_config
@@ -22,8 +57,8 @@ process generate_config {
         """
         python3 -u /app/generate_linmos_config.py \
             -i "$footprints" \
-            -f ${params.WORKDIR}/${params.RUN_NAME}/mosaic \
-            -c ${params.WORKDIR}/${params.RUN_NAME}/${params.LINMOS_CONFIG_FILENAME}
+            -f ${params.WORKDIR}/${params.RUN_NAME}/${params.MOSAIC_OUTPUT_FILENAME} \
+            -c ${params.LINMOS_CONFIG_FILENAME}
         """
 }
 
@@ -36,7 +71,7 @@ process linmos {
         val linmos_config
     
     output:
-        val "${params.WORKDIR}/${params.RUN_NAME}/mosaic.fits", emit: mosaicked_cube
+        val "${params.WORKDIR}/${params.RUN_NAME}/${params.MOSAIC_OUTPUT_FILENAME}.fits", emit: mosaicked_cube
 
     script:
         """
@@ -62,7 +97,8 @@ workflow mosaicking {
         weights
 
     main:
-        generate_config(footprints)
+        dependency_check(footprints, weights)
+        generate_config(footprints.collect(), dependency_check.out.stdout)
         linmos(generate_config.out.linmos_config)
     
     emit:
