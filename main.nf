@@ -5,8 +5,8 @@ include { mosaicking } from './mosaicking/main'
 include { source_finding } from './source_finding/main'
 
 workflow {
-    footprints = Channel.of(params.FOOTPRINTS.replaceAll(',', ' '))
-    weights = Channel.of(params.WEIGHTS.replaceAll(',', ' '))
+    footprints = Channel.of(params.FOOTPRINTS)
+    weights = Channel.of(params.WEIGHTS)
     sofia_parameter_file = "${params.SOFIA_PARAMETER_FILE}"
 
     main:
