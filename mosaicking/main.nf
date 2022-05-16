@@ -63,7 +63,9 @@ process update_linmos_config {
             --config ${params.LINMOS_CONFIG_FILE} \
             --output ${params.WORKDIR}/${params.RUN_NAME}/${params.LINMOS_CONFIG_FILENAME} \
             --linmos.names "$footprints" \
-            --linmos.weights "$weights"
+            --linmos.weights "$weights" \
+            --linmos.outname "${params.WORKDIR}/${params.RUN_NAME}/mosaic" \
+            --linmos.outweight "${params.WORKDIR}/${params.RUN_NAME}/weights.mosaic"
         """
 }
 
@@ -83,6 +85,7 @@ process linmos {
         #!/bin/bash
 
         export SINGULARITY_PULLDIR=${params.SINGULARITY_CACHEDIR}
+        export PMIX_MCA_gds=hash
         singularity pull ${params.SINGULARITY_CACHEDIR}/yandasoft.img ${params.LINMOS_IMAGE}
         srun --nodes=12 --ntasks-per-node=24 --cpus-per-task=1 \
             singularity exec \
