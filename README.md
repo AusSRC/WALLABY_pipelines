@@ -1,47 +1,25 @@
+
 <h1 align="center"><a href="https://aussrc.github.io/WALLABY_workflows/">WALLABY pipeline</a></h1>
 
 WALLABY survey data post-processing pipeline by the [AusSRC](https://aussrc.org). 
 
 ## Overview
 
-The WALLABY survey science data post-processing generates advanced data products that are used by scientists for their research. We have composed some of these data post-processing tasks into [Nextflow](https://www.nextflow.io/) pipelines for convenient execution, thereby abstracting the low-level computing details of these activities from the science users.
-
-Currently we provide support for two modules for the pipeline, which each produce an important advanced data product. These components are the following: 
-
-* download footprints and weights from CASDA
-* mosaicking with `linmos`
-* source finding to generate the detections for the WALLABY catalogue (using [SoFiA-2](https://github.com/SoFiA-Admin/SoFiA-2) and [SoFiAX](https://github.com/AusSRC/SoFiAX))
+This pipeline performs data post-processing (mosaicking + source finding) to generate advanced data products for WALLABY.
 
 ## Getting started
 
-Pipelines are deployed from the head node of a Slurm cluster. The AusSRC cluster is available to the WALLABY community for deploying these jobs. To submit a job run the following:
-
 ```
-nextflow run https://github.com/AusSRC/WALLABY_workflows -params-file params.yaml
+nextflow run https://github.com/AusSRC/WALLABY_workflows -r main -profile carnaby -params-file params.yaml
 ```
 
-where `params.yaml` is the parameter file that we provide. The contents of which is used to configure the pipeline. A template is provided for you below
+where `params.yaml` is the parameter file that we provide. The contents of which is used to configure the pipeline. An example template:
 
 ```
 {
-  # Required 
-  "SBIDS": "25750 25701",
   "RUN_NAME": "NGC5044_4",
-  "WORKDIR": "/mnt/shared/home/ashen/runs",
-  
-  # Download credentials
-  "CASDA_USERNAME": "",
-  "CASDA_PASSWORD": "",
-
-  # Source finding parameters
-  "SOFIA_PARAMETER_FILE": "/mnt/shared/home/ashen/runs/NGC5044_4/sofia.par",
-  "S2P_TEMPLATE": "/mnt/shared/home/ashen/runs/NGC5044_4/s2p_setup.ini",
-
-  # Database credentials
-  "DATABASE_HOST": "",
-  "DATABASE_NAME": "wallabydb",
-  "DATABASE_USER": "admin",
-  "DATABASE_PASS": "admin"
+  "FOOTPRINTS": "image.restored.i.NGC5044_1A.SB33879.cube.contsub.fits, image.restored.i.NGC5044_1B.SB34302.cube.contsub.fits",
+  "WEIGHTS": "weights.i.NGC5044_1A.SB33879.cube.fits, weights.i.NGC5044_1B.SB34302.cube.fits",
 }
 ```
 

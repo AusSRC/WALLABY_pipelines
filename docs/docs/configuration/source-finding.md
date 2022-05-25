@@ -21,7 +21,7 @@ We use ❗ to indicate that a parameter is required and no default value is prov
 
 | Parameter Name  | Description | Default Value | 
 |---|---|---|
-| `SOURCE_FINDING_RUN_NAME` | Name for the SoFiA run which will be written into the database. |  | `sofia` |
+| `RUN_NAME` | Name for the SoFiA run which will be written into the database. |  | `sofia` |
 
 
 ### SoFiAX
