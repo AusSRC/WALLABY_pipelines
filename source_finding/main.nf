@@ -43,7 +43,7 @@ process update_sofiax_config {
     
     script:
         """
-        python3 -u /app/update_linmos_config.py \
+        python3 -u /app/update_sofiax_config.py \
             --config ${params.SOFIAX_CONFIG_FILE} \
             --output ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILENAME} \
             --run_name ${params.RUN_NAME}
