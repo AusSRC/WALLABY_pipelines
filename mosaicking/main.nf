@@ -71,9 +71,6 @@ process update_linmos_config {
 
 // Linear mosaicking
 process linmos {
-    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
-    clusterOptions = params.LINMOS_CLUSTER_OPTIONS
-
     input:
         val linmos_config
     
@@ -83,14 +80,11 @@ process linmos {
     script:
         """
         #!/bin/bash
-
-        export SINGULARITY_PULLDIR=${params.SINGULARITY_CACHEDIR}
-        export PMIX_MCA_gds=hash
-        singularity pull ${params.SINGULARITY_CACHEDIR}/yandasoft.img ${params.LINMOS_IMAGE}
-        srun --nodes=12 --ntasks-per-node=24 --cpus-per-task=1 \
-            singularity exec \
+        singularity pull ${params.SINGULARITY_CACHEDIR}/askapsoft.sif ${params.LINMOS_IMAGE}
+        export OMP_NUM_THREADS=4
+	    mpiexec -np 144 singularity exec \
             --bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} \
-            ${params.SINGULARITY_CACHEDIR}/yandasoft.img \
+            ${params.SINGULARITY_CACHEDIR}/askapsoft.sif \
             linmos-mpi -c $linmos_config
         """
 }
