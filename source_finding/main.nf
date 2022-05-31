@@ -152,8 +152,7 @@ workflow source_finding {
         update_sofiax_config(s2p_setup.out.stdout)
         get_parameter_files(update_sofiax_config.out.sofiax_config)
         sofia(get_parameter_files.out.parameter_files.flatten())
-        sofiax(sofia.out.parameter_file)
-        rename_mosaic(sofiax.out.output)
+        sofiax(sofia.out.parameter_file.collect())
 }
 
 // ----------------------------------------------------------------------------------------
