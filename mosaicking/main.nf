@@ -32,6 +32,9 @@ process dependency_check {
         [ ! -f ${params.LINMOS_CONFIG_FILE} ] && \
             { echo "Linmos configuration file (params.LINMOS_CONFIG_FILE) not found"; exit 1; }
 
+        # Ensure sofia output directory exists
+        [ ! -d ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME} ] && mkdir ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME}
+
         # Ensure source finding parameter file exists
         [ ! -f ${params.SOFIA_PARAMETER_FILE} ] && \
             { echo "Source finding parameter file (params.SOFIA_PARAMETER_FILE) not found"; exit 1; }

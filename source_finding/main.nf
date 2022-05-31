@@ -6,22 +6,6 @@ nextflow.enable.dsl = 2
 // Processes
 // ----------------------------------------------------------------------------------------
 
-// Check all dependencies in place for pipeline run
-process make_outputs_dir {
-    output:
-        stdout emit: stdout
-
-    script:
-        """
-        #!/bin/bash
-
-        # Ensure sofia output directory exists
-        [ ! -d ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME} ] && mkdir ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME}
-
-        exit 0
-        """
-}
-
 // Create parameter files and config files for running SoFiA via SoFiAX
 process s2p_setup {
     container = params.S2P_SETUP_IMAGE
@@ -30,7 +14,6 @@ process s2p_setup {
     input:
         val image_cube_file
         val sofia_parameter_file_template
-        val output_dir_check
 
     output:
         stdout emit: stdout
@@ -147,8 +130,7 @@ workflow source_finding {
         sofia_parameter_file
 
     main:
-        make_outputs_dir()
-        s2p_setup(cube, sofia_parameter_file, make_outputs_dir.out.stdout)
+        s2p_setup(cube, sofia_parameter_file)
         update_sofiax_config(s2p_setup.out.stdout)
         get_parameter_files(update_sofiax_config.out.sofiax_config)
         sofia(get_parameter_files.out.parameter_files.flatten())
