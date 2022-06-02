@@ -21,12 +21,13 @@ process s2p_setup {
     script:
         """
         python3 -u /app/s2p_setup.py \
-            ${params.S2P_TEMPLATE} \
-            $image_cube_file \
-            $sofia_parameter_file_template \
-            ${params.RUN_NAME} \
-            ${params.WORKDIR}/${params.RUN_NAME} \
-            ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME}
+            --config ${params.S2P_TEMPLATE} \
+            --image_cube $image_cube_file \
+            --region '${params.REGION}' \
+            --run_name ${params.RUN_NAME} \
+            --sofia_template ${params.SOFIA_PARAMETER_FILE} \
+            --output_dir ${params.WORKDIR}/${params.RUN_NAME} \
+            --products_dir ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME}
         """
 }
 
