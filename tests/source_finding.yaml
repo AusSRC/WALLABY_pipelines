@@ -1,0 +1,7 @@
+{
+  "RUN_NAME": "test_sf",
+  "REGION": "200.77, 204.77, -24.605, -20.605",
+  "S2P_TEMPLATE": "/mnt/shared/wallaby/config/s2p_setup.milkyway.ini",
+  "SOFIAX_CONFIG_FILE": "/mnt/shared/wallaby/config/sofiax.dev.ini",
+  "IMAGE_CUBE": "/mnt/shared/wallaby/post-runs/test/mosaic.fits"
+}

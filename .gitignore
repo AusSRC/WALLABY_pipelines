@@ -10,4 +10,3 @@ database.env
 credentials.ini
 config.*
 s2p_setup
-params*.yaml
