@@ -6,6 +6,35 @@ nextflow.enable.dsl = 2
 // Processes
 // ----------------------------------------------------------------------------------------
 
+// Check dependencies for pipeline run
+process pre_run_dependency_check {
+    input: 
+        val image_cube
+        val sofia_parameter_file
+
+    output:
+        stdout emit: stdout
+
+    script:
+        """
+        #!/bin/bash
+        # Ensure working directory exists
+        [ ! -d ${params.WORKDIR}/${params.RUN_NAME} ] && mkdir ${params.WORKDIR}/${params.RUN_NAME}
+        # Ensure sofia output directory exists
+        [ ! -d ${params.WORKDIR}/${params.RUN_NAME}/outputs ] && mkdir ${params.WORKDIR}/${params.RUN_NAME}/outputs
+        # Ensure parameter file exists
+        [ ! -f ${params.SOFIA_PARAMETER_FILE} ] && \
+            { echo "Source finding parameter file (params.SOFIA_PARAMETER_FILE) not found"; exit 1; }
+        # Ensure s2p setup file exists
+        [ ! -f ${params.S2P_TEMPLATE} ] && \
+            { echo "Source finding s2p_setup template file (params.S2P_TEMPLATE) not found"; exit 1; }
+        # Ensure image cube file exists
+        [ ! -f ${params.IMAGE_CUBE} ] && \
+            { echo "Source finding image cube (params.IMAGE_CUBE) not found"; exit 1; }
+        exit 0
+        """
+}
+
 // Create parameter files and config files for running SoFiA via SoFiAX
 process s2p_setup {
     container = params.S2P_SETUP_IMAGE
@@ -14,6 +43,7 @@ process s2p_setup {
     input:
         val image_cube_file
         val sofia_parameter_file_template
+        val check
 
     output:
         stdout emit: stdout
@@ -131,7 +161,8 @@ workflow source_finding {
         sofia_parameter_file
 
     main:
-        s2p_setup(cube, sofia_parameter_file)
+        pre_run_dependency_check(cube, sofia_parameter_file)
+        s2p_setup(cube, sofia_parameter_file, pre_run_dependency_check.out.stdout)
         update_sofiax_config(s2p_setup.out.stdout)
         get_parameter_files(update_sofiax_config.out.sofiax_config)
         sofia(get_parameter_files.out.parameter_files.flatten())
