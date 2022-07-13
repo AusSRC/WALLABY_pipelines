@@ -1,5 +1,5 @@
 
-<h1 align="center"><a href="https://aussrc.github.io/WALLABY_workflows/">WALLABY pipeline</a></h1>
+<h1 align="center">WALLABY pipeline</h1>
 
 WALLABY survey data post-processing pipeline by the [AusSRC](https://aussrc.org). 
 
@@ -27,9 +27,5 @@ More information can be found in the documentation.
 
 ## Useful Links
 
-* [Documentation home](https://aussrc.github.io/WALLABY_workflows/)
-* [Modules](https://aussrc.github.io/WALLABY_workflows/docs/overview#modules)
-* [Getting started](https://aussrc.github.io/WALLABY_workflows/docs/getting_started)
-* [Configuration reference](https://aussrc.github.io/WALLABY_workflows/docs/configuration/end-to-end)
 * [CASDA's Data Access Portal](https://data.csiro.au/collections/domain/casdaObservation/search/)
 * [YANDASoft linmos](https://www.atnf.csiro.au/computing/software/askapsoft/sdp/docs/current/calim/linmos.html)
