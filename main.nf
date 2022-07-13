@@ -1,8 +1,8 @@
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl = 2
-include { mosaicking } from './mosaicking/main'
-include { source_finding } from './source_finding/main'
+include { mosaicking } from './modules/mosaicking'
+include { source_finding } from './modules/source_finding'
 
 workflow {
     footprints = Channel.of(params.FOOTPRINTS)
