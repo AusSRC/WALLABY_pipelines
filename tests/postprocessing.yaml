@@ -1,5 +1,5 @@
 {
-  "RUN_NAME": "test",
+  "RUN_NAME": "test_postprocessing",
   "REGION": "200.77, 204.77, -24.605, -20.605",
   "S2P_TEMPLATE": "/mnt/shared/wallaby/config/s2p_setup.milkyway.ini",
   "SOFIAX_CONFIG_FILE": "/mnt/shared/wallaby/config/sofiax.dev.ini",
