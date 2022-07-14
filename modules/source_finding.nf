@@ -7,10 +7,9 @@ nextflow.enable.dsl = 2
 // ----------------------------------------------------------------------------------------
 
 // Check dependencies for pipeline run
-process pre_run_dependency_check {
+process check_dependencies {
     input: 
         val image_cube
-        val sofia_parameter_file
 
     output:
         stdout emit: stdout
@@ -29,7 +28,7 @@ process pre_run_dependency_check {
         [ ! -f ${params.S2P_TEMPLATE} ] && \
             { echo "Source finding s2p_setup template file (params.S2P_TEMPLATE) not found"; exit 1; }
         # Ensure image cube file exists
-        [ ! -f ${params.IMAGE_CUBE} ] && \
+        [ ! -f $image_cube ] && \
             { echo "Source finding image cube (params.IMAGE_CUBE) not found"; exit 1; }
         exit 0
         """
@@ -41,8 +40,7 @@ process s2p_setup {
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
-        val image_cube_file
-        val sofia_parameter_file_template
+        val image_cube
         val check
 
     output:
@@ -52,7 +50,7 @@ process s2p_setup {
         """
         python3 -u /app/s2p_setup.py \
             --config ${params.S2P_TEMPLATE} \
-            --image_cube $image_cube_file \
+            --image_cube $image_cube \
             --region '${params.REGION}' \
             --run_name ${params.RUN_NAME} \
             --sofia_template ${params.SOFIA_PARAMETER_FILE} \
@@ -123,7 +121,7 @@ process sofiax {
         file parameter_file
 
     output:
-        stdout emit: output
+        stdout emit: stdout
 
     script:
         """
@@ -132,7 +130,7 @@ process sofiax {
         """
 }
 
-// TODO(austin): rename weights cube tools
+// TODO(austin): rename image and weights cubes
 process rename_mosaic {
     input:
         val sofiax
@@ -151,6 +149,20 @@ process rename_mosaic {
         """
 }
 
+// Generate source finding outputs
+process get_products {
+    executor = 'local'
+
+    input:
+        val sofiax
+    
+    output:
+        val outputs, emit: outputs
+
+    exec:
+        outputs = "${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME}"
+}
+
 // ----------------------------------------------------------------------------------------
 // Workflow
 // ----------------------------------------------------------------------------------------
@@ -158,15 +170,18 @@ process rename_mosaic {
 workflow source_finding {
     take: 
         cube
-        sofia_parameter_file
 
     main:
-        pre_run_dependency_check(cube, sofia_parameter_file)
-        s2p_setup(cube, sofia_parameter_file, pre_run_dependency_check.out.stdout)
+        check_dependencies(cube)
+        s2p_setup(cube, check_dependencies.out.stdout)
         update_sofiax_config(s2p_setup.out.stdout)
         get_parameter_files(update_sofiax_config.out.sofiax_config)
         sofia(get_parameter_files.out.parameter_files.flatten())
         sofiax(sofia.out.parameter_file.collect())
+        get_products(sofiax.out.stdout)
+
+    emit:
+        outputs = get_products.out.outputs
 }
 
 // ----------------------------------------------------------------------------------------

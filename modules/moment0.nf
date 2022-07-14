@@ -6,6 +6,8 @@ nextflow.enable.dsl = 2
 // Processes
 // ----------------------------------------------------------------------------------------
 
+// TODO(austin): Check dependencies? That files exist in output directory maybe?
+
 // Create scripts for running SoFiA via SoFiAX
 process mosaic {
     container = params.WALLMERGE_IMAGE

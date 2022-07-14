@@ -9,6 +9,7 @@ workflow {
     sbid = "${params.SBID}"
 
     main:
-        source_finding(sbid)
-        moment0(source_finding.out.output_directory)
+        casda_download(sbid)
+        source_finding(casda_download.out.image_cube)
+        moment0(source_finding.out.outputs)
 }
