@@ -1,7 +1,7 @@
 
 <h1 align="center">WALLABY pipelines</h1>
 
-A collection of data post-processing pipelines for the [WALLABY Survey](https://www.atnf.csiro.au/research/WALLABY/) developed by the [AusSRC](https://aussrc.org). 
+A collection of data post-processing pipelines for the [WALLABY Survey](https://www.atnf.csiro.au/research/WALLABY/) developed by the [AusSRC](https://aussrc.org).
 
 ## Pipelines
 
@@ -17,17 +17,17 @@ To run the pipelines either clone the repository locally and run
 nextflow run main.nf -params-file params.yaml -profile <PROFILE>
 ```
 
-or 
+or
 
 ```
 nextflow run https://github.com/AusSRC/WALLABY_pipelines -main-script main.nf -params-file params.yaml -profile <PROFILE>
 ```
 
-replacing `main.nf` with the workflow of your choice and pointing to your parameter file `params.yaml`. 
+replacing `main.nf` with the workflow of your choice and pointing to your parameter file `params.yaml`.
 
 ### Configuration
 
-The `nextflow.config` provides defaults values for most required configuration parameters to run the pipelines. However for each pipeline users will need to provide some minimum configuration. If you look at the `nextflow.config` file you will notice there are two pre-defined environments in which these pipelines can run: `carnaby` which is the AusSRC development slurm cluster, or `magnus` which is supported by Pawsey. You will have to specify which environment to run the pipeline in with 
+The `nextflow.config` provides defaults values for most required configuration parameters to run the pipelines. However for each pipeline users will need to provide some minimum configuration. If you look at the `nextflow.config` file you will notice there are two pre-defined environments in which these pipelines can run: `carnaby` which is the AusSRC development slurm cluster, or `magnus` which is supported by Pawsey. You will have to specify which environment to run the pipeline in with
 
 ### Main
 
@@ -45,8 +45,8 @@ The [`quality_check.nf`](quality_check.nf) pipeline will download observations f
 
 There is some configuration required running the pipelines. These include
 
-| Parameter | Description | 
-| -- | -- | 
+| Parameter | Description |
+| -- | -- |
 | `RUN_NAME` | Name of the pipeline run. Will determine output subdirectories for pipeline products and temporary files. |
 | `SBID` | SBID for the observation on which quality checking will be performed. Required parameter for `quality_check.nf`. |
 | `IMAGE_CUBE` | Mosaicked image cube on which to run source finding pipeline. Required parameter for `source_finding.nf`. |
@@ -58,11 +58,11 @@ There is some configuration required running the pipelines. These include
 
 In the `tests/` subdirectory we have parameter files for pre-defined end-to-end tests that will run on the AusSRC Carnaby cluster. Note that these will not run in any other environment because there are configuration files at specific locations defined in the `nextflow.config` that will be required. A description of the tests are available below.
 
-| Parameter file | Test description | 
-| -- | -- | 
-| `postprocessing.yaml` | Run mosaicking and source finding on a pair of Milkyway footprints. | 
-| `source_finding.yaml` | Run source finding on Milkyway image cube mosaic. | 
-| `quality_check.yaml` | Download from CASDA observation (footprint and weights) for SBID 40905. Run the source finding module on to generate cubelet moment 0 maps and mosaic these together. | 
+| Parameter file | Test description |
+| -- | -- |
+| `postprocessing.yaml` | Run mosaicking and source finding on a pair of Milkyway footprints. |
+| `source_finding.yaml` | Run source finding on Milkyway image cube mosaic. |
+| `quality_check.yaml` | Download from CASDA observation (footprint and weights) for SBID 40905. Run the source finding module on to generate cubelet moment 0 maps and mosaic these together. |
 
 ## Resources
 
