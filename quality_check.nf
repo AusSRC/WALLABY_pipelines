@@ -12,6 +12,6 @@ workflow {
     main:
         casda_download(sbid)
         observation_metadata(sbid)
-        source_finding(casda_download.out.image_cube)
+        source_finding(casda_download.out.image_cube, casda_download.out.weights_cube)
         moment0(source_finding.out.outputs)
 }

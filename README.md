@@ -50,6 +50,7 @@ There is some configuration required running the pipelines. These include
 | `RUN_NAME` | Name of the pipeline run. Will determine output subdirectories for pipeline products and temporary files. |
 | `SBID` | SBID for the observation on which quality checking will be performed. Required parameter for `quality_check.nf`. |
 | `IMAGE_CUBE` | Mosaicked image cube on which to run source finding pipeline. Required parameter for `source_finding.nf`. |
+| `WEIGHTS_CUBE` | Mosaicked weights cube on which to run source finding pipeline. Required parameter for `source_finding.nf`. |
 | `FOOTPRINTS` | Space separated list of image cube files to run the postprocessing pipeline on. Required parameter for the `main.nf`. Can be used for performing post-processing on multiple tiles instead of footprints. |
 | `WEIGHTS` | Space separated list of weights cube files to run the postprocessing pipeline on. Position of each weights cube file in space separated list should match the image cube. Required parameter for the `main.nf`.|
 | `REGION` | RA/Dec boundary of the image cube on which to run the source finding. If not provided the entire image cube will be processed. Optional parameter for all pipelines. |

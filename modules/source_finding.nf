@@ -8,8 +8,9 @@ nextflow.enable.dsl = 2
 
 // Check dependencies for pipeline run
 process check_dependencies {
-    input: 
+    input:
         val image_cube
+        val weights_cube
 
     output:
         stdout emit: stdout
@@ -30,6 +31,9 @@ process check_dependencies {
         # Ensure image cube file exists
         [ ! -f $image_cube ] && \
             { echo "Source finding image cube (params.IMAGE_CUBE) not found"; exit 1; }
+        # Ensure weights cube file exists
+        [ ! -f $weights_cube ] && \
+            { echo "Source finding weights cube (params.WEIGHTS_CUBE) not found"; exit 1; }
         exit 0
         """
 }
@@ -41,6 +45,7 @@ process s2p_setup {
 
     input:
         val image_cube
+        val weights_cube
         val check
 
     output:
@@ -69,7 +74,7 @@ process update_sofiax_config {
 
     output:
         val "${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILENAME}", emit: sofiax_config
-    
+
     script:
         """
         python3 -u /app/update_sofiax_config.py \
@@ -97,7 +102,7 @@ process get_parameter_files {
 process sofia {
     container = params.SOFIA_IMAGE
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
-    
+
     input:
         file parameter_file
 
@@ -107,7 +112,7 @@ process sofia {
     script:
         """
         #!/bin/bash
-        
+
         OMP_NUM_THREADS=8 sofia $parameter_file
         """
 }
@@ -116,7 +121,7 @@ process sofia {
 process sofiax {
     container = params.SOFIAX_IMAGE
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
-    
+
     input:
         file parameter_file
 
@@ -134,7 +139,7 @@ process sofiax {
 process rename_mosaic {
     input:
         val sofiax
-    
+
     script:
         """
         #!/bin/bash
@@ -155,7 +160,7 @@ process get_products {
 
     input:
         val sofiax
-    
+
     output:
         val outputs, emit: outputs
 
@@ -168,12 +173,13 @@ process get_products {
 // ----------------------------------------------------------------------------------------
 
 workflow source_finding {
-    take: 
-        cube
+    take:
+        image_cube
+        weights_cube
 
     main:
-        check_dependencies(cube)
-        s2p_setup(cube, check_dependencies.out.stdout)
+        check_dependencies(image_cube, weights_cube)
+        s2p_setup(image_cube, weights_cube, check_dependencies.out.stdout)
         update_sofiax_config(s2p_setup.out.stdout)
         get_parameter_files(update_sofiax_config.out.sofiax_config)
         sofia(get_parameter_files.out.parameter_files.flatten())

@@ -67,8 +67,8 @@ process update_linmos_config {
             --output ${params.WORKDIR}/${params.RUN_NAME}/${params.LINMOS_CONFIG_FILENAME} \
             --linmos.names "$footprints" \
             --linmos.weights "$weights" \
-            --linmos.outname "${params.WORKDIR}/${params.RUN_NAME}/mosaic" \
-            --linmos.outweight "${params.WORKDIR}/${params.RUN_NAME}/weights.mosaic"
+            --linmos.outname "${params.WORKDIR}/${params.RUN_NAME}/${params.MOSAIC_OUTPUT_FILENAME}" \
+            --linmos.outweight "${params.WORKDIR}/${params.RUN_NAME}/weights.${params.MOSAIC_OUTPUT_FILENAME}"
         """
 }
 
@@ -76,9 +76,10 @@ process update_linmos_config {
 process linmos {
     input:
         val linmos_config
-    
+
     output:
-        val "${params.WORKDIR}/${params.RUN_NAME}/${params.MOSAIC_OUTPUT_FILENAME}.fits", emit: cube
+        val "${params.WORKDIR}/${params.RUN_NAME}/${params.MOSAIC_OUTPUT_FILENAME}.fits", emit: image_cube
+        val "${params.WORKDIR}/${params.RUN_NAME}/weights.${params.MOSAIC_OUTPUT_FILENAME}.fits", emit: weights_cube
 
     script:
         """
@@ -97,7 +98,7 @@ process linmos {
 // ----------------------------------------------------------------------------------------
 
 workflow mosaicking {
-    take: 
+    take:
         footprints
         weights
 
@@ -105,9 +106,11 @@ workflow mosaicking {
         dependency_check(footprints, weights)
         update_linmos_config(footprints.collect(), weights.collect(), dependency_check.out.stdout)
         linmos(update_linmos_config.out.config)
-    
+
     emit:
-        cube = linmos.out.cube
+        image_cube = linmos.out.image_cube
+        weights_cube = linmos.out.weights_cube
+
 }
 
 // ----------------------------------------------------------------------------------------

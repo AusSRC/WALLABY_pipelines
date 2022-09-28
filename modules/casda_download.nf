@@ -31,7 +31,7 @@ process download {
 
     output:
         stdout emit: stdout
-    
+
     script:
         """
         python3 -u /app/casda_download.py \
@@ -63,14 +63,14 @@ process get_image_and_weights_cube_files {
 // ----------------------------------------------------------------------------------------
 
 workflow casda_download {
-    take: 
+    take:
         sbid
 
     main:
         check_write_directory()
         download(sbid, check_write_directory.out.stdout)
         get_image_and_weights_cube_files(sbid, download.out.stdout)
-    
+
     emit:
         image_cube = get_image_and_weights_cube_files.out.image_cube
         weights_cube = get_image_and_weights_cube_files.out.weights_cube

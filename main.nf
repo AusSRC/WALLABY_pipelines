@@ -10,5 +10,5 @@ workflow {
 
     main:
         mosaicking(footprints, weights)
-        source_finding(mosaicking.out.cube)
+        source_finding(mosaicking.out.image_cube, mosaicking.out.weights_cube)
 }
