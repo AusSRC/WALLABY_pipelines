@@ -56,6 +56,7 @@ process s2p_setup {
         python3 -u /app/s2p_setup.py \
             --config ${params.S2P_TEMPLATE} \
             --image_cube $image_cube \
+            --weights_cube $weights_cube \
             --region '${params.REGION}' \
             --run_name ${params.RUN_NAME} \
             --sofia_template ${params.SOFIA_PARAMETER_FILE} \
