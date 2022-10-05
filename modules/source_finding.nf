@@ -132,7 +132,7 @@ process sofiax {
     script:
         """
         #!/bin/bash
-        sofiax -c ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILENAME} -p $parameter_file
+        python -m sofiax -c ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILENAME} -p $parameter_file
         """
 }
 
