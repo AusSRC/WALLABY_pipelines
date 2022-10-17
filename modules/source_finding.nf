@@ -136,6 +136,22 @@ process sofiax {
         """
 }
 
+// Add DSS images to product table
+process add_dss_image {
+    container = params.GET_DSS_IMAGE
+    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
+
+    input:
+        val sofiax_check
+
+    script:
+        """
+        #!/bin/bash
+
+        python get_dss_image.py -r ${params.RUN_NAME} -e ${params.DATABASE_ENV}
+        """
+}
+
 // TODO(austin): rename image and weights cubes
 process rename_mosaic {
     input:
@@ -185,6 +201,7 @@ workflow source_finding {
         get_parameter_files(update_sofiax_config.out.sofiax_config)
         sofia(get_parameter_files.out.parameter_files.flatten())
         sofiax(sofia.out.parameter_file.collect())
+        get_dss_image(sofiax.out.stdout)
         get_products(sofiax.out.stdout)
 
     emit:
