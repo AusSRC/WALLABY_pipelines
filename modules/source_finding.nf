@@ -137,7 +137,7 @@ process sofiax {
 }
 
 // Add DSS images to product table
-process add_dss_image {
+process get_dss_image {
     container = params.GET_DSS_IMAGE
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
@@ -148,7 +148,7 @@ process add_dss_image {
         """
         #!/bin/bash
 
-        python get_dss_image.py -r ${params.RUN_NAME} -e ${params.DATABASE_ENV}
+        python /app/get_dss_image.py -r ${params.RUN_NAME} -e ${params.DATABASE_ENV}
         """
 }
 
