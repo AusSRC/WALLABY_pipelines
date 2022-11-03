@@ -19,27 +19,19 @@ process dependency_check {
         """
         #!/bin/bash
 
-        # Ensure working directory exists
+        # Ensure working directories exists
         [ ! -d ${params.WORKDIR}/${params.RUN_NAME} ] && mkdir ${params.WORKDIR}/${params.RUN_NAME}
+        [ ! -d ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME} ] && mkdir ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME}
 
         # Ensure all image cube files exist
         [ ! -f ${footprints} ] && { echo "Footprint file could not be found"; exit 1; }
-
-        # Ensure all weights cube files exist
         [ ! -f ${weights} ] && { echo "Weight file could not be found"; exit 1; }
 
-        # Ensure default linmos config file exists
+        # Check paramater files exist
         [ ! -f ${params.LINMOS_CONFIG_FILE} ] && \
             { echo "Linmos configuration file (params.LINMOS_CONFIG_FILE) not found"; exit 1; }
-
-        # Ensure sofia output directory exists
-        [ ! -d ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME} ] && mkdir ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME}
-
-        # Ensure source finding parameter file exists
         [ ! -f ${params.SOFIA_PARAMETER_FILE} ] && \
             { echo "Source finding parameter file (params.SOFIA_PARAMETER_FILE) not found"; exit 1; }
-
-        # Ensure s2p setup file exists
         [ ! -f ${params.S2P_TEMPLATE} ] && \
             { echo "Source finding s2p_setup template file (params.S2P_TEMPLATE) not found"; exit 1; }
 
@@ -84,13 +76,54 @@ process linmos {
     script:
         """
         #!/bin/bash
-        singularity pull ${params.SINGULARITY_CACHEDIR}/askapsoft.sif ${params.LINMOS_IMAGE}
+        # singularity pull ${params.SINGULARITY_CACHEDIR}/askapsoft.sif ${params.LINMOS_IMAGE}
         export OMP_NUM_THREADS=4
 	    mpiexec -np 144 singularity exec \
             --bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} \
             ${params.SINGULARITY_CACHEDIR}/askapsoft.sif \
             linmos-mpi -c $linmos_config
         """
+}
+
+process get_sbids_from_footprint_filenames {
+    input:
+        path footprints
+
+    output:
+        stdout emit: stdout
+
+    script:
+        """
+        #!/usr/bin/python3
+
+        footprints = str("$footprints").split(' ')
+        sbid_list = []
+        for f in footprints:
+            sbid_list += [s.replace('SB', '') for s in f.split('.') if 'SB' in s]
+        sbids = ' '.join(sbid_list)
+        print(sbids, end='')
+        """
+}
+
+process add_sbids_to_header {
+    container = params.METADATA_IMAGE
+    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
+
+    input:
+        path files
+        val sbids
+
+    script:
+        if (sbids == '')
+            """
+            #!/bin/bash
+            python3 -u /app/add_mosaic_sbids_to_header.py -i $files
+            """
+        else
+            """
+            #!/bin/bash
+            python3 -u /app/add_mosaic_sbids_to_header.py -i $files -s $sbids
+            """
 }
 
 // ----------------------------------------------------------------------------------------
@@ -106,6 +139,11 @@ workflow mosaicking {
         dependency_check(footprints, weights)
         update_linmos_config(footprints.collect(), weights.collect(), dependency_check.out.stdout)
         linmos(update_linmos_config.out.config)
+        get_sbids_from_footprint_filenames(footprints.collect())
+        add_sbids_to_header(
+            footprints.concat(weights).collect(),
+            get_sbids_from_footprint_filenames.out.stdout
+        )
 
     emit:
         image_cube = linmos.out.image_cube
