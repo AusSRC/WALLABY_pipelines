@@ -148,7 +148,6 @@ workflow mosaicking {
     emit:
         image_cube = linmos.out.image_cube
         weights_cube = linmos.out.weights_cube
-
 }
 
 // ----------------------------------------------------------------------------------------

@@ -34,10 +34,9 @@ process get_metadata {
 
     script:
         """
-        python3 -u /app/slurm_output.py \
+        python3 -u /app/get_slurm_output.py \
             -s $sbid \
-            -o ${params.METADATA_OUTPUT} \
-            -c ${params.CASDA_CREDENTIALS_CONFIG} \
+            -f ${params.METADATA_OUTPUT} \
             -d ${params.SOFIAX_CONFIG_FILE}
         """
 }
