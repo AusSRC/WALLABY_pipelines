@@ -8,6 +8,9 @@ nextflow.enable.dsl = 2
 
 // Check dependencies for pipeline run
 process check_metadata_directory {
+    input:
+        val download
+
     output:
         stdout emit: stdout
 
@@ -15,7 +18,7 @@ process check_metadata_directory {
         """
         #!/bin/bash
         # Ensure metadata output directory exists
-        [ ! -d ${params.METADATA_OUTPUT} ] && mkdir ${params.METADATA_OUTPUT}
+        [ ! -d ${params.WORKDIR}/${params.METADATA_SUBDIR} ] && mkdir ${params.WORKDIR}/${params.METADATA_SUBDIR}
         exit 0
         """
 }
@@ -34,6 +37,7 @@ process get_metadata {
 
     script:
         """
+        #!/bin/bash
         python3 -u /app/get_slurm_output.py \
             -s $sbid \
             -f ${params.METADATA_OUTPUT} \
@@ -48,9 +52,10 @@ process get_metadata {
 workflow observation_metadata {
     take:
         sbid
+        download
 
     main:
-        check_metadata_directory()
+        check_metadata_directory(download)
         get_metadata(sbid, check_metadata_directory.out.stdout)
 }
 
