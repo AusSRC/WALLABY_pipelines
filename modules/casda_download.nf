@@ -18,7 +18,7 @@ process check_write_directory {
         """
         #!/bin/bash
         # Ensure download write directory exists
-        [ ! -d ${params.WORKDIR}/$run_name ] && mkdir ${params.WORKDIR}/$run_name
+        [ ! -d ${params.WORKDIR}/${params.RUN_SUBDIR}/$run_name ] && mkdir ${params.WORKDIR}/${params.RUN_SUBDIR}/$run_name
         exit 0
         """
 }
@@ -30,7 +30,6 @@ process download {
 
     input:
         val sbid
-        val run_name
         val check
 
     output:
@@ -38,9 +37,10 @@ process download {
 
     script:
         """
+        #!/bin/bash
         python3 -u /app/casda_download.py \
             -s $sbid \
-            -o ${params.WORKDIR}/${params.RUN_NAME} \
+            -o ${params.WORKDIR}/${params.FOOTPRINT_SUBDIR} \
             -c ${params.CASDA_CREDENTIALS_CONFIG} \
             -d ${params.DATABASE_ENV} \
             -p WALLABY
@@ -53,7 +53,6 @@ process get_image_and_weights_cube_files {
 
     input:
         val sbid
-        val run_name
         val download
 
     output:
@@ -61,8 +60,8 @@ process get_image_and_weights_cube_files {
         val weights_cube, emit: weights_cube
 
     exec:
-        image_cube = file("${params.WORKDIR}/$run_name/image*$sbid*.fits")[0]
-        weights_cube = file("${params.WORKDIR}/$run_name/weight*$sbid*.fits")[0]
+        image_cube = file("${params.WORKDIR}/${params.FOOTPRINT_SUBDIR}/image*$sbid*.fits")[0]
+        weights_cube = file("${params.WORKDIR}/${params.FOOTPRINT_SUBDIR}/weight*$sbid*.fits")[0]
 }
 
 // ----------------------------------------------------------------------------------------
@@ -76,8 +75,8 @@ workflow casda_download {
 
     main:
         check_write_directory(run_name)
-        download(sbid, run_name, check_write_directory.out.stdout)
-        get_image_and_weights_cube_files(sbid, run_name, download.out.stdout)
+        download(sbid, check_write_directory.out.stdout)
+        get_image_and_weights_cube_files(sbid, download.out.stdout)
 
     emit:
         image_cube = get_image_and_weights_cube_files.out.image_cube

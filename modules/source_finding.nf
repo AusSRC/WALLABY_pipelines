@@ -53,6 +53,7 @@ process s2p_setup {
 
     script:
         """
+        #!/bin/bash
         python3 -u /app/s2p_setup.py \
             --config ${params.S2P_TEMPLATE} \
             --image_cube $image_cube \
@@ -78,6 +79,7 @@ process update_sofiax_config {
 
     script:
         """
+        #!/bin/bash
         python3 -u /app/update_sofiax_config.py \
             --config ${params.SOFIAX_CONFIG_FILE} \
             --output ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILENAME} \

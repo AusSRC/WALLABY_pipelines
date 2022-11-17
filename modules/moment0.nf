@@ -21,6 +21,7 @@ process mosaic {
 
     script:
         """
+        #!/bin/bash
         python3 -u /app/run_wallmerge.py \
             $output_directory \
             ${params.WORKDIR}/${params.RUN_NAME}/${params.WALLMERGE_OUTPUT}

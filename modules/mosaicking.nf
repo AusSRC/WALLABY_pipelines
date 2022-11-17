@@ -54,6 +54,7 @@ process update_linmos_config {
 
     script:
         """
+        #!/bin/bash
         python3 -u /app/update_linmos_config.py \
             --config ${params.LINMOS_CONFIG_FILE} \
             --output ${params.WORKDIR}/${params.RUN_NAME}/${params.LINMOS_CONFIG_FILENAME} \
