@@ -40,7 +40,7 @@ process get_metadata {
         #!/bin/bash
         python3 -u /app/get_slurm_output.py \
             -s $sbid \
-            -f ${params.METADATA_OUTPUT} \
+            -f ${params.WORKDIR}/${params.METADATA_SUBDIR} \
             -d ${params.SOFIAX_CONFIG_FILE}
         """
 }
