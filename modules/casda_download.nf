@@ -40,7 +40,7 @@ process download {
         #!/bin/bash
         python3 -u /app/casda_download.py \
             -s $sbid \
-            -o ${params.WORKDIR}/${params.FOOTPRINT_SUBDIR} \
+            -o ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.FOOTPRINT_SUBDIR} \
             -c ${params.CASDA_CREDENTIALS_CONFIG} \
             -d ${params.DATABASE_ENV} \
             -p WALLABY
@@ -60,8 +60,8 @@ process get_image_and_weights_cube_files {
         val weights_cube, emit: weights_cube
 
     exec:
-        image_cube = file("${params.WORKDIR}/${params.FOOTPRINT_SUBDIR}/image*$sbid*.fits")[0]
-        weights_cube = file("${params.WORKDIR}/${params.FOOTPRINT_SUBDIR}/weight*$sbid*.fits")[0]
+        image_cube = file("${params.WORKDIR}/${params.RUN_SUBDIR}/${params.FOOTPRINT_SUBDIR}/image*$sbid*.fits")[0]
+        weights_cube = file("${params.WORKDIR}/${params.RUN_SUBDIR}/${params.FOOTPRINT_SUBDIR}/weight*$sbid*.fits")[0]
 }
 
 // ----------------------------------------------------------------------------------------

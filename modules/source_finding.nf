@@ -19,9 +19,9 @@ process check_dependencies {
         """
         #!/bin/bash
         # Ensure working directory exists
-        [ ! -d ${params.WORKDIR}/${params.RUN_NAME} ] && mkdir ${params.WORKDIR}/${params.RUN_NAME}
+        [ ! -d ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME} ] && mkdir ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}
         # Ensure sofia output directory exists
-        [ ! -d ${params.WORKDIR}/${params.RUN_NAME}/outputs ] && mkdir ${params.WORKDIR}/${params.RUN_NAME}/outputs
+        [ ! -d ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME} ] && mkdir ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME}
         # Ensure parameter file exists
         [ ! -f ${params.SOFIA_PARAMETER_FILE} ] && \
             { echo "Source finding parameter file (params.SOFIA_PARAMETER_FILE) not found"; exit 1; }
@@ -61,8 +61,8 @@ process s2p_setup {
             --region '${params.REGION}' \
             --run_name ${params.RUN_NAME} \
             --sofia_template ${params.SOFIA_PARAMETER_FILE} \
-            --output_dir ${params.WORKDIR}/${params.RUN_NAME} \
-            --products_dir ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME}
+            --output_dir ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME} \
+            --products_dir ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME}
         """
 }
 
@@ -75,14 +75,14 @@ process update_sofiax_config {
         val s2p_setup
 
     output:
-        val "${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILENAME}", emit: sofiax_config
+        val "${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILENAME}", emit: sofiax_config
 
     script:
         """
         #!/bin/bash
         python3 -u /app/update_sofiax_config.py \
             --config ${params.SOFIAX_CONFIG_FILE} \
-            --output ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILENAME} \
+            --output ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILENAME} \
             --run_name ${params.RUN_NAME}
         """
 }
@@ -98,7 +98,7 @@ process get_parameter_files {
         val parameter_files, emit: parameter_files
 
     exec:
-        parameter_files = file("${params.WORKDIR}/${params.RUN_NAME}/sofia_*.par")
+        parameter_files = file("${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/sofia_*.par")
 }
 
 // Run source finding application (sofia)
@@ -134,7 +134,7 @@ process sofiax {
     script:
         """
         #!/bin/bash
-        python -m sofiax -c ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILENAME} -p $parameter_file
+        python -m sofiax -c ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILENAME} -p $parameter_file
         """
 }
 
@@ -164,12 +164,12 @@ process rename_mosaic {
         #!/bin/bash
 
         # Rename mosaic image file if it exists
-        [ -f ${params.WORKDIR}/${params.RUN_NAME}/mosaic.fits ] && \
-            { mv ${params.WORKDIR}/${params.RUN_NAME}/mosaic.fits ${params.WORKDIR}/${params.RUN_NAME}/\$(echo "image.restored.i.SB${params.SBIDS.replaceAll(',', ' ')}.mosaic.cube.fits" | tr " " .) }
+        [ -f ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/mosaic.fits ] && \
+            { mv ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/mosaic.fits ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/\$(echo "image.restored.i.SB${params.SBIDS.replaceAll(',', ' ')}.mosaic.cube.fits" | tr " " .) }
 
         # Remame weights image file if it exists
-        [ -f ${params.WORKDIR}/${params.RUN_NAME}/mosaic.fits ] && \
-            { mv ${params.WORKDIR}/${params.RUN_NAME}/mosaic.weights.fits ${params.WORKDIR}/${params.RUN_NAME}/\$(echo "weights.i.SB${params.SBIDS.replaceAll(',', ' ')}.mosaic.cube.fits" | tr " " .) }
+        [ -f ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/mosaic.fits ] && \
+            { mv ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/mosaic.weights.fits ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/\$(echo "weights.i.SB${params.SBIDS.replaceAll(',', ' ')}.mosaic.cube.fits" | tr " " .) }
         """
 }
 
@@ -184,7 +184,7 @@ process get_products {
         val outputs, emit: outputs
 
     exec:
-        outputs = "${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME}"
+        outputs = "${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME}"
 }
 
 // ----------------------------------------------------------------------------------------

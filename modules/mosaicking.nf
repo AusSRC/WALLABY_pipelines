@@ -20,8 +20,8 @@ process dependency_check {
         #!/bin/bash
 
         # Ensure working directories exists
-        [ ! -d ${params.WORKDIR}/${params.RUN_NAME} ] && mkdir ${params.WORKDIR}/${params.RUN_NAME}
-        [ ! -d ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME} ] && mkdir ${params.WORKDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME}
+        [ ! -d ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME} ] && mkdir ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}
+        [ ! -d ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME} ] && mkdir ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME}
 
         # Ensure all image cube files exist
         [ ! -f ${footprints} ] && { echo "Footprint file could not be found"; exit 1; }
@@ -50,18 +50,18 @@ process update_linmos_config {
         val check
 
     output:
-        val "${params.WORKDIR}/${params.RUN_NAME}/${params.LINMOS_CONFIG_FILENAME}", emit: config
+        val "${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.LINMOS_CONFIG_FILENAME}", emit: config
 
     script:
         """
         #!/bin/bash
         python3 -u /app/update_linmos_config.py \
             --config ${params.LINMOS_CONFIG_FILE} \
-            --output ${params.WORKDIR}/${params.RUN_NAME}/${params.LINMOS_CONFIG_FILENAME} \
+            --output ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.LINMOS_CONFIG_FILENAME} \
             --linmos.names "$footprints" \
             --linmos.weights "$weights" \
-            --linmos.outname "${params.WORKDIR}/${params.RUN_NAME}/${params.MOSAIC_OUTPUT_FILENAME}" \
-            --linmos.outweight "${params.WORKDIR}/${params.RUN_NAME}/weights.${params.MOSAIC_OUTPUT_FILENAME}"
+            --linmos.outname "${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.MOSAIC_OUTPUT_FILENAME}" \
+            --linmos.outweight "${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/weights.${params.MOSAIC_OUTPUT_FILENAME}"
         """
 }
 
@@ -71,8 +71,8 @@ process linmos {
         val linmos_config
 
     output:
-        val "${params.WORKDIR}/${params.RUN_NAME}/${params.MOSAIC_OUTPUT_FILENAME}.fits", emit: image_cube
-        val "${params.WORKDIR}/${params.RUN_NAME}/weights.${params.MOSAIC_OUTPUT_FILENAME}.fits", emit: weights_cube
+        val "${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.MOSAIC_OUTPUT_FILENAME}.fits", emit: image_cube
+        val "${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/weights.${params.MOSAIC_OUTPUT_FILENAME}.fits", emit: weights_cube
 
     script:
         """
