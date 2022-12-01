@@ -77,54 +77,13 @@ process linmos {
     script:
         """
         #!/bin/bash
-        # singularity pull ${params.SINGULARITY_CACHEDIR}/askapsoft.sif ${params.LINMOS_IMAGE}
+        singularity pull ${params.SINGULARITY_CACHEDIR}/askapsoft.sif ${params.LINMOS_IMAGE}
         export OMP_NUM_THREADS=4
 	    mpiexec -np 144 singularity exec \
             --bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} \
             ${params.SINGULARITY_CACHEDIR}/askapsoft.sif \
             linmos-mpi -c $linmos_config
         """
-}
-
-process get_sbids_from_footprint_filenames {
-    input:
-        path footprints
-
-    output:
-        stdout emit: stdout
-
-    script:
-        """
-        #!/usr/bin/python3
-
-        footprints = str("$footprints").split(' ')
-        sbid_list = []
-        for f in footprints:
-            sbid_list += [s.replace('SB', '') for s in f.split('.') if 'SB' in s]
-        sbids = ' '.join(sbid_list)
-        print(sbids, end='')
-        """
-}
-
-process add_sbids_to_header {
-    container = params.METADATA_IMAGE
-    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
-
-    input:
-        path files
-        val sbids
-
-    script:
-        if (sbids == '')
-            """
-            #!/bin/bash
-            python3 -u /app/add_mosaic_sbids_to_header.py -i $files
-            """
-        else
-            """
-            #!/bin/bash
-            python3 -u /app/add_mosaic_sbids_to_header.py -i $files -s $sbids
-            """
 }
 
 // ----------------------------------------------------------------------------------------
@@ -140,11 +99,6 @@ workflow mosaicking {
         dependency_check(footprints, weights)
         update_linmos_config(footprints.collect(), weights.collect(), dependency_check.out.stdout)
         linmos(update_linmos_config.out.config)
-        get_sbids_from_footprint_filenames(footprints.collect())
-        add_sbids_to_header(
-            footprints.concat(weights).collect(),
-            get_sbids_from_footprint_filenames.out.stdout
-        )
 
     emit:
         image_cube = linmos.out.image_cube
