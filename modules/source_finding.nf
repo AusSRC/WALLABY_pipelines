@@ -82,6 +82,7 @@ process update_sofiax_config {
         #!/bin/bash
         python3 -u /app/update_sofiax_config.py \
             --config ${params.SOFIAX_CONFIG_FILE} \
+            --database ${params.DATABASE_ENV} \
             --output ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILENAME} \
             --run_name ${params.RUN_NAME}
         """
