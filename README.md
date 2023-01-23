@@ -1,71 +1,114 @@
-
 <h1 align="center">WALLABY pipelines</h1>
 
-A collection of data post-processing pipelines for the [WALLABY Survey](https://www.atnf.csiro.au/research/WALLABY/) developed by the [AusSRC](https://aussrc.org).
+Data post-processing pipelines for the [WALLABY Survey](https://www.atnf.csiro.au/research/WALLABY/) developed by the [AusSRC](https://aussrc.org).
+
+## Run
+
+To run a pipeline you need to specify (1) which pipeline to run (`main.nf`, `source_finding.nf` or `quality_check.nf`) as well as the environment in which to run it (`setonix` or `carnaby). 
+
+The command is as follows:
+
+```
+nextflow run <PIPELINE> -params-file <PARAMETER_FILE> -profile <ENVIRONMENT> -resume
+```
+
+or 
+
+```
+nextflow run https://github.com/AusSRC/WALLABY_pipelines -main-script <PIPELINE> -params-file <PARAMETER_FILE> -profile <ENVIRONMENT> -resume
+```
+
+More details on how to run Nextflow pipelines can be found on their [documentation page](https://www.nextflow.io/docs/latest/index.html). 
 
 ## Pipelines
 
-We have three pipelines for WALLABY postprocessing
+There are three pipelines for WALLABY postprocessing
 
-- `main.nf`
-- `source_finding.nf`
-- `quality_check.nf`
+[`main.nf`](main.nf)
 
-To run the pipelines either clone the repository locally and run
+This is the main post-processing pipeline that is used for most of the WALLABY survey. It performs mosaicking and source finding for a number of observations. It can be used to mosaic and find sources in footprint pairs, or for joining together any number of tiles. 
 
-```
-nextflow run main.nf -params-file params.yaml -profile <PROFILE>
-```
-
-or
+A example parameter file for `main.nf`
 
 ```
-nextflow run https://github.com/AusSRC/WALLABY_pipelines -main-script main.nf -params-file params.yaml -profile <PROFILE>
+{
+  "RUN_NAME": "milkyway",
+  "FOOTPRINTS": "image.restored.i.NGC5044_4A.SB25701.cube.MilkyWay.contsub.fits, image.restored.i.NGC5044_4B.SB25750.cube.MilkyWay.contsub.fits",
+  "WEIGHTS": "weights.i.NGC5044_4A.SB25701.cube.MilkyWay.fits, weights.i.NGC5044_4B.SB25750.cube.MilkyWay.fits",
+  "REGION": "200.77, 204.77, -24.605, -20.605",
+}
 ```
 
-replacing `main.nf` with the workflow of your choice and pointing to your parameter file `params.yaml`.
+[`source_finding.nf`](source_finding.nf)
+  
+The source finding pipeline only runs SoFiA and SoFiAX for extracting detections from an image and uploading the detection properties and products to a database.
 
-### Configuration
+A example parameter file for `source_finding.nf`
 
-The `nextflow.config` provides defaults values for most required configuration parameters to run the pipelines. However for each pipeline users will need to provide some minimum configuration. If you look at the `nextflow.config` file you will notice there are two pre-defined environments in which these pipelines can run: `carnaby` which is the AusSRC development slurm cluster, or `magnus` which is supported by Pawsey. You will have to specify which environment to run the pipeline in with
+```
+{
+  "RUN_NAME": "198-19_198-13_r",
+  "IMAGE_CUBE": "/mnt/shared/wallaby/post-runs/198-19_198-13/mosaic.fits",
+  "WEIGHTS_CUBE": "/mnt/shared/wallaby/post-runs/198-19_198-13/weights.mosaic.fits",
+  "REGION": "192.74, 196.74, -18.08, -14.08",
+}
+```
 
-### Main
+*NOTE: The `REGION` parameter is optional. Without this the entire field will be processed.
 
-The [`main.nf`](main.nf) pipeline performs mosaicking and source finding on observation footprints or tiles.
+[`quality_check.nf`](quality_check.nf)
 
-### Source finding
+The quality check pipeline takes a single observation and produces a moment 0 map of the field. The user specifies the SBID and the pipeline will download the observation image cube and weights cube, then run the source finder to produce output products and generate the moment 0 map. This is then used for inspecting the quality of the observation and is used prior to the main postprocessing pipeline. For new observations, this pipeline will be run prior to both other post-processing pipelines so the downloading of files occurs as part of this workflow.
+    
+An example parameter file for `quality_check.nf`
+  
+```
+{
+  "SBID": "45652",
+  "RUN_NAME": "SB45652_qc"
+}
+```
 
-The [`source_finding.nf`](source_finding.nf) pipeline will run the source finding module from the main pipeline on a tile. This pipeline is used to perform post-processing on a different region of a mosaicked image cube that is already available on the cluster.
+## Environments
 
-### Quality check
+Currently there are two environments in which these pipelines can be run
 
-The [`quality_check.nf`](quality_check.nf) pipeline will download observations from CASDA, run the source finding application and produce a moment 0 map of the sources. The moment 0 map is then inspected by a WALLABY scientist to verify there are no artefacts in the image. Once an observation passes the quality check it can be processed with the main pipeline (assuming the overlapping footprint is available).
+- `setonix` (Production)
+- `carnaby` (AusSRC development cluster)
+
+In the [`nextflow.config`](nextflow.config) there are default parameters that allow these pipelines to run in these environments.
 
 ## Configuration
 
-There is some configuration required running the pipelines. These include
+The user-provided parameters used in the pipelines are described in the table below
 
 | Parameter | Description |
 | -- | -- |
-| `RUN_NAME` | Name of the pipeline run. Will determine output subdirectories for pipeline products and temporary files. |
-| `SBID` | SBID for the observation on which quality checking will be performed. Required parameter for `quality_check.nf`. |
-| `IMAGE_CUBE` | Mosaicked image cube on which to run source finding pipeline. Required parameter for `source_finding.nf`. |
-| `WEIGHTS_CUBE` | Mosaicked weights cube on which to run source finding pipeline. Required parameter for `source_finding.nf`. |
-| `FOOTPRINTS` | Space separated list of image cube files to run the postprocessing pipeline on. Required parameter for the `main.nf`. Can be used for performing post-processing on multiple tiles instead of footprints. |
-| `WEIGHTS` | Space separated list of weights cube files to run the postprocessing pipeline on. Position of each weights cube file in space separated list should match the image cube. Required parameter for the `main.nf`.|
+| `RUN_NAME` | Name of the pipeline run. Will determine output subdirectories for pipeline products and temporary files |
+| `SBID` | SBID for the observation on which quality checking will be performed |
+| `IMAGE_CUBE` | Mosaicked image cube on which to run source finding pipeline |
+| `WEIGHTS_CUBE` | Mosaicked weights cube on which to run source finding pipeline |
+| `FOOTPRINTS` | Space separated list of image cube files to run the postprocessing pipeline on. Can be used for performing post-processing on multiple tiles instead of footprints. |
+| `WEIGHTS` | Space separated list of weights cube files to run the postprocessing pipeline on. Position of each weights cube file in space separated list should match the image cube |
 | `REGION` | RA/Dec boundary of the image cube on which to run the source finding. If not provided the entire image cube will be processed. Optional parameter for all pipelines. |
 
-## Tests
+Defaults have been provided for the following parameters through the `nextflow.config`. Users are unlikely to need to change these values.
 
-In the `tests/` subdirectory we have parameter files for pre-defined end-to-end tests that will run on the AusSRC Carnaby cluster. Note that these will not run in any other environment because there are configuration files at specific locations defined in the `nextflow.config` that will be required. A description of the tests are available below.
-
-| Parameter file | Test description |
+| Parameter | Description |
 | -- | -- |
-| `postprocessing.yaml` | Run mosaicking and source finding on a pair of Milkyway footprints. |
-| `source_finding.yaml` | Run source finding on Milkyway image cube mosaic. |
-| `quality_check.yaml` | Download from CASDA observation (footprint and weights) for SBID 40905. Run the source finding module on to generate cubelet moment 0 maps and mosaic these together. |
+| `SOFIA_PARAMETER_FILE` | Location to template [`SoFiA-2`](https://github.com/SoFiA-Admin/SoFiA-2) parameter file for configuring the source finding run. |
+| `S2P_TEMPLATE` | Template [`s2p_setup`](https://github.com/AusSRC/s2p_setup) configuration for setting up SoFiAX runs |
+| `SOFIAX_CONFIG_FILE` | Template values for SoFiAX configuration (database credentials provided here) |
+| `LINMOS_CONFIG_FILE` | Template mosaicking configuration for `linmos` |
+| `MOSAIC_OUTPUT_FILENAME` | Output filename for mosaicked image cubes |
+| `SOFIA_OUTPUTS_DIRNAME` | Name of the subdirectory where `SoFiA-2` will store subcube output products |
+| `LINMOS_CONFIG_FILENAME` | Name of the `linmos` configuration generated for the pipeline run instance |
+| `LINMOS_LOG_FILE` | Log file output default name |
+| `SOFIAX_CONFIG_FILENAME` | Output filename for the SoFiAX config file for the pipeline run instance |
+| `WALLMERGE_OUTPUT` | Output filename for the merged moment 0 map file produced by the quality check pipeline |
 
-## Resources
+## Reference
 
 - [CASDA data access portal](https://data.csiro.au/collections/domain/casdaObservation/search/)
 - [Nextflow pipeline sharing](https://www.nextflow.io/docs/latest/sharing.html) (how to run)
+- [SoFiA-2 repository](https://github.com/SoFiA-Admin/SoFiA-2)
