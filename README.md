@@ -15,7 +15,7 @@ nextflow run <PIPELINE> -params-file <PARAMETER_FILE> -profile <ENVIRONMENT> -re
 or 
 
 ```
-nextflow run https://github.com/AusSRC/WALLABY_pipelines -main-script <PIPELINE> -params-file <PARAMETER_FILE> -profile <ENVIRONMENT> -resume
+nextflow run https://github.com/AusSRC/WALLABY_pipelines -r main -main-script <PIPELINE> -params-file <PARAMETER_FILE> -profile <ENVIRONMENT> -resume
 ```
 
 More details on how to run Nextflow pipelines can be found on their [documentation page](https://www.nextflow.io/docs/latest/index.html). 
