@@ -28,6 +28,9 @@ process download {
     container = params.CASDA_DOWNLOAD_IMAGE
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
+    errorStrategy 'retry'
+    maxErrors 3
+
     input:
         val sbid
         val check
