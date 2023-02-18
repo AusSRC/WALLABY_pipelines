@@ -77,11 +77,11 @@ process linmos {
     script:
         """
         #!/bin/bash
-        singularity pull ${params.SINGULARITY_CACHEDIR}/askapsoft.sif ${params.LINMOS_IMAGE}
+
         export OMP_NUM_THREADS=4
 	    mpiexec -np 144 singularity exec \
             --bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} \
-            ${params.SINGULARITY_CACHEDIR}/askapsoft.sif \
+            ${params.SINGULARITY_CACHEDIR}/askapsoft.img \
             linmos-mpi -c $linmos_config
         """
 }

@@ -10,6 +10,7 @@ nextflow.enable.dsl = 2
 process check_write_directory {
     input:
         val run_name
+        val barrier
 
     output:
         stdout emit: stdout
@@ -75,9 +76,10 @@ workflow casda_download {
     take:
         run_name
         sbid
+        barrier
 
     main:
-        check_write_directory(run_name)
+        check_write_directory(run_name, barrier)
         download(sbid, check_write_directory.out.stdout)
         get_image_and_weights_cube_files(sbid, download.out.stdout)
 
