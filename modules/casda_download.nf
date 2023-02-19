@@ -30,7 +30,7 @@ process download {
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     errorStrategy 'retry'
-    maxErrors 3
+    maxErrors 10
 
     input:
         val sbid
