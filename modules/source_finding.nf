@@ -62,7 +62,8 @@ process s2p_setup {
             --run_name ${params.RUN_NAME} \
             --sofia_template ${params.SOFIA_PARAMETER_FILE} \
             --output_dir ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME} \
-            --products_dir ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME}
+            --products_dir ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME} \
+            > ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/sofiax_log.txt
         """
 }
 
