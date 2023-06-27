@@ -135,8 +135,7 @@ process sofiax {
     script:
         """
         #!/bin/bash
-        python -m sofiax -c ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILENAME} -p $parameter_file \ 
-            > ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/sofiax.txt
+        python -m sofiax -c ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILENAME} -p $parameter_file > ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/sofiax.txt
         """
 }
 
@@ -152,8 +151,7 @@ process get_dss_image {
         """
         #!/bin/bash
 
-        python /app/get_dss_image.py -r ${params.RUN_NAME} -e ${params.DATABASE_ENV} \ 
-            > ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/dss.txt
+        python /app/get_dss_image.py -r ${params.RUN_NAME} -e ${params.DATABASE_ENV} > ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/dss.txt
         """
 }
 
