@@ -62,8 +62,7 @@ process s2p_setup {
             --run_name ${params.RUN_NAME} \
             --sofia_template ${params.SOFIA_PARAMETER_FILE} \
             --output_dir ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME} \
-            --products_dir ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME} \
-            > ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/sofiax_log.txt
+            --products_dir ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME}
         """
 }
 
@@ -136,7 +135,8 @@ process sofiax {
     script:
         """
         #!/bin/bash
-        python -m sofiax -c ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILENAME} -p $parameter_file
+        python -m sofiax -c ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.SOFIAX_CONFIG_FILENAME} -p $parameter_file \ 
+            > ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/sofiax.txt
         """
 }
 
@@ -152,7 +152,8 @@ process get_dss_image {
         """
         #!/bin/bash
 
-        python /app/get_dss_image.py -r ${params.RUN_NAME} -e ${params.DATABASE_ENV}
+        python /app/get_dss_image.py -r ${params.RUN_NAME} -e ${params.DATABASE_ENV} \ 
+            > ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/dss.txt
         """
 }
 
