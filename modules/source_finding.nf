@@ -151,7 +151,7 @@ process get_dss_image {
         """
         #!/bin/bash
 
-        python /app/get_dss_image.py -r ${params.RUN_NAME} -e ${params.DATABASE_ENV} > ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/dss.txt
+        python3 /app/get_dss_image.py -r ${params.RUN_NAME} -e ${params.DATABASE_ENV} > ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/dss.txt
         """
 }
 
