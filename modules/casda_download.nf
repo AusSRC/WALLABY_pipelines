@@ -46,7 +46,6 @@ process download {
             -s $sbid \
             -o ${params.WORKDIR}/${params.FOOTPRINT_SUBDIR} \
             -c ${params.CASDA_CREDENTIALS_CONFIG} \
-            -d ${params.DATABASE_ENV} \
             -p WALLABY
         """
 }
