@@ -1,0 +1,12 @@
+linmos.names        = [{% for image in images %}{{ image }}{%- if not loop.last %},{% endif %}{% endfor %}]
+linmos.weights      = [{% for weight in weights %}{{ weight }}{%- if not loop.last %},{% endif %}{% endfor %}]
+linmos.imagetype    = fits
+linmos.outname      = {{ image_out }}
+linmos.outweight    = {{ weight_out }}
+linmos.weighttype   = FromWeightImages
+linmos.weightstate  = Corrected
+linmos.psfref       = 0
+linmos.imageaccess  = collective
+linmos.imageaccess.axis  = 3
+linmos.imageaccess.order = distributed
+linmos.imageaccess.write = parallel
