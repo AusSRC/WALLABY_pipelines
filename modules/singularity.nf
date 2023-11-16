@@ -14,7 +14,7 @@ process download_singularity {
 
 
     output:
-        stdout emit: stdout
+        val true, emit: ready
 
     shell:
         '''

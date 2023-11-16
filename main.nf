@@ -3,6 +3,12 @@
 nextflow.enable.dsl = 2
 
 include { download_containers } from './modules/singularity'
+include { generate_linmos_config as footprint_generate_linmos_config } from './modules/mosaicking'
+include { generate_linmos_config as ser_generate_linmos_config } from './modules/mosaicking'
+include { run_linmos as footprint_run_linmos } from './modules/mosaicking'
+include { run_linmos as ser_run_linmos } from './modules/mosaicking'
+include { source_finding } from './modules/source_finding'
+
 
 process get_footprints {
     executor = 'local'
@@ -62,6 +68,7 @@ process get_footprints {
 }
 
 import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
 
 process load_footprints {
     executor = 'local'
@@ -108,75 +115,35 @@ process download_footprint {
         """
 }
 
-process generate_linmos_config {
-    debug true
-    executor = 'local'
-    container = params.CASDA_DOWNLOAD_IMAGE
-    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
+process ser_collect {
     input:
-        val tile_files
-        val tile_name
+        val all_mosaic_files
         val SER
 
     output:
-        val linmos_conf, emit: linmos_conf
-        val linmos_log_conf, emit: linmos_log_conf
-        val moasic_files, emit: moasic_files
+        val ser_files, emit: ser_files
+        val tile_name, emit: tile_name
+        val run_mosaic, emit: run_mosaic
 
-    script:
-        linmos_conf = "${params.WORKDIR}/regions/${SER}/${tile_name}/linmos.conf"
-        linmos_log_conf = "${params.WORKDIR}/regions/${SER}/${tile_name}/linmos.log_cfg"
-        moasic_files = ["${params.WORKDIR}/regions/${SER}/${tile_name}/${tile_name}_image",
-                        "${params.WORKDIR}/regions/${SER}/${tile_name}/${tile_name}_weight"]
-        """
-        #!python3
+    exec:
+        def json_str = JsonOutput.toJson(all_mosaic_files)
+        new File("${params.WORKDIR}/regions/${SER}/${SER}_files.json").write(json_str)
+        
+        ser_files = "${params.WORKDIR}/regions/${SER}/${SER}_files.json"
 
-        import json
-        from jinja2 import Environment, FileSystemLoader
-        from pathlib import Path
+        if (all_mosaic_files.size() > 2) {
+            run_mosaic = 1
+            tile_name = SER
+        }
+        else {
+            // There is only a single TILE in the SER, get the TILE name
+            run_mosaic = 0
+            File f = new File(all_mosaic_files[0])
+            def ra_dec = f.getName().split('_')[1]
+            tile_name = "TILE_" + ra_dec
+        }
 
-        with open('${tile_files}') as o:
-            data = json.loads(o.read())
-
-        images = [Path(image).with_suffix('') for image in data if 'image.' in image]
-        weights = [Path(weight).with_suffix('') for weight in data if 'weights.' in weight]
-        images.sort()
-        weights.sort()
-        image_out = Path('${params.WORKDIR}/regions/${SER}/${tile_name}/${tile_name}_image')
-        weight_out = Path('${params.WORKDIR}/regions/${SER}/${tile_name}/${tile_name}_weight')
-        log = Path('${params.WORKDIR}/regions/${SER}/${tile_name}/linmos.log')
-
-        j2_env = Environment(loader=FileSystemLoader('$baseDir/templates'), trim_blocks=True)
-        result = j2_env.get_template('linmos.j2').render(images=images, weights=weights, \
-        image_out=image_out, weight_out=weight_out)
-
-        with open('${params.WORKDIR}/regions/${SER}/${tile_name}/linmos.conf', 'w') as f:
-            print(result, file=f)
-
-        result = j2_env.get_template('log_template.j2').render(log=log)
-
-        with open('${params.WORKDIR}/regions/${SER}/${tile_name}/linmos.log_cfg', 'w') as f:
-            print(result, file=f)
-        """
-}
-
-process run_linmos {
-
-    input:
-        val linmos_conf
-        val linmos_log_conf
-
-    script:
-        """
-        #!/bin/bash
-
-        export OMP_NUM_THREADS=4
-	    srun -n 72 singularity exec \
-             --bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} \
-             ${params.SINGULARITY_CACHEDIR}/${params.LINMOS_IMAGE_NAME}.img \
-             linmos-mpi -c $linmos_conf -l $linmos_log_conf
-        """
 }
 
 
@@ -186,13 +153,41 @@ workflow wallaby_ser {
 
     main:
         download_containers()
-        get_footprints(SER, download_containers.out.stdout)
+
+        get_footprints(SER, download_containers.out.ready)
+
         load_footprints(get_footprints.out.footprints_file)
+        // SER can have 1 or more TILES. If more than one then flatten map and process in parallel
         download_footprint(load_footprints.out.footprints_json_map.flatMap(), SER)
-        generate_linmos_config(download_footprint.out.tile_files, download_footprint.out.tile_name, SER)
-        run_linmos(generate_linmos_config.out.linmos_conf, generate_linmos_config.out.linmos_log_conf)
-        //mosaicking(footprints, weights)
-        //source_finding(mosaicking.out.image_cube, mosaicking.out.weights_cube)
+
+        footprint_generate_linmos_config(download_footprint.out.tile_files, 
+                                         download_footprint.out.tile_name, 
+                                         1, 
+                                         SER)
+
+        footprint_run_linmos(footprint_generate_linmos_config.out.linmos_conf, 
+                             footprint_generate_linmos_config.out.linmos_log_conf, 
+                             footprint_generate_linmos_config.out.mosaic_files, 
+                             1)
+
+        ser_collect(footprint_run_linmos.out.mosaic_files.collect(), SER)
+
+        ser_generate_linmos_config(ser_collect.out.ser_files, 
+                                   ser_collect.out.tile_name, 
+                                   ser_collect.out.run_mosaic, 
+                                   SER)
+
+        ser_run_linmos(ser_generate_linmos_config.out.linmos_conf, 
+                       ser_generate_linmos_config.out.linmos_log_conf, 
+                       ser_generate_linmos_config.out.mosaic_files, 
+                       ser_collect.out.run_mosaic)
+
+        source_finding(ser_run_linmos.out.mosaic_files[0], 
+                       ser_run_linmos.out.mosaic_files[1], 
+                       SER, 
+                       "${params.WORKDIR}/regions/${SER}/sofia/", 
+                       "${params.WORKDIR}/regions/${SER}/sofia/output", 
+                       "${params.WORKDIR}/regions/${SER}/sofia/sofiax.ini")
 }
 
 workflow {

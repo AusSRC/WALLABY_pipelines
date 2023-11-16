@@ -1,108 +1,95 @@
 #!/usr/bin/env nextflow
 
-nextflow.enable.dsl = 2
-
-// ----------------------------------------------------------------------------------------
-// Processes
-// ----------------------------------------------------------------------------------------
-
-// Check all dependencies in place for pipeline run
-process dependency_check {
-    input:
-        val footprints
-        val weights
-
-    output:
-        stdout emit: stdout
-
-    script:
-        """
-        #!/bin/bash
-
-        # Ensure working directories exists
-        [ ! -d ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME} ] && mkdir ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}
-        [ ! -d ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME} ] && mkdir ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.SOFIA_OUTPUTS_DIRNAME}
-
-        # Ensure all image cube files exist
-        [ ! -f ${footprints} ] && { echo "Footprint file could not be found"; exit 1; }
-        [ ! -f ${weights} ] && { echo "Weight file could not be found"; exit 1; }
-
-        # Check paramater files exist
-        [ ! -f ${params.LINMOS_CONFIG_FILE} ] && \
-            { echo "Linmos configuration file (params.LINMOS_CONFIG_FILE) not found"; exit 1; }
-        [ ! -f ${params.SOFIA_PARAMETER_FILE} ] && \
-            { echo "Source finding parameter file (params.SOFIA_PARAMETER_FILE) not found"; exit 1; }
-        [ ! -f ${params.S2P_TEMPLATE} ] && \
-            { echo "Source finding s2p_setup template file (params.S2P_TEMPLATE) not found"; exit 1; }
-
-        exit 0
-        """
-}
-
-// Update configuration
-process update_linmos_config {
-    container = params.UPDATE_LINMOS_CONFIG_IMAGE
+process generate_linmos_config {
+    debug true
+    executor = 'local'
+    container = params.CASDA_DOWNLOAD_IMAGE
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
-        val footprints
-        val weights
-        val check
+        val tile_files
+        val tile_name
+        val run_mosaic
+        val SER
 
     output:
-        val "${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.LINMOS_CONFIG_FILENAME}", emit: config
+        val linmos_conf, emit: linmos_conf
+        val linmos_log_conf, emit: linmos_log_conf
+        val mosaic_files, emit: mosaic_files
 
     script:
+        linmos_conf = "${params.WORKDIR}/regions/${SER}/${tile_name}/linmos.conf"
+        linmos_log_conf = "${params.WORKDIR}/regions/${SER}/${tile_name}/linmos.log_cfg"
+        mosaic_files = ["${params.WORKDIR}/regions/${SER}/${tile_name}/${tile_name}_image.fits",
+                        "${params.WORKDIR}/regions/${SER}/${tile_name}/${tile_name}_weights.fits"]
         """
-        #!/bin/bash
-        python3 -u /app/update_linmos_config.py \
-            --config ${params.LINMOS_CONFIG_FILE} \
-            --output ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.LINMOS_CONFIG_FILENAME} \
-            --linmos.names "$footprints" \
-            --linmos.weights "$weights" \
-            --linmos.outname "${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.MOSAIC_OUTPUT_FILENAME}" \
-            --linmos.outweight "${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/weights.${params.MOSAIC_OUTPUT_FILENAME}"
+        #!python3
+
+        import os
+        import json
+        from jinja2 import Environment, FileSystemLoader
+        from pathlib import Path
+
+        generate_file = ${run_mosaic}
+
+        if generate_file == 1:
+            with open('${tile_files}') as o:
+                data = json.loads(o.read())
+
+            images = [Path(image).with_suffix('') for image in data if 'image.' in image]
+            weights = [Path(weight).with_suffix('') for weight in data if 'weights.' in weight]
+            images.sort()
+            weights.sort()
+            image_out = Path('${params.WORKDIR}/regions/${SER}/${tile_name}/${tile_name}_image')
+            weight_out = Path('${params.WORKDIR}/regions/${SER}/${tile_name}/${tile_name}_weights')
+            log = Path('${params.WORKDIR}/regions/${SER}/${tile_name}/linmos.log')
+
+            j2_env = Environment(loader=FileSystemLoader('$baseDir/templates'), trim_blocks=True)
+            result = j2_env.get_template('linmos.j2').render(images=images, weights=weights, \
+            image_out=image_out, weight_out=weight_out)
+
+            try:
+                os.makedirs('${params.WORKDIR}/regions/${SER}/${tile_name}')
+            except:
+                pass
+
+            with open('${params.WORKDIR}/regions/${SER}/${tile_name}/linmos.conf', 'w') as f:
+                print(result, file=f)
+
+            result = j2_env.get_template('log_template.j2').render(log=log)
+
+            with open('${params.WORKDIR}/regions/${SER}/${tile_name}/linmos.log_cfg', 'w') as f:
+                print(result, file=f)
         """
 }
 
-// Linear mosaicking
-process linmos {
+
+process run_linmos {
+
     input:
-        val linmos_config
+        val linmos_conf
+        val linmos_log_conf
+        val mosaic_files
+        val run_linmos
 
     output:
-        val "${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.MOSAIC_OUTPUT_FILENAME}.fits", emit: image_cube
-        val "${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/weights.${params.MOSAIC_OUTPUT_FILENAME}.fits", emit: weights_cube
+        val mosaic_files, emit: mosaic_files
 
     script:
+        def image_file = mosaic_files[0]
         """
         #!/bin/bash
+        
+        run=${run_linmos}
 
-        export OMP_NUM_THREADS=4
-	    mpiexec -np 144 singularity exec \
-            --bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} \
-            ${params.SINGULARITY_CACHEDIR}/askapsoft.img \
-            linmos-mpi -c $linmos_config
+        if [ "\$run" -eq 1 ]; then
+            if ! test -f $image_file; then
+                export OMP_NUM_THREADS=4
+                srun -n 72 singularity exec \
+                    --bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} \
+                    ${params.SINGULARITY_CACHEDIR}/${params.LINMOS_IMAGE_NAME}.img \
+                    linmos-mpi -c $linmos_conf -l $linmos_log_conf
+            fi
+        fi
         """
 }
-
-// ----------------------------------------------------------------------------------------
-// Workflow
-// ----------------------------------------------------------------------------------------
-
-workflow mosaicking {
-    take:
-        footprints
-        weights
-
-    main:
-        dependency_check(footprints, weights)
-        update_linmos_config(footprints.collect(), weights.collect(), dependency_check.out.stdout)
-        linmos(update_linmos_config.out.config)
-
-    emit:
-        image_cube = linmos.out.image_cube
-        weights_cube = linmos.out.weights_cube
-}
-
-// ----------------------------------------------------------------------------------------
