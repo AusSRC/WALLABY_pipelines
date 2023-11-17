@@ -1,5 +1,7 @@
 #!/usr/bin/env nextflow
 
+nextflow.enable.dsl = 2
+
 process generate_linmos_config {
     debug true
     executor = 'local'

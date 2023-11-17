@@ -12,28 +12,44 @@ process s2p_setup {
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
-        val image_cube
-        val weights_cube
+        val mosaic_files
         val run_name
         val output_dir
         val product_dir
+        val pixel_extent
 
     output:
         val output_dir, emit: output_dir
 
     script:
+        def image_cube = mosaic_files[0]
+        def weights_cube = mosaic_files[1]
         """
         #!/bin/bash
 
-        python3 -u /app/s2p_setup.py \
-            --config ${params.S2P_TEMPLATE} \
-            --pixel_extent "1170, 1170" \
-            --image_cube $image_cube \
-            --weights_cube $weights_cube \
-            --run_name $run_name \
-            --sofia_template ${params.SOFIA_PARAMETER_FILE} \
-            --output_dir $output_dir \
-            --products_dir $product_dir  
+        pixel=${pixel_extent}
+
+        if [ -z "\$pixel" ]; then
+            python3 -u /app/s2p_setup.py \
+                --config ${params.S2P_TEMPLATE} \
+                --image_cube $image_cube \
+                --weights_cube $weights_cube \
+                --run_name $run_name \
+                --sofia_template ${params.SOFIA_PARAMETER_FILE} \
+                --output_dir $output_dir \
+                --products_dir $product_dir  
+        else
+            python3 -u /app/s2p_setup.py \
+                --config ${params.S2P_TEMPLATE} \
+                --pixel_extent $pixel_extent \
+                --image_cube $image_cube \
+                --weights_cube $weights_cube \
+                --run_name $run_name \
+                --sofia_template ${params.SOFIA_PARAMETER_FILE} \
+                --output_dir $output_dir \
+                --products_dir $product_dir  
+
+        fi
             
         """
 }
@@ -129,7 +145,6 @@ process get_dss_image {
     script:
         """
         #!/bin/bash
-        export XDG_CACHE_HOME=${params.ASTROPY_CACHEDIR}
         python3 /app/get_dss_image.py -r $run_name -e ${params.DATABASE_ENV}
         """
 }
@@ -141,19 +156,19 @@ process get_dss_image {
 workflow source_finding {
 
     take:
-        image_cube
-        weights_cube
+        mosaic_file
         run_name
         output_dir
         product_dir
         sofiax_out_file
+        pixel_extent
 
     main:
-        s2p_setup(image_cube, 
-                  weights_cube, 
+        s2p_setup(mosaic_file, 
                   run_name, 
                   output_dir, 
-                  product_dir)
+                  product_dir,
+                  pixel_extent)
     
         update_sofiax_config(run_name, 
                              sofiax_out_file, 

@@ -6,23 +6,6 @@ nextflow.enable.dsl = 2
 // Processes
 // ----------------------------------------------------------------------------------------
 
-// Check dependencies for pipeline run
-process check_write_directory {
-    input:
-        val run_name
-        val barrier
-
-    output:
-        stdout emit: stdout
-
-    script:
-        """
-        #!/bin/bash
-        # Ensure download write directory exists
-        [ ! -d ${params.WORKDIR}/${params.RUN_SUBDIR}/$run_name ] && mkdir ${params.WORKDIR}/${params.RUN_SUBDIR}/$run_name
-        exit 0
-        """
-}
 
 // Download image cube and weights files
 process download {
@@ -34,17 +17,19 @@ process download {
 
     input:
         val sbid
-        val check
+        val output_dir
+        val ready
 
     output:
-        stdout emit: stdout
+        val true, emit: ready
 
     script:
         """
         #!/bin/bash
+
         python3 -u /app/casda_download.py \
             -s $sbid \
-            -o ${params.WORKDIR}/${params.FOOTPRINT_SUBDIR} \
+            -o $output_dir \
             -c ${params.CASDA_CREDENTIALS_CONFIG} \
             -p WALLABY
         """
@@ -56,15 +41,14 @@ process get_image_and_weights_cube_files {
 
     input:
         val sbid
-        val download
+        val output_dir
+        val ready
 
     output:
-        val image_cube, emit: image_cube
-        val weights_cube, emit: weights_cube
+        val mosaic_files, emit: mosaic_files
 
     exec:
-        image_cube = file("${params.WORKDIR}/${params.FOOTPRINT_SUBDIR}/image*$sbid*.fits")[0]
-        weights_cube = file("${params.WORKDIR}/${params.FOOTPRINT_SUBDIR}/weight*$sbid*.fits")[0]
+        mosaic_files = [file("${output_dir}/image*$sbid*.fits")[0], file("${output_dir}/weight*$sbid*.fits")[0]]
 }
 
 // ----------------------------------------------------------------------------------------
@@ -73,18 +57,16 @@ process get_image_and_weights_cube_files {
 
 workflow casda_download {
     take:
-        run_name
         sbid
-        barrier
+        output_dir
+        ready
 
     main:
-        check_write_directory(run_name, barrier)
-        download(sbid, check_write_directory.out.stdout)
-        get_image_and_weights_cube_files(sbid, download.out.stdout)
+        download(sbid, output_dir, ready)
+        get_image_and_weights_cube_files(sbid, output_dir, download.out.ready)
 
     emit:
-        image_cube = get_image_and_weights_cube_files.out.image_cube
-        weights_cube = get_image_and_weights_cube_files.out.weights_cube
+        mosaic_files = get_image_and_weights_cube_files.out.mosaic_files
 }
 
 // ----------------------------------------------------------------------------------------

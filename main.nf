@@ -182,12 +182,15 @@ workflow wallaby_ser {
                        ser_generate_linmos_config.out.mosaic_files, 
                        ser_collect.out.run_mosaic)
 
-        source_finding(ser_run_linmos.out.mosaic_files[0], 
-                       ser_run_linmos.out.mosaic_files[1], 
+        ser_run_linmos.out.mosaic_files.view()
+
+        // Pixel extent is 1700 pixels either side of centre for a SER
+        source_finding(ser_run_linmos.out.mosaic_files,
                        SER, 
                        "${params.WORKDIR}/regions/${SER}/sofia/", 
                        "${params.WORKDIR}/regions/${SER}/sofia/output", 
-                       "${params.WORKDIR}/regions/${SER}/sofia/sofiax.ini")
+                       "${params.WORKDIR}/regions/${SER}/sofia/sofiax.ini",
+                       "1170, 1170")
 }
 
 workflow {

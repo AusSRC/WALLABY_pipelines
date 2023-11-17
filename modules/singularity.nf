@@ -10,8 +10,6 @@ process download_singularity {
     executor = 'local'
     debug true
 
-    input:
-
 
     output:
         val true, emit: ready
@@ -66,5 +64,5 @@ workflow download_containers {
         download_singularity()
     
     emit:
-        stdout = download_singularity.out.stdout
+        ready = download_singularity.out.ready
 }

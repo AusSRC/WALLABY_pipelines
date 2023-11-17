@@ -1,11 +1,11 @@
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl = 2
+
 include { casda_download } from './modules/casda_download'
-include { observation_metadata } from './modules/observation_metadata'
 include { source_finding } from './modules/source_finding'
-include { moment0 } from './modules/moment0'
 include { download_containers } from './modules/singularity'
+
 
 workflow {
     run_name = "${params.RUN_NAME}"
@@ -13,8 +13,16 @@ workflow {
 
     main:
         download_containers()
-        casda_download(run_name, sbid, download_containers.out.stdout)
-        observation_metadata(sbid, casda_download.out.image_cube)
-        source_finding(casda_download.out.image_cube, casda_download.out.weights_cube)
-        moment0(source_finding.out.outputs)
+
+        casda_download(sbid, 
+                       "${params.WORKDIR}/quality/${params.RUN_NAME}/", 
+                       download_containers.out.ready)
+
+        source_finding(casda_download.out.mosaic_files,
+                       "${params.RUN_NAME}", 
+                       "${params.WORKDIR}/quality/${params.RUN_NAME}/sofia/", 
+                       "${params.WORKDIR}/quality/${params.RUN_NAME}/sofia/output", 
+                       "${params.WORKDIR}/quality/${params.RUN_NAME}/sofia/sofiax.ini",
+                       "")
+
 }
