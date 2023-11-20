@@ -190,7 +190,7 @@ workflow wallaby_ser {
                        "${params.WORKDIR}/regions/${SER}/sofia/", 
                        "${params.WORKDIR}/regions/${SER}/sofia/output", 
                        "${params.WORKDIR}/regions/${SER}/sofia/sofiax.ini",
-                       "1170, 1170")
+                       "\"1170, 1170\"")
 }
 
 workflow {
