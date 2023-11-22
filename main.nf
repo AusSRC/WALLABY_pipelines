@@ -8,6 +8,7 @@ include { generate_linmos_config as ser_generate_linmos_config } from './modules
 include { run_linmos as footprint_run_linmos } from './modules/mosaicking'
 include { run_linmos as ser_run_linmos } from './modules/mosaicking'
 include { source_finding } from './modules/source_finding'
+include { moment0 } from './modules/moment0'
 
 
 process get_footprints {
@@ -191,6 +192,10 @@ workflow wallaby_ser {
                        "${params.WORKDIR}/regions/${SER}/sofia/output", 
                        "${params.WORKDIR}/regions/${SER}/sofia/sofiax.ini",
                        "\"1170, 1170\"")
+
+        moment0(source_finding.out.done,
+                "${params.WORKDIR}/regions/${SER}/sofia/output",
+                "${params.WORKDIR}/regions/${SER}/sofia/output/mom0.fits"
 }
 
 workflow {

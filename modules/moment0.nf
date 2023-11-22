@@ -6,23 +6,24 @@ nextflow.enable.dsl = 2
 // Processes
 // ----------------------------------------------------------------------------------------
 
-// Create scripts for running SoFiA via SoFiAX
 process mosaic {
     container = params.WALLMERGE_IMAGE
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
+        val ready
         val output_directory
+        val output_file
 
     output:
-        val "${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.WALLMERGE_OUTPUT}", emit: mom0
+        val output_file, emit: output_mom_file
 
     script:
         """
         #!/bin/bash
         python3 -u /app/run_wallmerge.py \
             $output_directory \
-            ${params.WORKDIR}/${params.RUN_SUBDIR}/${params.RUN_NAME}/${params.WALLMERGE_OUTPUT}
+            $output_file
         """
 }
 
@@ -30,13 +31,13 @@ process compress {
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
-        val mom0
+        val output_file
 
     script:
         """
         #!/bin/bash
 
-        gzip $mom0
+        gzip $output_file
         """
 }
 
@@ -46,11 +47,14 @@ process compress {
 
 workflow moment0 {
     take:
+        ready
         output_directory
+        output_file
 
     main:
-        mosaic(output_directory)
-        compress(mosaic.out.mom0)
+        mosaic(ready,
+               output_directory,
+               output_file)
 }
 
 // ----------------------------------------------------------------------------------------

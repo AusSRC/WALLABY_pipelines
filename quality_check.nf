@@ -5,6 +5,7 @@ nextflow.enable.dsl = 2
 include { casda_download } from './modules/casda_download'
 include { source_finding } from './modules/source_finding'
 include { download_containers } from './modules/singularity'
+include { moment0 } from './modules/moment0'
 
 
 workflow {
@@ -25,4 +26,7 @@ workflow {
                        "${params.WORKDIR}/quality/${params.RUN_NAME}/sofia/sofiax.ini",
                        "")
 
+        moment0(source_finding.out.done,
+                "${params.WORKDIR}/quality/${params.RUN_NAME}/sofia/output",
+                "${params.WORKDIR}/quality/${params.RUN_NAME}/sofia/output/mom0.fits"
 }

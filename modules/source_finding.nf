@@ -142,6 +142,9 @@ process get_dss_image {
         val ready
         val run_name
 
+    output:
+        val true, emit: done
+
     script:
         """
         #!/bin/bash
@@ -181,6 +184,9 @@ workflow source_finding {
         sofiax(sofia.out.parameter_file.collect(), update_sofiax_config.out.output_file)
 
         get_dss_image(sofiax.out.ready, run_name)
+
+    emit:
+        done = get_dss_image.out.done
 }
 
 // ----------------------------------------------------------------------------------------
