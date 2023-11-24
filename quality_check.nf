@@ -8,25 +8,33 @@ include { download_containers } from './modules/singularity'
 include { moment0 } from './modules/moment0'
 
 
-workflow {
-    run_name = "${params.RUN_NAME}"
-    sbid = "${params.SBID}"
+workflow wallaby_quality {
+
+    take:
+        RUN_NAME
+        SBID
 
     main:
         download_containers()
 
-        casda_download(sbid, 
-                       "${params.WORKDIR}/quality/${params.RUN_NAME}/", 
+        casda_download(SBID, 
+                       "${params.WORKDIR}/quality/${RUN_NAME}/", 
                        download_containers.out.ready)
 
         source_finding(casda_download.out.mosaic_files,
-                       "${params.RUN_NAME}", 
-                       "${params.WORKDIR}/quality/${params.RUN_NAME}/sofia/", 
-                       "${params.WORKDIR}/quality/${params.RUN_NAME}/sofia/output", 
-                       "${params.WORKDIR}/quality/${params.RUN_NAME}/sofia/sofiax.ini",
+                       "${RUN_NAME}", 
+                       "${params.WORKDIR}/quality/${RUN_NAME}/sofia/", 
+                       "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output", 
+                       "${params.WORKDIR}/quality/${RUN_NAME}/sofia/sofiax.ini",
                        "")
 
         moment0(source_finding.out.done,
-                "${params.WORKDIR}/quality/${params.RUN_NAME}/sofia/output",
-                "${params.WORKDIR}/quality/${params.RUN_NAME}/sofia/output/mom0.fits"
+                "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
+                "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/mom0.fits"
+}
+
+workflow {
+    main:
+        wallaby_quality(params.RUN_NAME, 
+                        params.SBID)
 }

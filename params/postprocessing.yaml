@@ -1,8 +1,0 @@
-{
-  "RUN_NAME": "test_postprocessing",
-  "REGION": "200.77, 204.77, -24.605, -20.605",
-  "S2P_TEMPLATE": "/mnt/shared/wallaby/config/s2p_setup.milkyway.ini",
-  "SOFIAX_CONFIG_FILE": "/mnt/shared/wallaby/config/sofiax.dev.ini",
-  "FOOTPRINTS": "/mnt/shared/wallaby/test_data/image.restored.i.NGC5044_4A.SB25701.cube.MilkyWay.contsub.fits, /mnt/shared/wallaby/test_data/image.restored.i.NGC5044_4B.SB25750.cube.MilkyWay.contsub.fits",
-  "WEIGHTS": "/mnt/shared/wallaby/test_data/weights.i.NGC5044_4A.SB25701.cube.MilkyWay.fits, /mnt/shared/wallaby/test_data/weights.i.NGC5044_4B.SB25750.cube.MilkyWay.fits",
-}
