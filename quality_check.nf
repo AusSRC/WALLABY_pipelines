@@ -30,7 +30,7 @@ workflow wallaby_quality {
 
         moment0(source_finding.out.done,
                 "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
-                "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/mom0.fits"
+                "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/mom0.fits")
 }
 
 workflow {
