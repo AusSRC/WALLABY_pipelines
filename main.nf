@@ -195,7 +195,7 @@ workflow wallaby_ser {
 
         moment0(source_finding.out.done,
                 "${params.WORKDIR}/regions/${SER}/sofia/output",
-                "${params.WORKDIR}/regions/${SER}/sofia/output/mom0.fits"
+                "${params.WORKDIR}/regions/${SER}/sofia/output/mom0.fits")
 }
 
 workflow {
