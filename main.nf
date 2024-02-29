@@ -89,6 +89,9 @@ process load_footprints {
         footprints_json = jsonSlurper.parseText(footprints_text)
 }
 
+
+import groovy.json.JsonSlurper
+
 process download_footprint {
     container = params.CASDA_DOWNLOAD_IMAGE
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
@@ -104,6 +107,15 @@ process download_footprint {
     script:
         tile_files = "${params.WORKDIR}/regions/${SER}/${footprint_map.getKey()}/${footprint_map.getKey()}_files.json"
         tile_name = "${footprint_map.getKey()}"
+
+        // Check if cube files exist before running casda_download
+        jsonSlurper = new JsonSlurper()
+        tile_files_obj = new File(tile_files)
+        file_list = jsonSlurper.parseText(tile_files_obj.text)
+        files_exist = file_list.collect { e -> new File(e).exists() }
+        run_download = files_exist.any( fe -> fe == false)
+
+    if (run_download == true)
         """
         #!/bin/bash
 
@@ -113,6 +125,12 @@ process download_footprint {
             -o ${params.WORKDIR}/regions/${SER}/${footprint_map.getKey()} \
             -c ${params.CASDA_CREDENTIALS_CONFIG} \
             -p WALLABY
+        """
+    else
+        """
+        #!/bin/bash
+
+        echo "download_footprint: Files already exist"
         """
 }
 
@@ -130,7 +148,7 @@ process ser_collect {
     exec:
         def json_str = JsonOutput.toJson(all_mosaic_files)
         new File("${params.WORKDIR}/regions/${SER}/${SER}_files.json").write(json_str)
-        
+
         ser_files = "${params.WORKDIR}/regions/${SER}/${SER}_files.json"
 
         if (all_mosaic_files.size() > 2) {
@@ -144,7 +162,6 @@ process ser_collect {
             def ra_dec = f.getName().split('_')[1]
             tile_name = "TILE_" + ra_dec
         }
-
 }
 
 
@@ -161,41 +178,41 @@ workflow wallaby_ser {
         // SER can have 1 or more TILES. If more than one then flatten map and process in parallel
         download_footprint(load_footprints.out.footprints_json_map.flatMap(), SER)
 
-        footprint_generate_linmos_config(download_footprint.out.tile_files, 
-                                         download_footprint.out.tile_name, 
-                                         1, 
+        footprint_generate_linmos_config(download_footprint.out.tile_files,
+                                         download_footprint.out.tile_name,
+                                         1,
                                          SER)
 
-        footprint_run_linmos(footprint_generate_linmos_config.out.linmos_conf, 
-                             footprint_generate_linmos_config.out.linmos_log_conf, 
-                             footprint_generate_linmos_config.out.mosaic_files, 
+        footprint_run_linmos(footprint_generate_linmos_config.out.linmos_conf,
+                             footprint_generate_linmos_config.out.linmos_log_conf,
+                             footprint_generate_linmos_config.out.mosaic_files,
                              1)
 
         ser_collect(footprint_run_linmos.out.mosaic_files.collect(), SER)
 
-        ser_generate_linmos_config(ser_collect.out.ser_files, 
-                                   ser_collect.out.tile_name, 
-                                   ser_collect.out.run_mosaic, 
+        ser_generate_linmos_config(ser_collect.out.ser_files,
+                                   ser_collect.out.tile_name,
+                                   ser_collect.out.run_mosaic,
                                    SER)
 
-        ser_run_linmos(ser_generate_linmos_config.out.linmos_conf, 
-                       ser_generate_linmos_config.out.linmos_log_conf, 
-                       ser_generate_linmos_config.out.mosaic_files, 
+        ser_run_linmos(ser_generate_linmos_config.out.linmos_conf,
+                       ser_generate_linmos_config.out.linmos_log_conf,
+                       ser_generate_linmos_config.out.mosaic_files,
                        ser_collect.out.run_mosaic)
 
         ser_run_linmos.out.mosaic_files.view()
 
         // Pixel extent is 1700 pixels either side of centre for a SER
         source_finding(ser_run_linmos.out.mosaic_files,
-                       SER, 
-                       "${params.WORKDIR}/regions/${SER}/sofia/", 
-                       "${params.WORKDIR}/regions/${SER}/sofia/output", 
+                       SER,
+                       "${params.WORKDIR}/regions/${SER}/sofia/",
+                       "${params.WORKDIR}/regions/${SER}/sofia/output",
                        "${params.WORKDIR}/regions/${SER}/sofia/sofiax.ini",
                        "\"1170, 1170\"")
 
         moment0(source_finding.out.done,
                 "${params.WORKDIR}/regions/${SER}/sofia/output",
-                "${params.WORKDIR}/regions/${SER}/sofia/output/mom0.fits"
+                "${params.WORKDIR}/regions/${SER}/sofia/output/mom0.fits")
 }
 
 workflow {
