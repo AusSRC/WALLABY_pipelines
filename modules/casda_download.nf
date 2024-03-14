@@ -48,7 +48,7 @@ process get_image_and_weights_cube_files {
         val mosaic_files, emit: mosaic_files
 
     exec:
-        mosaic_files = [file("${output_dir}/image*$sbid*.fits")[0], file("${output_dir}/weight*$sbid*.fits")[0]]
+        mosaic_files = [file("${output_dir}/image*cube*.fits")[0], file("${output_dir}/weight*cube*.fits")[0]]
 }
 
 // ----------------------------------------------------------------------------------------
