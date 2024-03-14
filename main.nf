@@ -107,15 +107,6 @@ process download_footprint {
     script:
         tile_files = "${params.WORKDIR}/regions/${SER}/${footprint_map.getKey()}/${footprint_map.getKey()}_files.json"
         tile_name = "${footprint_map.getKey()}"
-
-        // Check if cube files exist before running casda_download
-        jsonSlurper = new JsonSlurper()
-        tile_files_obj = new File(tile_files)
-        file_list = jsonSlurper.parseText(tile_files_obj.text)
-        files_exist = file_list.collect { e -> new File(e).exists() }
-        run_download = files_exist.any( fe -> fe == false)
-
-    if (run_download == true)
         """
         #!/bin/bash
 
@@ -125,12 +116,6 @@ process download_footprint {
             -o ${params.WORKDIR}/regions/${SER}/${footprint_map.getKey()} \
             -c ${params.CASDA_CREDENTIALS_CONFIG} \
             -p WALLABY
-        """
-    else
-        """
-        #!/bin/bash
-
-        echo "download_footprint: Files already exist"
         """
 }
 
