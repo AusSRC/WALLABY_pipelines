@@ -48,7 +48,9 @@ process get_image_and_weights_cube_files {
         val mosaic_files, emit: mosaic_files
 
     exec:
-        mosaic_files = [file("${output_dir}/image*cube*.fits")[0], file("${output_dir}/weight*cube*.fits")[0]]
+        def sbid_text = "${sbid}"
+        def sb_num = sbid_text.minus("ASKAP-")
+        mosaic_files = [file("${output_dir}/image*" + sb_num + "*cube*.fits")[0], file("${output_dir}/weight*" + sb_num + "*cube*.fits")[0]]
 }
 
 // ----------------------------------------------------------------------------------------
