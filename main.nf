@@ -55,7 +55,7 @@ process get_footprints {
         service = vo.dal.TAPService('https://wallaby.aussrc.org/tap')
         rowset = service.run_async(query)
         for r in rowset:
-            foot_map[r['tile_name']].append(int(r['sbid']))
+            foot_map[r['tile_name']].append(r['sbid'])
 
         try:
             os.makedirs('${params.WORKDIR}/regions/${SER}/', exist_ok=True)
