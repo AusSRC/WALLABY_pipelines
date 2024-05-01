@@ -41,6 +41,22 @@ process compress {
         """
 }
 
+process plot_frequency_distribution {
+    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
+
+    input:
+        val ready
+        val output_file
+
+    script:
+        """
+        #!/bin/bash
+
+        python3 /app/plot_frequency_distribution.py \
+            -r ${params.RUN_NAME} -e ${params.DATABASE_ENV} -o $output_file
+        """
+}
+
 // ----------------------------------------------------------------------------------------
 // Workflow
 // ----------------------------------------------------------------------------------------
@@ -55,6 +71,15 @@ workflow moment0 {
         mosaic(ready,
                output_directory,
                output_file)
+}
+
+workflow diagnostic_plot {
+    take:
+        ready
+        output_file
+
+    main:
+        plot_frequency_distribution(ready, output_file)
 }
 
 // ----------------------------------------------------------------------------------------

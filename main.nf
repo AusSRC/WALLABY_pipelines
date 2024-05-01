@@ -8,7 +8,7 @@ include { generate_linmos_config as ser_generate_linmos_config } from './modules
 include { run_linmos as footprint_run_linmos } from './modules/mosaicking'
 include { run_linmos as ser_run_linmos } from './modules/mosaicking'
 include { source_finding } from './modules/source_finding'
-include { moment0 } from './modules/moment0'
+include { moment0 } from './modules/outputs'
 
 
 process get_footprints {
