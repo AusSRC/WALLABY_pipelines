@@ -42,6 +42,7 @@ process compress {
 }
 
 process plot_frequency_distribution {
+    container = params.DIAGNOSTIC_PLOT_IMAGE
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
