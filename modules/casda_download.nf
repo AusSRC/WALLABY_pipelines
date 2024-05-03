@@ -19,6 +19,7 @@ process download {
         val sbid
         val output_dir
         val ready
+        val project
 
     output:
         val true, emit: ready
@@ -31,7 +32,7 @@ process download {
             -s $sbid \
             -o $output_dir \
             -c ${params.CASDA_CREDENTIALS_CONFIG} \
-            -p WALLABY
+            -p $project
         """
 }
 
@@ -62,9 +63,10 @@ workflow casda_download {
         sbid
         output_dir
         ready
+        project
 
     main:
-        download(sbid, output_dir, ready)
+        download(sbid, output_dir, ready, project)
         get_image_and_weights_cube_files(sbid, output_dir, download.out.ready)
 
     emit:
