@@ -4,7 +4,7 @@ nextflow.enable.dsl = 2
 
 include { download_containers } from './modules/singularity'
 include { casda_download as download_A; casda_download as download_B } from './modules/casda_download'
-include { generate_linmos_config, run_linmos } from './modules/mosaicking'
+include { generate_linmos_config; run_linmos } from './modules/mosaicking'
 
 process footprint_tile_map {
     executor = 'local'
@@ -55,7 +55,7 @@ workflow milkyway {
         )
         footprint_tile_map(download_A.out.mosaic_files, download_B.out.mosaic_files)
         generate_linmos_config(
-            footprint_tile_map.out.tile_files
+            footprint_tile_map.out.tile_files,
             "${RUN_NAME}.${SBID_FOOTPRINT_A}.${SBID_FOOTPRINT_B}.MilkyWay",
             1,
             "MilkyWay"
