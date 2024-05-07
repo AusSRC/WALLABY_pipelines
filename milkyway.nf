@@ -8,6 +8,8 @@ include { generate_linmos_config; run_linmos } from './modules/mosaicking'
 
 process footprint_tile_map {
     executor = 'local'
+    container = params.CASDA_DOWNLOAD_IMAGE
+    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
         val footprint_A_files
@@ -25,7 +27,7 @@ process footprint_tile_map {
         tile_files = "${params.WORKDIR}/quality/${params.RUN_NAME}/tile_files.json"
 
         """
-        #!/usr/bin/env python3
+        #!python3
 
         import json
         with open("$tile_files", 'w') as f:
@@ -61,7 +63,7 @@ workflow milkyway {
             "MilkyWay"
         )
         run_linmos(
-            generate_linmos_config.out.linmos.conf,
+            generate_linmos_config.out.linmos_conf,
             generate_linmos_config.out.linmos_log_conf,
             generate_linmos_config.out.mosaic_files,
             1
