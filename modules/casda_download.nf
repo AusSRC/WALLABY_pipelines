@@ -32,7 +32,8 @@ process download {
             -s $sbid \
             -o $output_dir \
             -c ${params.CASDA_CREDENTIALS_CONFIG} \
-            -p $project
+            -p $project \
+            -t 10800
         """
 }
 

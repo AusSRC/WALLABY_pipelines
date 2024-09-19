@@ -20,7 +20,7 @@ workflow wallaby_quality {
         casda_download(SBID,
                        "${params.WORKDIR}/quality/${RUN_NAME}/",
                        download_containers.out.ready,
-                       'WALLABY')
+                       "${params.CASDA_DOWNLOAD_MANIFEST}")
 
         source_finding(casda_download.out.mosaic_files,
                        "${RUN_NAME}",
