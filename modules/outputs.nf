@@ -33,6 +33,9 @@ process compress {
     input:
         val output_file
 
+    output:
+	val true, emit: ready
+
     script:
         """
         #!/bin/bash
@@ -72,6 +75,7 @@ workflow moment0 {
         mosaic(ready,
                output_directory,
                output_file)
+        compress(mosaic.out.output_mom_file)
 }
 
 workflow diagnostic_plot {
