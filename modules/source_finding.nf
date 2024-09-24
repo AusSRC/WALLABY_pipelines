@@ -37,7 +37,7 @@ process s2p_setup {
                 --run_name $run_name \
                 --sofia_template ${params.SOFIA_PARAMETER_FILE} \
                 --output_dir $output_dir \
-                --products_dir $product_dir  
+                --products_dir $product_dir
         else
             python3 -u /app/s2p_setup.py \
                 --config ${params.S2P_TEMPLATE} \
@@ -47,10 +47,10 @@ process s2p_setup {
                 --run_name $run_name \
                 --sofia_template ${params.SOFIA_PARAMETER_FILE} \
                 --output_dir $output_dir \
-                --products_dir $product_dir  
+                --products_dir $product_dir
 
         fi
-            
+
         """
 }
 
@@ -71,7 +71,7 @@ process update_sofiax_config {
     script:
         """
         #!/bin/bash
-    
+
         python3 -u /app/update_sofiax_config.py \
             --config ${params.SOFIAX_CONFIG_FILE} \
             --database ${params.DATABASE_ENV} \
@@ -167,14 +167,14 @@ workflow source_finding {
         pixel_extent
 
     main:
-        s2p_setup(mosaic_file, 
-                  run_name, 
-                  output_dir, 
+        s2p_setup(mosaic_file,
+                  run_name,
+                  output_dir,
                   product_dir,
                   pixel_extent)
-    
-        update_sofiax_config(run_name, 
-                             sofiax_out_file, 
+
+        update_sofiax_config(run_name,
+                             sofiax_out_file,
                              s2p_setup.out.output_dir)
 
         get_parameter_files(update_sofiax_config.out.output_dir)
@@ -183,10 +183,8 @@ workflow source_finding {
 
         sofiax(sofia.out.parameter_file.collect(), update_sofiax_config.out.output_file)
 
-        get_dss_image(sofiax.out.ready, run_name)
-
     emit:
-        done = get_dss_image.out.done
+        done = sofiax.out.ready
 }
 
 // ----------------------------------------------------------------------------------------
