@@ -8,8 +8,7 @@ include { download_containers } from './modules/singularity'
 include { moment0; diagnostic_plot } from './modules/outputs'
 
 
-workflow wallaby_quality {
-
+workflow quality_check {
     take:
         RUN_NAME
         SBID
@@ -37,8 +36,30 @@ workflow wallaby_quality {
                         "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/diagnostics.pdf")
 }
 
+workflow quality_check_no_download {
+    take:
+        RUN_NAME
+        IMAGE_CUBE
+        WEIGHTS_CUBE
+
+    main:
+        download_containers()
+        source_finding(["${params.IMAGE_CUBE}", "${params.WEIGHTS_CUBE}"],
+                       "${RUN_NAME}",
+                       "${params.WORKDIR}/quality/${RUN_NAME}/sofia/",
+                       "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
+                       "${params.WORKDIR}/quality/${RUN_NAME}/sofia/sofiax.ini",
+                       "")
+
+        moment0(source_finding.out.done,
+                "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
+                "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/mom0.fits")
+
+        diagnostic_plot(source_finding.out.done,
+                        "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/diagnostics.pdf")
+}
+
 workflow {
     main:
-        wallaby_quality(params.RUN_NAME,
-                        params.SBID)
+        quality_check(params.RUN_NAME, params.SBID)
 }
