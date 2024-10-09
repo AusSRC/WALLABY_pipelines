@@ -46,9 +46,18 @@ process generate_linmos_config {
             weight_out = Path('${params.WORKDIR}/regions/${SER}/${tile_name}/${tile_name}_weights')
             log = Path('${params.WORKDIR}/regions/${SER}/${tile_name}/linmos.log')
 
+            image_history = [
+                "AusSRC WALLABY pipeline START",
+                "${workflow.repository} - ${workflow.revision} [${workflow.commitId}]",
+                "${workflow.commandLine}",
+                "${workflow.start}",
+                "Austin Shen (austin.shen@csiro.au)",
+                "AusSRC WALLABY pipeline END"
+            ]
+
             j2_env = Environment(loader=FileSystemLoader('$baseDir/templates'), trim_blocks=True)
             result = j2_env.get_template('linmos.j2').render(images=images, weights=weights, \
-            image_out=image_out, weight_out=weight_out)
+            image_out=image_out, weight_out=weight_out, image_history=image_history,)
 
             try:
                 os.makedirs('${params.WORKDIR}/regions/${SER}/${tile_name}')
@@ -81,7 +90,7 @@ process run_linmos {
         def image_file = mosaic_files[0]
         """
         #!/bin/bash
-        
+
         run=${run_linmos}
 
         if [ "\$run" -eq 1 ]; then

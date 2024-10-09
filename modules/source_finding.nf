@@ -48,9 +48,7 @@ process s2p_setup {
                 --sofia_template ${params.SOFIA_PARAMETER_FILE} \
                 --output_dir $output_dir \
                 --products_dir $product_dir
-
         fi
-
         """
 }
 
@@ -157,7 +155,6 @@ process get_dss_image {
 // ----------------------------------------------------------------------------------------
 
 workflow source_finding {
-
     take:
         mosaic_file
         run_name
@@ -185,6 +182,32 @@ workflow source_finding {
 
     emit:
         done = sofiax.out.ready
+}
+
+// Source finding run without sofiax
+workflow source_finding_quality_check {
+    take:
+        mosaic_file
+        run_name
+        output_dir
+        product_dir
+        sofiax_out_file
+        pixel_extent
+
+    main:
+        s2p_setup(mosaic_file,
+                  run_name,
+                  output_dir,
+                  product_dir,
+                  pixel_extent)
+        update_sofiax_config(run_name,
+                             sofiax_out_file,
+                             s2p_setup.out.output_dir)
+        get_parameter_files(update_sofiax_config.out.output_dir)
+        sofia(get_parameter_files.out.parameter_files.flatten())
+
+    emit:
+        done = sofia.out.parameter_file.collect()
 }
 
 // ----------------------------------------------------------------------------------------

@@ -3,7 +3,7 @@
 nextflow.enable.dsl = 2
 
 include { casda_download } from './modules/casda_download'
-include { source_finding } from './modules/source_finding'
+include { source_finding_quality_check } from './modules/source_finding'
 include { download_containers } from './modules/singularity'
 include { moment0; diagnostic_plot } from './modules/outputs'
 
@@ -44,19 +44,18 @@ workflow quality_check_no_download {
 
     main:
         download_containers()
-        source_finding(["${params.IMAGE_CUBE}", "${params.WEIGHTS_CUBE}"],
+        source_finding_quality_check(["${params.IMAGE_CUBE}", "${params.WEIGHTS_CUBE}"],
                        "${RUN_NAME}",
                        "${params.WORKDIR}/quality/${RUN_NAME}/sofia/",
                        "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
                        "${params.WORKDIR}/quality/${RUN_NAME}/sofia/sofiax.ini",
                        "")
-
         moment0(source_finding.out.done,
                 "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
                 "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/mom0.fits")
-
         diagnostic_plot(source_finding.out.done,
                         "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/diagnostics.pdf")
+        // TODO: add plots to quality_check table
 }
 
 workflow {
