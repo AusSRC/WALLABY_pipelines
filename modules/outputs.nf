@@ -50,14 +50,16 @@ process plot_frequency_distribution {
 
     input:
         val ready
+        val run_name
+        val output_directory
         val output_file
 
     script:
         """
         #!/bin/bash
 
-        python3 /app/plot_frequency_distribution.py \
-            -r ${params.RUN_NAME} -e ${params.DATABASE_ENV} -o $output_file
+        python3 /app/plot_frequency_distribution_xml.py \
+            -r $run_name -i $output_directory -o $output_file
         """
 }
 
@@ -81,10 +83,12 @@ workflow moment0 {
 workflow diagnostic_plot {
     take:
         ready
+        run_name
+        output_directory
         output_file
 
     main:
-        plot_frequency_distribution(ready, output_file)
+        plot_frequency_distribution(ready, run_name, output_directory, output_file)
 }
 
 // ----------------------------------------------------------------------------------------

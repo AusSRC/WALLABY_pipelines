@@ -33,6 +33,8 @@ workflow quality_check {
                 "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/mom0.fits")
 
         diagnostic_plot(source_finding_quality_check.out.done,
+                        "${RUN_NAME}",
+                        "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
                         "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/diagnostics.pdf")
 }
 
