@@ -28,11 +28,11 @@ workflow quality_check {
                        "${params.WORKDIR}/quality/${RUN_NAME}/sofia/sofiax.ini",
                        "")
 
-        moment0(source_finding.out.done,
+        moment0(source_finding_quality_check.out.done,
                 "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
                 "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/mom0.fits")
 
-        diagnostic_plot(source_finding.out.done,
+        diagnostic_plot(source_finding_quality_check.out.done,
                         "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/diagnostics.pdf")
 }
 
@@ -50,15 +50,14 @@ workflow quality_check_no_download {
                        "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
                        "${params.WORKDIR}/quality/${RUN_NAME}/sofia/sofiax.ini",
                        "")
-        moment0(source_finding.out.done,
+        moment0(source_finding_quality_check.out.done,
                 "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
                 "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/mom0.fits")
-        diagnostic_plot(source_finding.out.done,
+        diagnostic_plot(source_finding_quality_check.out.done,
                         "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/diagnostics.pdf")
-        // TODO: add plots to quality_check table
 }
 
 workflow {
     main:
-        quality_check(params.RUN_NAME, params.IMAGE_CUBE, params.WEIGHTS_CUBE)
+        quality_check(params.RUN_NAME, params.SBID)
 }
