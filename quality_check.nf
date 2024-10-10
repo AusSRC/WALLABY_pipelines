@@ -21,7 +21,7 @@ workflow quality_check {
                        download_containers.out.ready,
                        "${params.CASDA_DOWNLOAD_MANIFEST}")
 
-        source_finding(casda_download.out.mosaic_files,
+        source_finding_quality_check(casda_download.out.mosaic_files,
                        "${RUN_NAME}",
                        "${params.WORKDIR}/quality/${RUN_NAME}/sofia/",
                        "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
@@ -60,5 +60,5 @@ workflow quality_check_no_download {
 
 workflow {
     main:
-        quality_check(params.RUN_NAME, params.SBID)
+        quality_check(params.RUN_NAME, params.IMAGE_CUBE, params.WEIGHTS_CUBE)
 }
