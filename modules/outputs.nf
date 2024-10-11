@@ -90,6 +90,25 @@ process database_insert {
         """
 }
 
+process cleanup {
+    executor = 'local'
+
+    input:
+        val mom0_ready
+        val diagnostic_plot_ready
+        val output_directory
+        val prefix
+
+    output:
+        val true, emit: ready
+
+    script:
+        """
+        #!/bin/bash
+        rm -rf $output_directory/$prefix*
+        """
+}
+
 // ----------------------------------------------------------------------------------------
 // Workflow
 // ----------------------------------------------------------------------------------------
@@ -112,6 +131,9 @@ workflow moment0 {
                         database_env,
                         mosaic.out.output_mom_file)
         compress(database_insert.out.ready, mosaic.out.output_mom_file)
+
+    emit:
+        done = true
 }
 
 workflow diagnostic_plot {
@@ -130,6 +152,9 @@ workflow diagnostic_plot {
             run_name,
             database_env,
             output_file)
+
+    emit:
+        done = true
 }
 
 // ----------------------------------------------------------------------------------------
