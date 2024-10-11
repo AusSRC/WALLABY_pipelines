@@ -37,7 +37,7 @@ workflow quality_check {
                         "${params.DATABASE_ENV}")
         cleanup(moment0.out.done, diagnostic_plot.out.done,
                 "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
-                "SB")
+                "${RUN_NAME}")
 }
 
 workflow quality_check_no_download {
@@ -66,7 +66,7 @@ workflow quality_check_no_download {
                         "${params.DATABASE_ENV}")
         cleanup(moment0.out.done, diagnostic_plot.out.done,
                 "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
-                "SB")
+                "${RUN_NAME}")
 }
 
 workflow {
