@@ -31,10 +31,11 @@ process compress {
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
+        val ready
         val output_file
 
     output:
-	val true, emit: ready
+	    val true, emit: ready
 
     script:
         """
@@ -45,7 +46,7 @@ process compress {
 }
 
 process plot_frequency_distribution {
-    container = params.DIAGNOSTIC_PLOT_IMAGE
+    container = params.PIPELINE_PLOTS_IMAGE
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
@@ -53,6 +54,9 @@ process plot_frequency_distribution {
         val run_name
         val output_directory
         val output_file
+
+    output:
+        val true, emit: ready
 
     script:
         """
@@ -63,6 +67,29 @@ process plot_frequency_distribution {
         """
 }
 
+process database_insert {
+    container = params.PIPELINE_PLOTS_IMAGE
+    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
+
+    input:
+        val ready
+        val column
+        val run_name
+        val database_env
+        val file
+
+    output:
+	    val true, emit: ready
+
+    script:
+        """
+        #!/bin/bash
+
+        python3 /app/add_plot_to_database.py \
+            -c $column -r $run_name -e $database_env -f $file
+        """
+}
+
 // ----------------------------------------------------------------------------------------
 // Workflow
 // ----------------------------------------------------------------------------------------
@@ -70,6 +97,8 @@ process plot_frequency_distribution {
 workflow moment0 {
     take:
         ready
+        run_name
+        database_env
         output_directory
         output_file
 
@@ -77,7 +106,12 @@ workflow moment0 {
         mosaic(ready,
                output_directory,
                output_file)
-        compress(mosaic.out.output_mom_file)
+        database_insert(mosaic.out.output_mom_file,
+                        "mom0",
+                        run_name,
+                        database_env,
+                        mosaic.out.output_mom_file)
+        compress(database_insert.out.ready, mosaic.out.output_mom_file)
 }
 
 workflow diagnostic_plot {
@@ -86,9 +120,16 @@ workflow diagnostic_plot {
         run_name
         output_directory
         output_file
+        database_env
 
     main:
         plot_frequency_distribution(ready, run_name, output_directory, output_file)
+        database_insert(
+            plot_frequency_distribution.out.ready,
+            "frequency",
+            run_name,
+            database_env,
+            output_file)
 }
 
 // ----------------------------------------------------------------------------------------

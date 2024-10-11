@@ -46,6 +46,7 @@ process download_singularity {
         singularity pull !{params.SINGULARITY_CACHEDIR}/!{params.SOFIAX_IMAGE_NAME}.img docker://!{params.SOFIAX_IMAGE}
         singularity pull !{params.SINGULARITY_CACHEDIR}/!{params.GET_DSS_IMAGE_NAME}.img docker://!{params.GET_DSS_IMAGE}
         singularity pull !{params.SINGULARITY_CACHEDIR}/!{params.WALLMERGE_IMAGE_NAME}.img docker://!{params.WALLMERGE_IMAGE}
+        singularity pull !{params.SINGULARITY_CACHEDIR}/!{params.PIPELINE_PLOTS_IMAGE_NAME}.img docker://!{params.PIPELINE_PLOTS_IMAGE}
 
         lock_release
         '''
@@ -61,7 +62,7 @@ workflow download_containers {
 
     main:
         download_singularity()
-    
+
     emit:
         ready = download_singularity.out.ready
 }
