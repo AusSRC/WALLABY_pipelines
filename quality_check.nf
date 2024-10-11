@@ -5,7 +5,7 @@ nextflow.enable.dsl = 2
 include { casda_download } from './modules/casda_download'
 include { source_finding_quality_check } from './modules/source_finding'
 include { download_containers } from './modules/singularity'
-include { moment0; diagnostic_plot, cleanup } from './modules/outputs'
+include { moment0; diagnostic_plot; cleanup } from './modules/outputs'
 
 workflow quality_check {
     take:
