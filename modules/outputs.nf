@@ -41,7 +41,7 @@ process compress {
         """
         #!/bin/bash
 
-        gzip $output_file
+        gzip -f $output_file
         """
 }
 
@@ -133,7 +133,7 @@ workflow moment0 {
         compress(database_insert.out.ready, mosaic.out.output_mom_file)
 
     emit:
-        done = true
+        done = compress.out.ready
 }
 
 workflow diagnostic_plot {
@@ -154,7 +154,7 @@ workflow diagnostic_plot {
             output_file)
 
     emit:
-        done = true
+        done = database_insert.out.ready
 }
 
 // ----------------------------------------------------------------------------------------
