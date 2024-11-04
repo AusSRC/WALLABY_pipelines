@@ -195,9 +195,11 @@ workflow wallaby_ser {
                        "${params.WORKDIR}/regions/${SER}/sofia/sofiax.ini",
                        "\"1170, 1170\"")
 
-        moment0(source_finding.out.done,
-                "${params.WORKDIR}/regions/${SER}/sofia/output",
-                "${params.WORKDIR}/regions/${SER}/sofia/output/mom0.fits")
+        moment0(source_finding_quality_check.out.done,
+                "${RUN_NAME}",
+                "${params.DATABASE_ENV}",
+                "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
+                "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/mom0.fits")
 }
 
 workflow {
