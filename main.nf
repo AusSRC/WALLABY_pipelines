@@ -196,7 +196,7 @@ workflow wallaby_ser {
                        "\"1170, 1170\"")
 
         moment0(source_finding.out.done,
-                "${RUN_NAME}",
+                SER,
                 "${params.DATABASE_ENV}",
                 "${params.WORKDIR}/regions/${SER}/sofia/output",
                 "${params.WORKDIR}/regions/${SER}/sofia/output/mom0.fits")
