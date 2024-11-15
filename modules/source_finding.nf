@@ -17,6 +17,7 @@ process s2p_setup {
         val output_dir
         val product_dir
         val pixel_extent
+        val ready
 
     output:
         val output_dir, emit: output_dir
@@ -94,7 +95,7 @@ process get_parameter_files {
 
 // Run source finding application (sofia)
 process sofia {
-    container = params.SOFIAX_IMAGE
+    container = params.SOFIA_IMAGE
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
@@ -162,13 +163,15 @@ workflow source_finding {
         product_dir
         sofiax_out_file
         pixel_extent
+        ready
 
     main:
         s2p_setup(mosaic_file,
                   run_name,
                   output_dir,
                   product_dir,
-                  pixel_extent)
+                  pixel_extent,
+                  ready)
 
         update_sofiax_config(run_name,
                              sofiax_out_file,
@@ -199,7 +202,8 @@ workflow source_finding_quality_check {
                   run_name,
                   output_dir,
                   product_dir,
-                  pixel_extent)
+                  pixel_extent,
+                  true)
         update_sofiax_config(run_name,
                              sofiax_out_file,
                              s2p_setup.out.output_dir)

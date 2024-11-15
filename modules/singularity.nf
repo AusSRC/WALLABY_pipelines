@@ -43,6 +43,7 @@ process download_singularity {
         singularity pull !{params.SINGULARITY_CACHEDIR}/!{params.LINMOS_IMAGE_NAME}.img docker://!{params.LINMOS_IMAGE}
         singularity pull !{params.SINGULARITY_CACHEDIR}/!{params.S2P_SETUP_IMAGE_NAME}.img docker://!{params.S2P_SETUP_IMAGE}
         singularity pull !{params.SINGULARITY_CACHEDIR}/!{params.UPDATE_SOFIAX_CONFIG_IMAGE_NAME}.img docker://!{params.UPDATE_SOFIAX_CONFIG_IMAGE}
+        singularity pull !{params.SINGULARITY_CACHEDIR}/!{params.SOFIA_IMAGE_NAME}.img docker://!{params.SOFIA_IMAGE}
         singularity pull !{params.SINGULARITY_CACHEDIR}/!{params.SOFIAX_IMAGE_NAME}.img docker://!{params.SOFIAX_IMAGE}
         singularity pull !{params.SINGULARITY_CACHEDIR}/!{params.GET_DSS_IMAGE_NAME}.img docker://!{params.GET_DSS_IMAGE}
         singularity pull !{params.SINGULARITY_CACHEDIR}/!{params.WALLMERGE_IMAGE_NAME}.img docker://!{params.WALLMERGE_IMAGE}

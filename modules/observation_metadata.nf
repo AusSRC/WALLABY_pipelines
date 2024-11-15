@@ -45,6 +45,26 @@ process get_metadata {
         """
 }
 
+process ser_add_sbids_to_fits_header {
+    container = params.METADATA_IMAGE
+    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
+
+    input:
+        val ser
+        val file
+        val database_env
+
+    output:
+        val true, emit: done
+
+    script:
+        """
+        #!/bin/bash
+
+        python3 /app/add_sbid_to_ser_mosaic_header.py -s $ser -f $file -e $database_env
+        """
+}
+
 // ----------------------------------------------------------------------------------------
 // Workflow
 // ----------------------------------------------------------------------------------------

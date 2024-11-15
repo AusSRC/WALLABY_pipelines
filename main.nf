@@ -7,6 +7,7 @@ include { generate_linmos_config as footprint_generate_linmos_config } from './m
 include { generate_linmos_config as ser_generate_linmos_config } from './modules/mosaicking'
 include { run_linmos as footprint_run_linmos } from './modules/mosaicking'
 include { run_linmos as ser_run_linmos } from './modules/mosaicking'
+include { ser_add_sbids_to_fits_header } from './modules/observation_metadata'
 include { source_finding } from './modules/source_finding'
 include { moment0 } from './modules/outputs'
 
@@ -96,6 +97,9 @@ process download_footprint {
     container = params.CASDA_DOWNLOAD_IMAGE
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
+    errorStrategy { sleep(Math.pow(2, task.attempt) * 200 as long); return 'retry' }
+    maxErrors 10
+
     input:
         val footprint_map
         val SER
@@ -160,6 +164,7 @@ workflow wallaby_ser {
         get_footprints(SER, download_containers.out.ready)
 
         load_footprints(get_footprints.out.footprints_file)
+
         // SER can have 1 or more TILES. If more than one then flatten map and process in parallel
         download_footprint(load_footprints.out.footprints_json_map.flatMap(), SER)
 
@@ -185,7 +190,9 @@ workflow wallaby_ser {
                        ser_generate_linmos_config.out.mosaic_files,
                        ser_collect.out.run_mosaic)
 
+        // inject metadata
         ser_run_linmos.out.mosaic_files.view()
+        ser_add_sbids_to_fits_header(SER, ser_run_linmos.out.mosaic_files.flatMap(), "${params.DATABASE_ENV}")
 
         // Pixel extent is 1700 pixels either side of centre for a SER
         source_finding(ser_run_linmos.out.mosaic_files,
@@ -193,7 +200,8 @@ workflow wallaby_ser {
                        "${params.WORKDIR}/regions/${SER}/sofia/",
                        "${params.WORKDIR}/regions/${SER}/sofia/output",
                        "${params.WORKDIR}/regions/${SER}/sofia/sofiax.ini",
-                       "\"1170, 1170\"")
+                       "\"1170, 1170\"",
+                       ser_add_sbids_to_fits_header.out.done.collect())
 
         moment0(source_finding.out.done,
                 SER,
