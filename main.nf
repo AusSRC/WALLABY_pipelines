@@ -31,9 +31,16 @@ process get_footprints {
         import os
         import json
         import pyvo as vo
+        from pyvo.auth import authsession, securitymethods
         from collections import defaultdict
+        from configparser import ConfigParser
 
         foot_map = defaultdict(list)
+
+        parser = ConfigParser()
+        parser.read('${params.TAP_CREDENTIALS}')
+        username = parser['WALLABY']['username']
+        password = parser['WALLABY']['password']
 
         ser = '${SER}'
         if not ser:
@@ -53,8 +60,12 @@ process get_footprints {
                 f"ser.name ='{ser}' "\
                 f"ORDER BY ser.name"\
 
-        service = vo.dal.TAPService('https://wallaby.aussrc.org/tap')
-        rowset = service.run_async(query)
+        URL = 'https://wallaby.aussrc.org/tap'
+        auth = vo.auth.AuthSession()
+        auth.add_security_method_for_url(URL, vo.auth.securitymethods.BASIC)
+        auth.credentials.set_password(username, password)
+        service = vo.dal.TAPService(URL, session=auth)
+        rowset = service.search(query)
         for r in rowset:
             foot_map[r['tile_name']].append(r['sbid'])
 
