@@ -133,8 +133,8 @@ process sofiax {
 }
 
 // Add DSS images to product table
-process get_dss_image {
-    container = params.GET_DSS_IMAGE
+process summary_figure {
+    container = params.PIPELINE_PLOTS
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
@@ -147,7 +147,7 @@ process get_dss_image {
     script:
         """
         #!/bin/bash
-        python3 /app/get_dss_image.py -r $run_name -e ${params.DATABASE_ENV}
+        python3 /app/wallaby_extragalactic_summary.py -r $run_name -e ${params.DATABASE_ENV}
         """
 }
 
@@ -172,16 +172,13 @@ workflow source_finding {
                   product_dir,
                   pixel_extent,
                   ready)
-
         update_sofiax_config(run_name,
                              sofiax_out_file,
                              s2p_setup.out.output_dir)
-
         get_parameter_files(update_sofiax_config.out.output_dir)
-
         sofia(get_parameter_files.out.parameter_files.flatten())
-
         sofiax(sofia.out.parameter_file.collect(), update_sofiax_config.out.output_file)
+        summary_figure(sofiax.out.ready, run_name)
 
     emit:
         done = sofiax.out.ready
