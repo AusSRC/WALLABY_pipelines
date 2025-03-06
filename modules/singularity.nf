@@ -10,7 +10,6 @@ process download_singularity {
     executor = 'local'
     debug true
 
-
     output:
         val true, emit: ready
 
@@ -45,7 +44,6 @@ process download_singularity {
         singularity pull !{params.SINGULARITY_CACHEDIR}/!{params.UPDATE_SOFIAX_CONFIG_IMAGE_NAME}.img docker://!{params.UPDATE_SOFIAX_CONFIG_IMAGE}
         singularity pull !{params.SINGULARITY_CACHEDIR}/!{params.SOFIA_IMAGE_NAME}.img docker://!{params.SOFIA_IMAGE}
         singularity pull !{params.SINGULARITY_CACHEDIR}/!{params.SOFIAX_IMAGE_NAME}.img docker://!{params.SOFIAX_IMAGE}
-        singularity pull !{params.SINGULARITY_CACHEDIR}/!{params.GET_DSS_IMAGE_NAME}.img docker://!{params.GET_DSS_IMAGE}
         singularity pull !{params.SINGULARITY_CACHEDIR}/!{params.WALLMERGE_IMAGE_NAME}.img docker://!{params.WALLMERGE_IMAGE}
         singularity pull !{params.SINGULARITY_CACHEDIR}/!{params.PIPELINE_PLOTS_IMAGE_NAME}.img docker://!{params.PIPELINE_PLOTS_IMAGE}
 
