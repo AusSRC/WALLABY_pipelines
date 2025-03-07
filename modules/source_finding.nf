@@ -87,7 +87,7 @@ process s2p_setup {
             python3 -u /app/s2p_setup.py \
                 --config ${params.S2P_TEMPLATE} \
                 --pixel_extent $pixel_extent \
-                --centre_coord $centre_coord \
+                --centre_coord "$centre_coord" \
                 --image_cube $image_cube \
                 --weights_cube $weights_cube \
                 --run_name $run_name \
