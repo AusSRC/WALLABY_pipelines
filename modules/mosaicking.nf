@@ -95,6 +95,8 @@ process run_linmos {
 
         if [ "\$run" -eq 1 ]; then
             if ! test -f $image_file; then
+                unset SLURM_MEM_PER_CPU
+                unset SLURM_MEM_PER_NODE
                 export OMP_NUM_THREADS=4
                 srun -n 72 singularity exec \
                     --bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} \
