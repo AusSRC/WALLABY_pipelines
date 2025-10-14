@@ -26,12 +26,18 @@ workflow quality_check {
                        "")
         moment0(source_finding_quality_check.out.done,
                 "${RUN_NAME}",
+                "${params.DATABASE_ENV}",
                 "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
                 "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/mom0.fits")
+
         diagnostic_plot(source_finding_quality_check.out.done,
                         "${RUN_NAME}",
                         "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
-                        "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/diagnostics.pdf")
+                        "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/diagnostics.pdf",
+                        "${params.DATABASE_ENV}")
+        cleanup(moment0.out.done, diagnostic_plot.out.done,
+                "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
+                "${RUN_NAME}")
 }
 
 workflow quality_check_no_download {
@@ -50,12 +56,17 @@ workflow quality_check_no_download {
                        "")
         moment0(source_finding_quality_check.out.done,
                 "${RUN_NAME}",
+                "${params.DATABASE_ENV}",
                 "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
                 "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/mom0.fits")
         diagnostic_plot(source_finding_quality_check.out.done,
                         "${RUN_NAME}",
                         "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
-                        "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/diagnostics.pdf")
+                        "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/diagnostics.pdf",
+                        "${params.DATABASE_ENV}")
+        cleanup(moment0.out.done, diagnostic_plot.out.done,
+                "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
+                "${RUN_NAME}")
 }
 
 workflow {

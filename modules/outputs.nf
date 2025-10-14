@@ -117,6 +117,7 @@ workflow moment0 {
     take:
         ready
         run_name
+        database_env
         output_directory
         output_file
 
@@ -124,7 +125,12 @@ workflow moment0 {
         mosaic(ready,
                output_directory,
                output_file)
-        compress(ready, mosaic.out.output_mom_file)
+        database_insert(mosaic.out.output_mom_file,
+                        "mom0",
+                        run_name,
+                        database_env,
+                        mosaic.out.output_mom_file)
+        compress(database_insert.out.ready, mosaic.out.output_mom_file)
 
     emit:
         done = compress.out.ready
@@ -136,12 +142,19 @@ workflow diagnostic_plot {
         run_name
         output_directory
         output_file
+        database_env
 
     main:
         plot_frequency_distribution(ready, run_name, output_directory, output_file)
+        database_insert(
+            plot_frequency_distribution.out.ready,
+            "frequency",
+            run_name,
+            database_env,
+            output_file)
 
     emit:
-        done = plot_frequency_distribution.out.ready
+        done = database_insert.out.ready
 }
 
 // ----------------------------------------------------------------------------------------
