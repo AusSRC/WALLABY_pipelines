@@ -179,8 +179,7 @@ process sofiax {
 
 // Add DSS images to product table
 process summary_figure {
-    container = params.PIPELINE_PLOTS_IMAGE
-    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
+    executor = 'local'
 
     input:
         val ready
@@ -192,7 +191,9 @@ process summary_figure {
     script:
         """
         #!/bin/bash
-        python3 /app/wallaby_extragalactic_summary.py -r $run_name -e ${params.DATABASE_ENV}
+        source /software/projects/ja3/ashen/venv/bin/activate
+        python3 /software/projects/ja3/ashen/pipeline_components/plots/wallaby_extragalactic_summary.py \
+            -r $run_name -e ${params.DATABASE_ENV}
         """
 }
 
