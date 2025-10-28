@@ -3,25 +3,20 @@
 nextflow.enable.dsl = 2
 
 include { download_containers } from './modules/singularity'
-include { casda_download } from './modules/download'
 include { source_finding_quality_check } from './modules/source_finding'
-include { moment0; diagnostic_plot; cleanup } from './modules/outputs'
+include { moment0; diagnostic_plot } from './modules/outputs'
 
-workflow quality_check {
+
+workflow source_finding_run {
     take:
         RUN_NAME
-        SBID
+        IMAGE_CUBE
+        WEIGHTS_CUBE
 
     main:
         download_containers()
-        casda_download(
-            SBID,
-            "${params.WORKDIR}/quality/${RUN_NAME}/",
-            download_containers.out.ready,
-            "${params.CASDA_DOWNLOAD_MANIFEST}"
-        )
         source_finding_quality_check(
-            casda_download.out.mosaic_files,
+            ["${params.IMAGE_CUBE}", "${params.WEIGHTS_CUBE}"],
             "${RUN_NAME}",
             "${params.WORKDIR}/quality/${RUN_NAME}/sofia/",
             "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
@@ -42,15 +37,13 @@ workflow quality_check {
             "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output/diagnostics.pdf",
             "${params.DATABASE_ENV}"
         )
-        cleanup(
-            moment0.out.done,
-            diagnostic_plot.out.done,
-            "${params.WORKDIR}/quality/${RUN_NAME}/sofia/output",
-            "${RUN_NAME}"
-        )
 }
 
 workflow {
     main:
-        quality_check(params.RUN_NAME, params.SBID)
+        source_finding_run(
+                params.RUN_NAME,
+                params.IMAGE_CUBE,
+                params.WEIGHTS_CUBE,
+        )
 }

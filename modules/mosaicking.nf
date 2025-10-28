@@ -74,9 +74,36 @@ process generate_linmos_config {
         """
 }
 
+process ser_collect {
+    input:
+        val all_mosaic_files
+        val SER
+
+    output:
+        val ser_files, emit: ser_files
+        val tile_name, emit: tile_name
+        val run_mosaic, emit: run_mosaic
+
+    exec:
+        def json_str = JsonOutput.toJson(all_mosaic_files)
+        new File("${params.WORKDIR}/regions/${SER}/${SER}_files.json").write(json_str)
+
+        ser_files = "${params.WORKDIR}/regions/${SER}/${SER}_files.json"
+
+        if (all_mosaic_files.size() > 2) {
+            run_mosaic = 1
+            tile_name = SER
+        }
+        else {
+            // There is only a single TILE in the SER, get the TILE name
+            run_mosaic = 0
+            File f = new File(all_mosaic_files[0])
+            def ra_dec = f.getName().split('_')[1]
+            tile_name = "TILE_" + ra_dec
+        }
+}
 
 process run_linmos {
-
     input:
         val linmos_conf
         val linmos_log_conf
