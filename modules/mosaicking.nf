@@ -74,6 +74,7 @@ process generate_linmos_config {
         """
 }
 
+import groovy.json.JsonOutput
 process ser_collect {
     input:
         val all_mosaic_files

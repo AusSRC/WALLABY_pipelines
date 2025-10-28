@@ -123,7 +123,6 @@ process get_footprints {
 }
 
 import groovy.json.JsonSlurper
-import groovy.json.JsonOutput
 process load_footprints {
     executor = 'local'
     container = params.CASDA_DOWNLOAD_IMAGE
@@ -210,6 +209,7 @@ workflow download_ser_footprints {
     emit:
         tile_name = download_footprint.out.tile_name
         tile_files = download_footprint.out.tile_files
+        footprints = load_footprints.out.footprints_json_map
 }
 
 // ----------------------------------------------------------------------------------------
