@@ -60,7 +60,8 @@ workflow milkyway {
             footprint_tile_map.out.tile_files,
             "${RUN_NAME}.${SBID_FOOTPRINT_A}.${SBID_FOOTPRINT_B}.MilkyWay",
             1,
-            "MilkyWay"
+            "MilkyWay",
+            true
         )
         run_linmos(
             generate_linmos_config.out.linmos_conf,

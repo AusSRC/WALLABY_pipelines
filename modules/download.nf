@@ -151,23 +151,24 @@ process download_footprint {
     maxErrors 10
 
     input:
-        val footprint_map
+        val footprints_json_map
         val SER
 
     output:
         val tile_files, emit: tile_files
         val tile_name, emit: tile_name
+        val footprints_json_map, emit: footprints_map
 
     script:
-        tile_files = "${params.WORKDIR}/regions/${SER}/${footprint_map.getKey()}/${footprint_map.getKey()}_files.json"
-        tile_name = "${footprint_map.getKey()}"
+        tile_files = "${params.WORKDIR}/regions/${SER}/${footprints_json_map.getKey()}/${footprints_json_map.getKey()}_files.json"
+        tile_name = "${footprints_json_map.getKey()}"
         """
         #!/bin/bash
 
         python3 -u /app/casda_download.py \
-            -s ${footprint_map.getValue().join(' ')} \
-            -m ${params.WORKDIR}/regions/${SER}/${footprint_map.getKey()}/${footprint_map.getKey()}_files.json \
-            -o ${params.WORKDIR}/regions/${SER}/${footprint_map.getKey()} \
+            -s ${footprints_json_map.getValue().join(' ')} \
+            -m ${params.WORKDIR}/regions/${SER}/${footprints_json_map.getKey()}/${footprints_json_map.getKey()}_files.json \
+            -o ${params.WORKDIR}/regions/${SER}/${footprints_json_map.getKey()} \
             -c ${params.CASDA_CREDENTIALS_CONFIG} \
             -p WALLABY
         """
@@ -209,7 +210,7 @@ workflow download_ser_footprints {
     emit:
         tile_name = download_footprint.out.tile_name
         tile_files = download_footprint.out.tile_files
-        footprints = load_footprints.out.footprints_json_map
+        footprints_map = download_footprint.out.footprints_map
 }
 
 // ----------------------------------------------------------------------------------------

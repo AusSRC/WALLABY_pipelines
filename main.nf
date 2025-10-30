@@ -4,6 +4,7 @@ nextflow.enable.dsl = 2
 
 include { download_containers } from './modules/singularity'
 include { download_ser_footprints } from './modules/download'
+include { apply_flags } from './modules/flagging'
 include { generate_linmos_config as footprint_linmos_config; run_linmos as footprint_linmos} from './modules/mosaicking'
 include { generate_linmos_config as ser_linmos_config; run_linmos as ser_linmos} from './modules/mosaicking'
 include { ser_collect } from './modules/mosaicking'
@@ -19,12 +20,15 @@ workflow wallaby_ser {
     main:
         download_containers()
         download_ser_footprints(SER, download_containers.out.ready)
+        apply_flags(SER, download_ser_footprints.out.footprints_map.flatMap())
 
         // Mosaic observation footprints to produce tiles (parallel if multiple tiles)
         footprint_linmos_config(
             download_ser_footprints.out.tile_files,
             download_ser_footprints.out.tile_name,
-            1, SER
+            1,
+            SER,
+            apply_flags.out.done.collect()
         )
         footprint_linmos(
             footprint_linmos_config.out.linmos_conf,
@@ -39,7 +43,8 @@ workflow wallaby_ser {
             ser_collect.out.ser_files,
             ser_collect.out.tile_name,
             ser_collect.out.run_mosaic,
-            SER
+            SER,
+            true
         )
         ser_linmos(
             ser_linmos_config.out.linmos_conf,

@@ -13,6 +13,7 @@ process generate_linmos_config {
         val tile_name
         val run_mosaic
         val SER
+        val ready
 
     output:
         val linmos_conf, emit: linmos_conf
