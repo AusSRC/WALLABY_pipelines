@@ -20,7 +20,7 @@ workflow wallaby_ser {
     main:
         download_containers()
         download_ser_footprints(SER, download_containers.out.ready)
-        apply_flags(SER, download_ser_footprints.out.footprints_map.flatMap())
+        apply_flags(SER, download_ser_footprints.out.footprints_map)
 
         // Mosaic observation footprints to produce tiles (parallel if multiple tiles)
         footprint_linmos_config(
