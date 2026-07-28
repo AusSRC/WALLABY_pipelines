@@ -23,10 +23,12 @@ process casda {
         val true, emit: ready
 
     script:
+        script_dir = "/software/projects/ja3/ashen/pipeline_components/casda_download"
+
         """
         #!/bin/bash
 
-        python3 -u /app/casda_download.py \
+        python3 -u ${script_dir}/casda_download.py \
             -s $sbid \
             -o $output_dir \
             -c ${params.CASDA_CREDENTIALS_CONFIG} \
@@ -160,12 +162,14 @@ process download_footprint {
         val footprints_json_map, emit: footprints_map
 
     script:
+        script_dir = "/software/projects/ja3/ashen/pipeline_components/casda_download"
         tile_files = "${params.WORKDIR}/regions/${SER}/${footprints_json_map.getKey()}/${footprints_json_map.getKey()}_files.json"
         tile_name = "${footprints_json_map.getKey()}"
+
         """
         #!/bin/bash
 
-        python3 -u /app/casda_download.py \
+        python3 -u ${script_dir}/casda_download.py \
             -s ${footprints_json_map.getValue().join(' ')} \
             -m ${params.WORKDIR}/regions/${SER}/${footprints_json_map.getKey()}/${footprints_json_map.getKey()}_files.json \
             -o ${params.WORKDIR}/regions/${SER}/${footprints_json_map.getKey()} \
