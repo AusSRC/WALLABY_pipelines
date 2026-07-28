@@ -8,7 +8,7 @@ nextflow.enable.dsl = 2
 
 process casda {
     container = params.CASDA_DOWNLOAD_IMAGE
-    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
+    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} --bind /home:/home"
 
     errorStrategy { sleep(Math.pow(2, task.attempt) * 200 as long); return 'retry' }
     maxErrors 10
@@ -59,7 +59,7 @@ process get_image_and_weights_cube_files {
 process get_footprints {
     executor = 'local'
     container = params.CASDA_DOWNLOAD_IMAGE
-    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
+    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} --bind /home:/home"
 
     input:
         val SER
@@ -147,7 +147,7 @@ process load_footprints {
 import groovy.json.JsonSlurper
 process download_footprint {
     container = params.CASDA_DOWNLOAD_IMAGE
-    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
+    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} --bind /home:/home"
 
     errorStrategy { sleep(Math.pow(2, task.attempt) * 200 as long); return 'retry' }
     maxErrors 10
