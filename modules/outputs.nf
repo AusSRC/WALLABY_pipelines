@@ -48,6 +48,7 @@ process compress {
 process plot_frequency_distribution {
     container = params.PIPELINE_PLOTS_IMAGE
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
+    clusterOptions = "--mem=32G --time=1:00:00 --account=ja3"
 
     input:
         val ready
