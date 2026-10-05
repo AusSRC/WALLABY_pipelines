@@ -12,7 +12,7 @@ process apply_flags {
         val footprint_map
 
     output:
-        val true, emit: done
+        val "${footprint_map.getKey()}", emit: tile
 
     script:
         def tile = footprint_map.getKey()
