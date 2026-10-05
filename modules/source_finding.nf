@@ -204,6 +204,7 @@ process summary_figure {
 workflow source_finding {
     take:
         mosaic_file
+        ser
         run_name
         output_dir
         product_dir
@@ -212,7 +213,7 @@ workflow source_finding {
         ready
 
     main:
-        ser_centre(run_name, ready)
+        ser_centre(ser, ready)
         s2p_setup(mosaic_file,
                   run_name,
                   output_dir,

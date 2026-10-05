@@ -124,11 +124,9 @@ process run_linmos {
 
         if [ "\$run" -eq 1 ]; then
             if ! test -f $image_file; then
-                unset SLURM_MEM_PER_CPU
-                unset SLURM_MEM_PER_NODE
-                export OMP_NUM_THREADS=4
-                srun -n 72 singularity exec \
-                    --bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} \
+                export OMP_NUM_THREADS=1
+                srun -N $SLURM_NNODES -n $SLURM_NTASKS -c $SLURM_CPUS_PER_TASK \
+                    singularity exec --bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} \
                     ${params.SINGULARITY_CACHEDIR}/${params.LINMOS_IMAGE_NAME}.img \
                     linmos-mpi -c $linmos_conf -l $linmos_log_conf
             fi

@@ -13,11 +13,16 @@ include { source_finding } from './modules/source_finding'
 include { moment0 } from './modules/outputs'
 
 
-workflow wallaby_ser {
-    take:
-        SER
-
+// Run the WALLABY mosaick and source finding pipeline
+//      --SER       Source extraction region
+//      --RUN_NAME  Name of the run (optional, defaults to SER)
+workflow {
     main:
+        // Check in un name is explicitly provided, otherwise use the SER name
+        if (!RUN_NAME) {
+            RUN_NAME = SER
+        }
+
         download_containers()
         download_ser_footprints(SER, download_containers.out.ready)
         apply_flags(SER, download_ser_footprints.out.footprints_map)
@@ -61,9 +66,10 @@ workflow wallaby_ser {
         source_finding(
             ser_linmos.out.mosaic_files,
             SER,
-            "${params.WORKDIR}/regions/${SER}/sofia/",
-            "${params.WORKDIR}/regions/${SER}/sofia/output",
-            "${params.WORKDIR}/regions/${SER}/sofia/sofiax.ini",
+            RUN_NAME,
+            "${params.WORKDIR}/regions/${RUN_NAME}/sofia/",
+            "${params.WORKDIR}/regions/${RUN_NAME}/sofia/output",
+            "${params.WORKDIR}/regions/${RUN_NAME}/sofia/sofiax.ini",
             "\"1170, 1170\"",
             ser_add_sbids_to_fits_header.out.done.collect()
         )
@@ -71,14 +77,9 @@ workflow wallaby_ser {
         // Generate moment 0 map
         moment0(
             source_finding.out.done,
-            SER,
+            RUN_NAME,
             "${params.DATABASE_ENV}",
-            "${params.WORKDIR}/regions/${SER}/sofia/output",
-            "${params.WORKDIR}/regions/${SER}/sofia/output/mom0.fits"
+            "${params.WORKDIR}/regions/${RUN_NAME}/sofia/output",
+            "${params.WORKDIR}/regions/${RUN_NAME}/sofia/output/mom0.fits"
         )
-}
-
-workflow {
-    main:
-        wallaby_ser(params.SER)
 }
