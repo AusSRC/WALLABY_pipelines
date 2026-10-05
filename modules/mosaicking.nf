@@ -5,7 +5,7 @@ nextflow.enable.dsl = 2
 process generate_linmos_config {
     debug true
     executor = 'local'
-    container = params.CASDA_DOWNLOAD_IMAGE
+    container = params.AUSSRC_PIPELINE_COMPONENTS_IMAGE
     containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
@@ -56,7 +56,7 @@ process generate_linmos_config {
                 "AusSRC WALLABY pipeline END"
             ]
 
-            j2_env = Environment(loader=FileSystemLoader('$baseDir/templates'), trim_blocks=True)
+            j2_env = Environment(loader=FileSystemLoader('$baseDir/pipeline_components/nextflow/templates'), trim_blocks=True)
             result = j2_env.get_template('linmos.j2').render(images=images, weights=weights, \
             image_out=image_out, weight_out=weight_out, image_history=image_history,)
 
@@ -125,7 +125,7 @@ process run_linmos {
         if [ "\$run" -eq 1 ]; then
             if ! test -f $image_file; then
                 export OMP_NUM_THREADS=1
-                srun -N $SLURM_NNODES -n $SLURM_NTASKS -c $SLURM_CPUS_PER_TASK \
+                srun -N \$SLURM_NNODES -n \$SLURM_NTASKS -c \$SLURM_CPUS_PER_TASK \
                     singularity exec --bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} \
                     ${params.SINGULARITY_CACHEDIR}/${params.LINMOS_IMAGE_NAME}.img \
                     linmos-mpi -c $linmos_conf -l $linmos_log_conf
