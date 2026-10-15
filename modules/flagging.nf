@@ -22,11 +22,11 @@ process apply_flags {
 
         import os
         import glob
-        import pyvo as vo
+        import asyncio
+        import asyncpg
         import numpy as np
         from astropy.io import fits
-        from pyvo.auth import authsession, securitymethods
-        from configparser import ConfigParser
+        from dotenv import dotenv_values
 
         def parse_region_str(region_str):
             region_list = region_str.split(';')
@@ -51,26 +51,36 @@ process apply_flags {
                     header.set('HISTORY', 'Flagged region: (%i,%i,%i,%i,%i,%i) set NaN values in data' % (x1, x2, y1, y2, z1, z2))
                 hdul.flush()
 
-        parser = ConfigParser()
-        parser.read('${params.TAP_CREDENTIALS}')
-        username = parser['WALLABY']['username']
-        password = parser['WALLABY']['password']
+        # Flag regions for each sbid from the observation table in the WALLABY database
+        def get_flags(sbids):
+            env = dotenv_values('${params.DATABASE_ENV}')
+
+            async def query():
+                conn = await asyncpg.connect(
+                    host=env['DATABASE_HOST'],
+                    database=env['DATABASE_NAME'],
+                    user=env['DATABASE_USER'],
+                    password=env['DATABASE_PASSWORD'],
+                    port=env.get('DATABASE_PORT', '5432'),
+                )
+                rows = await conn.fetch(
+                    'SELECT sbid, flags FROM wallaby.observation WHERE sbid = ANY(\$1::text[])', sbids
+                )
+                await conn.close()
+                return {r['sbid']: r['flags'] for r in rows}
+
+            flags = asyncio.run(query())
+            missing = set(sbids) - set(flags)
+            if missing:
+                raise Exception(f'Observations not found in the database: {missing}')
+            return flags
 
         tile = "$tile"
         sbids = ["$sbid_A", "$sbid_B"]
         workdir = f"${params.WORKDIR}/regions/$SER/{tile}"
 
-        URL = 'https://wallaby.aussrc.org/tap'
-        auth = vo.auth.AuthSession()
-        auth.add_security_method_for_url(URL, vo.auth.securitymethods.BASIC)
-        auth.credentials.set_password(username, password)
-        service = vo.dal.TAPService(URL, session=auth)
-
-        for sbid in sbids:
-            query = f"SELECT * FROM wallaby.observation WHERE sbid='{sbid}'"
-            result = service.search(query, maxrec=1)
-            flag = result[0]['flags']
-            if not flag or flag == '':
+        for sbid, flag in get_flags(sbids).items():
+            if not flag:
                 print('No flagging required for sbid %s' % sbid)
                 continue
             files = glob.glob(os.path.join(workdir, f'image*{sbid.strip("ASKAP-")}*.fits'))
