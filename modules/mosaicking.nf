@@ -2,134 +2,63 @@
 
 nextflow.enable.dsl = 2
 
-process generate_linmos_config {
-    debug true
-    executor = 'local'
-    container = params.CASDA_DOWNLOAD_IMAGE
-    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
+// ----------------------------------------------------------------------------------------
+// WALLABY mosaicking
+//
+// Functions that describe the two WALLABY mosaics as jobs for the linmos module in
+// pipeline_components (nextflow/modules/linmos.nf)
+//
+//      tile_job    Mosaic the footprints of a tile (observations A and B)
+//      ser_job     Mosaic the tiles of a source extraction region (SER)
+// ----------------------------------------------------------------------------------------
 
-    input:
-        val tile_files
-        val tile_name
-        val run_mosaic
-        val SER
-        val ready
+import groovy.json.JsonSlurper
 
-    output:
-        val linmos_conf, emit: linmos_conf
-        val linmos_log_conf, emit: linmos_log_conf
-        val mosaic_files, emit: mosaic_files
-
-    script:
-        linmos_conf = "${params.WORKDIR}/regions/${SER}/${tile_name}/linmos.conf"
-        linmos_log_conf = "${params.WORKDIR}/regions/${SER}/${tile_name}/linmos.log_cfg"
-        mosaic_files = ["${params.WORKDIR}/regions/${SER}/${tile_name}/${tile_name}_image.fits",
-                        "${params.WORKDIR}/regions/${SER}/${tile_name}/${tile_name}_weights.fits"]
-        """
-        #!python3
-
-        import os
-        import json
-        from jinja2 import Environment, FileSystemLoader
-        from pathlib import Path
-
-        generate_file = ${run_mosaic}
-
-        if generate_file == 1:
-            with open('${tile_files}') as o:
-                data = json.loads(o.read())
-
-            images = [Path(image).with_suffix('') for image in data if 'image.' in image]
-            weights = [Path(weight).with_suffix('') for weight in data if 'weights.' in weight]
-            images.sort()
-            weights.sort()
-            image_out = Path('${params.WORKDIR}/regions/${SER}/${tile_name}/${tile_name}_image')
-            weight_out = Path('${params.WORKDIR}/regions/${SER}/${tile_name}/${tile_name}_weights')
-            log = Path('${params.WORKDIR}/regions/${SER}/${tile_name}/linmos.log')
-
-            image_history = [
-                "AusSRC WALLABY pipeline START",
-                "${workflow.repository} - ${workflow.revision} [${workflow.commitId}]",
-                "${workflow.commandLine}",
-                "${workflow.start}",
-                "Austin Shen (austin.shen@csiro.au)",
-                "AusSRC WALLABY pipeline END"
-            ]
-
-            j2_env = Environment(loader=FileSystemLoader('$baseDir/templates'), trim_blocks=True)
-            result = j2_env.get_template('linmos.j2').render(images=images, weights=weights, \
-            image_out=image_out, weight_out=weight_out, image_history=image_history,)
-
-            try:
-                os.makedirs('${params.WORKDIR}/regions/${SER}/${tile_name}')
-            except:
-                pass
-
-            with open('${params.WORKDIR}/regions/${SER}/${tile_name}/linmos.conf', 'w') as f:
-                print(result, file=f)
-
-            result = j2_env.get_template('log_template.j2').render(log=log)
-
-            with open('${params.WORKDIR}/regions/${SER}/${tile_name}/linmos.log_cfg', 'w') as f:
-                print(result, file=f)
-        """
+// Lines written to the history of the mosaic image header
+def linmos_history() {
+    return [
+        "AusSRC WALLABY pipeline START",
+        "${workflow.repository} - ${workflow.revision} [${workflow.commitId}]",
+        "${workflow.commandLine}",
+        "${workflow.start}",
+        "Austin Shen (austin.shen@csiro.au)",
+        "AusSRC WALLABY pipeline END"
+    ]
 }
 
-import groovy.json.JsonOutput
-process ser_collect {
-    input:
-        val all_mosaic_files
-        val SER
+// Mosaic the footprints of a tile. The footprint image and weights cubes are listed in the
+// download manifest of the tile. Output files
+//      <WORKDIR>/regions/<SER>/<tile>/<tile>_image.fits
+//      <WORKDIR>/regions/<SER>/<tile>/<tile>_weights.fits
+def tile_job(ser, tile) {
+    def tile_dir = "${params.WORKDIR}/regions/${ser}/${tile}"
+    def files = new JsonSlurper().parseText(new File("${tile_dir}/${tile}_files.json").text)
 
-    output:
-        val ser_files, emit: ser_files
-        val tile_name, emit: tile_name
-        val run_mosaic, emit: run_mosaic
-
-    exec:
-        def json_str = JsonOutput.toJson(all_mosaic_files)
-        new File("${params.WORKDIR}/regions/${SER}/${SER}_files.json").write(json_str)
-
-        ser_files = "${params.WORKDIR}/regions/${SER}/${SER}_files.json"
-
-        if (all_mosaic_files.size() > 2) {
-            run_mosaic = 1
-            tile_name = SER
-        }
-        else {
-            // There is only a single TILE in the SER, get the TILE name
-            run_mosaic = 0
-            File f = new File(all_mosaic_files[0])
-            def ra_dec = f.getName().split('_')[1]
-            tile_name = "TILE_" + ra_dec
-        }
+    return [
+        name: tile,
+        images: files.findAll { new File("$it").getName().startsWith('image.') }.sort(),
+        weights: files.findAll { new File("$it").getName().startsWith('weights.') }.sort(),
+        image_out: "${tile_dir}/${tile}_image",
+        weights_out: "${tile_dir}/${tile}_weights",
+        config: "${tile_dir}/linmos.conf",
+        history: linmos_history()
+    ]
 }
 
-process run_linmos {
-    input:
-        val linmos_conf
-        val linmos_log_conf
-        val mosaic_files
-        val run_linmos
+// Mosaic the tiles of a SER. The tiles are the outputs of the tile mosaics, a list with
+// [image cube, weights cube] for each tile. Output files
+//      <WORKDIR>/regions/<SER>/<SER>/<SER>_image.fits
+//      <WORKDIR>/regions/<SER>/<SER>/<SER>_weights.fits
+def ser_job(ser, tiles) {
+    def ser_dir = "${params.WORKDIR}/regions/${ser}/${ser}"
 
-    output:
-        val mosaic_files, emit: mosaic_files
-
-    script:
-        def image_file = mosaic_files[0]
-        """
-        #!/bin/bash
-
-        run=${run_linmos}
-
-        if [ "\$run" -eq 1 ]; then
-            if ! test -f $image_file; then
-                export OMP_NUM_THREADS=1
-                srun -N $SLURM_NNODES -n $SLURM_NTASKS -c $SLURM_CPUS_PER_TASK \
-                    singularity exec --bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} \
-                    ${params.SINGULARITY_CACHEDIR}/${params.LINMOS_IMAGE_NAME}.img \
-                    linmos-mpi -c $linmos_conf -l $linmos_log_conf
-            fi
-        fi
-        """
+    return [
+        name: ser,
+        images: tiles.collect { image, weights -> image }.sort(),
+        weights: tiles.collect { image, weights -> weights }.sort(),
+        image_out: "${ser_dir}/${ser}_image",
+        weights_out: "${ser_dir}/${ser}_weights",
+        config: "${ser_dir}/linmos.conf",
+        history: linmos_history()
+    ]
 }

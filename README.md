@@ -2,6 +2,20 @@
 
 Data post-processing pipelines for the [WALLABY Survey](https://www.atnf.csiro.au/research/WALLABY/) developed by the [AusSRC](https://aussrc.org).
 
+# Setup
+
+Shared nextflow modules, config and container images come from the [pipeline_components](https://github.com/AusSRC/pipeline_components) repository, which is included as a git submodule. Clone with
+
+```
+git clone --recurse-submodules git@github.com:AusSRC/WALLABY_pipelines.git
+```
+
+or, in an existing clone
+
+```
+git submodule update --init
+```
+
 # Pipelines
 
 * Quality Check Pipeline

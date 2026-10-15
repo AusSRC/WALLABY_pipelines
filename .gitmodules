@@ -1,0 +1,4 @@
+[submodule "pipeline_components"]
+	path = pipeline_components
+	url = git@github.com:AusSRC/pipeline_components.git
+	branch = common_components

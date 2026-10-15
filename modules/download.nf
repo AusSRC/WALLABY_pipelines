@@ -2,64 +2,63 @@
 
 nextflow.enable.dsl = 2
 
+include { download } from '../pipeline_components/nextflow/modules/casda'
+
+// CASDA TAP query for the WALLABY image and weights cubes of a list of SBIDs
+def wallaby_query(sbids) {
+    def ids = sbids.collect { "'${it}'" }.join(',')
+    return "SELECT * FROM ivoa.obscore WHERE obs_id IN (${ids}) AND " +
+           "dataproduct_type='cube' AND (" +
+           "filename LIKE 'weights.i.%.cube.fits' OR " +
+           "filename LIKE 'image.restored.i.%.cube.contsub.fits')"
+}
+
 // ----------------------------------------------------------------------------------------
 // Processes
 // ----------------------------------------------------------------------------------------
 
-process casda {
-    container = params.CASDA_DOWNLOAD_IMAGE
-    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} --bind /home:/home"
-
-    errorStrategy { sleep(Math.pow(2, task.attempt) * 200 as long); return 'retry' }
-    maxErrors 10
-
-    input:
-        val sbid
-        val output_dir
-        val ready
-        val project
-
-    output:
-        val true, emit: ready
-
-    script:
-        script_dir = "/software/projects/ja3/ashen/pipeline_components/casda_download"
-
-        """
-        #!/bin/bash
-
-        python3 -u ${script_dir}/casda_download.py \
-            -s $sbid \
-            -o $output_dir \
-            -c ${params.CASDA_CREDENTIALS_CONFIG} \
-            -p $project \
-            -t 10800
-        """
-}
-
-// Get file from output directory
-process get_image_and_weights_cube_files {
+// Get the footprint [image cube, weights cube] from the download manifest
+import groovy.json.JsonSlurper
+process parse_manifest {
     executor = 'local'
 
     input:
-        val sbid
-        val output_dir
-        val ready
+        val manifest
 
     output:
-        val mosaic_files, emit: mosaic_files
+        val footprint, emit: footprint
 
     exec:
-        def sbid_text = "${sbid}"
-        def sb_num = sbid_text.minus("ASKAP-")
-        mosaic_files = [file("${output_dir}/image*" + sb_num + "*cube*.fits")[0], file("${output_dir}/weight*" + sb_num + "*cube*.fits")[0]]
+        def image = null
+        def weight = null
+
+        def files = new JsonSlurper().parseText(new File("$manifest").text)
+        files.each {
+            def filename = new File("$it").getName()
+            if (filename.matches('image\\.restored\\.i\\..*\\.cube\\.contsub\\.fits')) {
+                image = it
+            }
+            else if (filename.matches('weights\\.i\\..*\\.cube\\.fits')) {
+                weight = it
+            }
+        }
+
+        if (image == null) {
+            throw new Exception("image cube file is not found")
+        }
+
+        if (weight == null) {
+            throw new Exception("weights cube file is not found")
+        }
+
+        footprint = [image, weight]
 }
 
 // Get footprints for a given SER
 process get_footprints {
     executor = 'local'
-    container = params.CASDA_DOWNLOAD_IMAGE
-    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} --bind /home:/home"
+    container = params.AUSSRC_PIPELINE_COMPONENTS_IMAGE
+    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} --bind \$HOME:\$HOME"
 
     input:
         val SER
@@ -124,11 +123,8 @@ process get_footprints {
         """
 }
 
-import groovy.json.JsonSlurper
 process load_footprints {
     executor = 'local'
-    container = params.CASDA_DOWNLOAD_IMAGE
-    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT}"
 
     input:
         val footprints_file
@@ -143,64 +139,31 @@ process load_footprints {
         footprints_json = jsonSlurper.parseText(footprints_text)
 }
 
-
-import groovy.json.JsonSlurper
-process download_footprint {
-    container = params.CASDA_DOWNLOAD_IMAGE
-    containerOptions = "--bind ${params.SCRATCH_ROOT}:${params.SCRATCH_ROOT} --bind /home:/home"
-
-    errorStrategy { sleep(Math.pow(2, task.attempt) * 200 as long); return 'retry' }
-    maxErrors 10
-
-    input:
-        val footprints_json_map
-        val SER
-
-    output:
-        val tile_files, emit: tile_files
-        val tile_name, emit: tile_name
-        val footprints_json_map, emit: footprints_map
-
-    script:
-        script_dir = "/software/projects/ja3/ashen/pipeline_components/casda_download"
-        tile_files = "${params.WORKDIR}/regions/${SER}/${footprints_json_map.getKey()}/${footprints_json_map.getKey()}_files.json"
-        tile_name = "${footprints_json_map.getKey()}"
-
-        """
-        #!/bin/bash
-
-        python3 -u ${script_dir}/casda_download.py \
-            -s ${footprints_json_map.getValue().join(' ')} \
-            -m ${params.WORKDIR}/regions/${SER}/${footprints_json_map.getKey()}/${footprints_json_map.getKey()}_files.json \
-            -o ${params.WORKDIR}/regions/${SER}/${footprints_json_map.getKey()} \
-            -c ${params.CASDA_CREDENTIALS_CONFIG} \
-            -p WALLABY
-        """
-}
-
 // ----------------------------------------------------------------------------------------
 // Workflow
 // ----------------------------------------------------------------------------------------
 
 // Download image and weights cube pair for a given SBID
-// This download workflow can be used across multiple ASKAP projects
 workflow casda_download {
     take:
         sbid
         output_dir
         ready
-        project
 
     main:
-        casda(sbid, output_dir, ready, project)
-        get_image_and_weights_cube_files(sbid, output_dir, casda.out.ready)
+        download(
+            ready.map { wallaby_query([sbid]) },
+            output_dir,
+            "${output_dir}/manifest.json"
+        )
+        parse_manifest(download.out.manifest)
 
     emit:
-        mosaic_files = get_image_and_weights_cube_files.out.mosaic_files
+        footprint = parse_manifest.out.footprint
 }
 
-// Download image and weights cubes for all SBIDs that contribute to a given SER
-// This is a WALLABY specific workflow.
+// Download image and weights cubes for all SBIDs that contribute to a given SER. The cubes
+// for each tile (pair of footprints) are downloaded to <WORKDIR>/regions/<SER>/<tile>
 workflow download_ser_footprints {
     take:
         SER
@@ -209,12 +172,29 @@ workflow download_ser_footprints {
     main:
         get_footprints(SER, ready)
         load_footprints(get_footprints.out.footprints_file)
-        download_footprint(load_footprints.out.footprints_json_map.flatMap(), SER)
+
+        // One download for each tile: [tile name, [sbids]]
+        load_footprints.out.footprints_json_map
+            .flatMap()
+            .multiMap { footprint ->
+                def tile_dir = "${params.WORKDIR}/regions/${SER}/${footprint.getKey()}"
+                query: wallaby_query(footprint.getValue())
+                output_dir: tile_dir
+                manifest: "${tile_dir}/${footprint.getKey()}_files.json"
+            }
+            .set { tiles }
+        download(tiles.query, tiles.output_dir, tiles.manifest)
+
+        // Downloads complete in any order, so the tile is identified from the manifest
+        tile_name = download.out.manifest.map { new File("$it").getParentFile().getName() }
+        footprints_map = tile_name
+            .combine(load_footprints.out.footprints_json_map)
+            .map { tile, footprints -> footprints.find { it.getKey() == tile } }
 
     emit:
-        tile_name = download_footprint.out.tile_name
-        tile_files = download_footprint.out.tile_files
-        footprints_map = download_footprint.out.footprints_map
+        tile_name = tile_name
+        tile_files = download.out.manifest
+        footprints_map = footprints_map
 }
 
 // ----------------------------------------------------------------------------------------
